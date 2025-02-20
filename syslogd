@@ -1,0 +1,42 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use IO::Socket::INET;
+
+# Define UDP port for syslog
+my $port = 514;
+
+# Create UDP socket
+my $socket = IO::Socket::INET->new(
+    LocalPort => $port,
+    Proto     => 'udp'
+) or die "Could not create socket: $!\n";
+
+print "Syslog server listening on UDP port $port...\n";
+
+while (1) {
+    my $message;
+    my $remote_address = $socket->recv($message, 1024);
+
+    if ($remote_address) {
+        my ($port, $ip) = unpack_sockaddr_in($remote_address);
+        my $remote_ip = inet_ntoa($ip);
+        
+        # Extract PRI field
+        if ($message =~ /^<(\d+)>(.*)/) {
+            my $pri = $1;
+            my $log_message = $2;
+
+            my $facility = int($pri / 8);
+            my $severity = $pri % 8;
+
+            print "[$remote_ip] Facility: $facility, Severity: $severity, Message: $log_message\n";
+        } else {
+            print "[$remote_ip] Invalid syslog message: $message\n";
+        }
+    }
+}
+
+# Close socket (unreachable in an infinite loop)
+$socket->close();
+
