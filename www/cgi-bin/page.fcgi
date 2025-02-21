@@ -640,8 +640,6 @@ sub choose
 	# Print available pages unless it's a HEAD request
 	unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
 		print "/cgi-bin/page.fcgi?page=index\n",
-			"/cgi-bin/page.fcgi?page=upload\n",
-			"/cgi-bin/page.fcgi?page=editor\n",
 			"/cgi-bin/page.fcgi?page=meta_data\n";
 	}
 }
