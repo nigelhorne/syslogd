@@ -2,15 +2,19 @@
 use strict;
 use warnings;
 use IO::Socket::INET;
+use Getopt::Long;
 
 # Define UDP port for syslog
 my $port = 514;
 my $logfile = '/tmp/log.log';
 
+# Get command-line options
+GetOptions("port=i" => \$port, "file=s" => \$logfile) or die "Usage: $0 [--port <port_number>] [--file <CSV file>]\n";
+
 # Create UDP socket
 my $socket = IO::Socket::INET->new(
 	LocalPort => $port,
-	Proto	 => 'udp'
+	Proto => 'udp'
 ) or die "Could not create socket: $!\n";
 
 print "Syslog server listening on UDP port $port...\n";
