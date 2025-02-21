@@ -98,7 +98,6 @@ Log::WarnDie->dispatcher($logger);
 # use VWF::Display::editor;
 # use VWF::Display::meta_data;
 
-use VWF::Data::index;
 use VWF::Data::log_log;
 use VWF::Data::vwf_log;
 
@@ -110,16 +109,15 @@ Database::Abstraction::init({
 	logger => $logger
 });
 
-my $index = VWF::Data::index->new();
+# FIXME - support $config->vwflog();
+my $vwf_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'vwf.log', no_entry => 1 });
+my $log_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'log.log', no_entry => 1 });
+
 if($@) {
 	$logger->error($@);
 	Log::WarnDie->dispatcher(undef);
 	die $@;
 }
-
-# FIXME - support $config->vwflog();
-my $vwf_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'vwf.log', no_entry => 1 });
-my $log_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'log.log', no_entry => 1 });
 
 # http://www.fastcgi.com/docs/faq.html#PerlSignals
 my $requestcount = 0;
@@ -187,8 +185,8 @@ while($handling_request = ($request->Accept() >= 0)) {
 		$logger = Log::Any->get_logger(category => $script_name);
 		Log::WarnDie->dispatcher($logger);
 		Database::Abstraction::init({ logger => $logger });
-		$index->set_logger($logger);
 		$info->set_logger($logger);
+		$log_log->set_logger($logger);
 		$vwf_log->set_logger($logger);
 		# $Config::Auto::Debug = 1;
 
@@ -208,8 +206,9 @@ while($handling_request = ($request->Accept() >= 0)) {
 	Log::Any::Adapter->set( { category => $script_name }, 'Log4perl');
 	$logger = Log::Any->get_logger(category => $script_name);
 	$logger->info("Request $requestcount: ", $ENV{'REMOTE_ADDR'});
-	$index->set_logger($logger);
 	$info->set_logger($logger);
+	$log_log->set_logger($logger);
+	$vwf_log->set_logger($logger);
 
 	my $start = [Time::HiRes::gettimeofday()];
 
@@ -508,7 +507,7 @@ sub doit
 			cachedir => $cachedir,
 			databasedir => $database_dir,
 			database_dir => $database_dir,
-			index => $index,
+			log_log => $log_log,
 			vwf_log => $vwf_log,
 		});
 		if($vwflog && open(my $fout, '>>', $vwflog)) {
