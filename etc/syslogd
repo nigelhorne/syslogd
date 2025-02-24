@@ -50,10 +50,10 @@ while (1) {
 		} else {
 			my $first_byte = ord(substr($message, 0, 1));
 			if($first_byte == 0) {
+				# I don't understand what's going on here
+				$message = substr($message, 1);
 				print $fout "$message\n";
 			} else {
-				$message = "<$first_byte>" . substr($message, 1);
-
 				print $fout "\"$remote_ip\",\"\",\"\",\"Invalid syslog message: $message\"\n";
 			}
 		}
