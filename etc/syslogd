@@ -52,8 +52,8 @@ while (1) {
 			my $first_byte = ord(substr($message, 0, 1));
 			if($first_byte == 0) {
 				# I don't understand what's going on here
-				print $fout (unpack 'H*', $message), "\n";
-				print $fout (sprintf '%v02X', $message), "\n";
+				print $fout 'Invalid message', (unpack 'H*', $message), "\n";
+				print $fout "\t" ,(sprintf '%v02X', $message), "\n";
 				# $message = substr($message, 1);
 				# print $fout "$message\n";
 			} else {
