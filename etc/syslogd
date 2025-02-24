@@ -38,6 +38,7 @@ while (1) {
 		my ($port, $ip) = unpack_sockaddr_in($remote_address);
 		my $remote_ip = inet_ntoa($ip);
 		chomp $message;
+		next if(length($message) <= 1);
 		
 		# Extract PRI field
 		if($message =~ /^<(\d+)>(.*)/) {
