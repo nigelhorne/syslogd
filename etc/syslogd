@@ -50,15 +50,7 @@ while (1) {
 
 			print $fout "\"$remote_ip\",\"$facility\",\"$severity\",\"$log_message\"\n";
 		} else {
-			my $first_byte = ord(substr($message, 0, 1));
-			if($first_byte == 0) {
-				# I don't understand what's going on here
-				print $fout 'Invalid message: >>', (sprintf '%v02X', $message), "<<\n";
-				# $message = substr($message, 1);
-				# print $fout "$message\n";
-			} else {
-				print $fout "\"$remote_ip\",\"\",\"\",\"Invalid syslog message: $message\"\n";
-			}
+			print $fout 'Invalid message: >>', (sprintf '%v02X', $message), "<<\n";
 		}
 	}
 	$fout->flush();
