@@ -1,6 +1,6 @@
-package VWF::Data::log_log;
+package VWF::Data::syslog_log;
 
-# Open /tmp/log.log as a database
+# Open /tmp/syslog.log as a database
 # Standard CSV file
 
 use strict;

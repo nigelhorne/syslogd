@@ -48,10 +48,10 @@ sub html {
 	delete $params->{'gclid'};
 
 	# Database handle
-	my $log_log = $args{'log_log'};
-	die "Missing 'log_log' handle" unless($log_log);
+	my $syslog_log = $args{'syslog_log'};
+	die "Missing 'syslog_log' handle" unless($syslog_log);
 
-	return $self->SUPER::html(updated => $log_log->updated());
+	return $self->SUPER::html(updated => $syslog_log->updated());
 }
 
 1;
