@@ -36,10 +36,9 @@ while (1) {
 	my $message;
 	my $remote_address = $socket->recv($message, 1024);
 
-	if ($remote_address) {
+	if($remote_address) {
 		my ($port, $ip) = unpack_sockaddr_in($remote_address);
-		# my $remote_ip = inet_ntoa($ip);
-		my $hostname = get_hostname_from_ip($ip);
+
 		chomp $message;
 		next if(length($message) <= 1);
 		
@@ -50,6 +49,8 @@ while (1) {
 
 			my $facility = int($pri / 8);
 			my $severity = $pri % 8;
+
+			my $hostname = get_hostname_from_ip($ip) || inet_ntoa($ip);
 
 			print $fout "\"$hostname\",$facility,$severity,\"$log_message\"\n";
 		} else {
@@ -64,17 +65,28 @@ $socket->close();
 
 sub get_hostname_from_ip
 {
-	my $ip_address = shift;
+	my $packed_ip = shift;
 
-	# Convert the IP address to a packed binary format
-	my $packed_ip = inet_aton($ip_address);
+	# Convert the IP address to an unpacked binary format
+	my $ip_address = inet_ntoa($packed_ip);
 
-	# If conversion fails, return undefined
+	# First, check /etc/hosts for a match
+	open(my $hosts_file, '<', '/etc/hosts') or warn "Could not open /etc/hosts: $!";
+	while (my $line = <$hosts_file>) {
+		next if($line =~ /^\s*#/);	# Skip comments
+		if($line =~ /\b$ip_address\b\s+(\S+)/) {
+			close $hosts_file;
+			return $1;	# Return hostname from /etc/hosts
+		}
+	}
+	close $hosts_file;
+
+	# If conversion fails, return undef
 	return undef unless($packed_ip);
 
 	# Perform reverse DNS lookup
 	my $hostname = gethostbyaddr($packed_ip, AF_INET);
 
-	# Return the hostname or undefined if lookup fails
-	return $hostname || undef;
+	# Return the hostname or undef if lookup fails
+	return $hostname || undef
 }
