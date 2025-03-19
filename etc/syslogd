@@ -2,8 +2,9 @@
 
 use strict;
 use warnings;
-use IO::Socket::INET;
 use Getopt::Long;
+use IO::Socket::INET;
+use Socket;	# Import for networking functions
 
 # Defaults
 my $port = 514;
@@ -23,8 +24,8 @@ print "Syslog server listening on UDP port $port...\n";
 if(!-r $logfile) {
 	# First run - put in the heading row
 	open(my $log, '>', $logfile);
-	chmod 0600 $log;
-	print $log '"IP","facility","severity","msg"',
+	chmod 0600, $log;
+	print $log '"Host","facility","severity","msg"',
 		"\n";
 	close $log;
 }
@@ -37,7 +38,8 @@ while (1) {
 
 	if ($remote_address) {
 		my ($port, $ip) = unpack_sockaddr_in($remote_address);
-		my $remote_ip = inet_ntoa($ip);
+		# my $remote_ip = inet_ntoa($ip);
+		my $hostname = get_hostname_from_ip($ip);
 		chomp $message;
 		next if(length($message) <= 1);
 		
@@ -49,7 +51,7 @@ while (1) {
 			my $facility = int($pri / 8);
 			my $severity = $pri % 8;
 
-			print $fout "\"$remote_ip\",\"$facility\",\"$severity\",\"$log_message\"\n";
+			print $fout "\"$hostname\",$facility,$severity,\"$log_message\"\n";
 		} else {
 			print $fout 'Invalid message: >>', (sprintf '%v02X', $message), "<<\n";
 		}
@@ -59,3 +61,20 @@ while (1) {
 
 # Close socket (unreachable in an infinite loop)
 $socket->close();
+
+sub get_hostname_from_ip
+{
+	my $ip_address = shift;
+
+	# Convert the IP address to a packed binary format
+	my $packed_ip = inet_aton($ip_address);
+
+	# If conversion fails, return undefined
+	return undef unless($packed_ip);
+
+	# Perform reverse DNS lookup
+	my $hostname = gethostbyaddr($packed_ip, AF_INET);
+
+	# Return the hostname or undefined if lookup fails
+	return $hostname || undef;
+}
