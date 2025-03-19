@@ -23,6 +23,7 @@ print "Syslog server listening on UDP port $port...\n";
 if(!-r $logfile) {
 	# First run - put in the heading row
 	open(my $log, '>', $logfile);
+	chmod 0600 $log;
 	print $log '"IP","facility","severity","msg"',
 		"\n";
 	close $log;
