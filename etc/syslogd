@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+# TODO - SIGHUP should close and reopen the logfile - for rotation
+
 use strict;
 use warnings;
 use Getopt::Long;
