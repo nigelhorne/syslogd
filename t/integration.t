@@ -111,16 +111,35 @@ sub wait_for {
 
 # Run perl with @args in a child, return (exit code, stdout, stderr).
 # IPC::Open3 with a list: no shell quoting, and it works on Windows.
+# The child writes to files, not pipes: reading one pipe to the end while
+# the child fills the other can deadlock.  Line endings are made "\n",
+# because a child on Windows writes "\r\n".
 sub run_perl {
 	my @args = @_;
-	my $err = gensym();
-	my $pid = open3(my $in, my $out, $err, $^X, @args);
+	my ($out_path, $err_path) = map { File::Spec->catfile($dir, "child$serial.$_") } qw(out err);
+	$serial++;
+	open(my $out, '>', $out_path) or die "$out_path: $!";
+	open(my $err, '>', $err_path) or die "$err_path: $!";
+	my $pid = open3(my $in, '>&' . fileno($out), '>&' . fileno($err), $^X, @args);
 	close($in);
-	my $stdout = do { local $/; <$out> } // '';
-	my $stderr = do { local $/; <$err> } // '';
 	waitpid($pid, 0);
+	my $exit = $? >> 8;
+	close($out);
+	close($err);
+
+	my ($stdout, $stderr) = map { slurp_text($_) } ($out_path, $err_path);
 	verbose_diag("child: @args\nstdout: $stdout\nstderr: $stderr");
-	return ($? >> 8, $stdout, $stderr);
+	return ($exit, $stdout, $stderr);
+}
+
+# A child's text output, with "\r\n" (Windows) turned into "\n"
+sub slurp_text {
+	my $path = shift;
+	open(my $fh, '<:raw', $path) or die "$path: $!";
+	my $text = do { local $/; <$fh> } // '';
+	close($fh);
+	$text =~ s/\r\n/\n/g;
+	return $text;
 }
 
 # Write Perl code to a script file for a child process.  Code is never
