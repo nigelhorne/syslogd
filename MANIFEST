@@ -11,6 +11,7 @@ MANIFEST.SKIP
 README.md
 t/00-load.t
 t/data-flow.t
+t/domain.t
 t/edge_cases.t
 t/function.t
 t/i18n.t

@@ -211,6 +211,10 @@ Usage:
 		language => { type => 'string', optional => 1, position => 0 },
 	}
 
+Domains: a supported tag (C<en>, C<en-gb>, C<EN>) gives that language;
+an unsupported (C<fr>), malformed (C<../x>, C<en;x>) or very long tag gives
+English; undef or "" reads the environment.
+
 =head4 OUTPUT
 
 	{ type => 'object', isa => 'App::Syslogd::I18N' }
@@ -296,6 +300,12 @@ Usage:
 		args => { type => 'hashref', optional => 1, position => 1 },
 	}
 
+Domains: C<key> as in the table below (undef, "" or a reference dies;
+an unknown key comes back as text).  C<args>: a hash reference or undef;
+an array, code, glob or plain string dies.  Values: any text, including
+non-ASCII characters, emoji and right-to-left text, copied unchanged;
+missing ones become "".
+
 =head4 OUTPUT
 
 	{ type => 'string' }
@@ -376,6 +386,10 @@ Usage:
 		female => { type => 'string', position => 2 },
 		neutral => { type => 'string', position => 3 },
 	}
+
+Domains of C<gender>: "male" or "female" in any case pick their form;
+everything else (undef, "", "m", "f", references) picks the neutral
+form.
 
 =head4 OUTPUT
 

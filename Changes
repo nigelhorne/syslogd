@@ -64,6 +64,8 @@ Revision history for App-Syslogd
 	- t/unit.t: black-box tests of every documented message and state
 	- t/edge_cases.t: hostile, boundary and security tests
 	- t/data-flow.t: define-use chains and resource lifecycles
+	- t/domain.t: equivalence partitions and boundaries of every input;
+	  the POD now documents each input's domains
 	- t/integration.t: end-to-end workflows, the program, and both
 	  Text::CSV backends
 	- Documentation rewritten in plain English, with ENCODING, COMMON

@@ -562,6 +562,39 @@ Usage:
 		socket => { type => 'object', can => ['recv'], optional => 1 },
 	}
 
+Domains (equivalence partitions and boundaries; t/domain.t tests each):
+
+	+-----------------+--------------------------------+-----------------------+-------------------------------+
+	| Option          | Valid partitions               | Boundaries            | Invalid partitions            |
+	+-----------------+--------------------------------+-----------------------+-------------------------------+
+	| port            | 0 (the kernel chooses);        | -1 no, 0 yes,         | fractions (514.5), hex        |
+	|                 | 1-1023 (needs root);           | 65535 yes, 65536 no   | (0x10), "1_000", text, "",    |
+	|                 | 1024-65535.  A numeric string  |                       | non-ASCII digits, references  |
+	|                 | is read as its number: " 514 ",|                       |                               |
+	|                 | "+514", "0514", "5e2", "5.0"   |                       |                               |
+	| address         | IPv4 or IPv6 literal, or a     | 1 character is        | "" (new()); an address this   |
+	|                 | host name: any non-empty       | accepted by new()     | machine does not have (fails  |
+	|                 | string here                    |                       | in open_socket())             |
+	| file            | any non-empty string of bytes; | 1 byte; the system's  | ""; references.  A name over  |
+	|                 | non-ASCII names as encoded     | name limit (usually   | the system limit fails in     |
+	|                 | (UTF-8) bytes                  | 255 bytes)            | reopen_log()                  |
+	| resolve         | true: 1 true TRUE yes on;      | -                     | any other spelling: "", 2,    |
+	|                 | false: 0 false FALSE no off    |                       | "Yes", "On", " 1", "t"        |
+	| dns_ttl         | whole seconds, 0 or more (0:   | -1 no, 0 yes; no      | fractions, text, references   |
+	|                 | names are not reused)          | upper limit           |                               |
+	| dns_cache_bytes | whole bytes, 1 or more         | 0 no, 1 yes; no upper | fractions, text, references   |
+	|                 |                                | limit                 |                               |
+	| language        | any non-empty tag; tags with   | 1 character is        | "" (refused); unknown or      |
+	|                 | no lexicon (fr, x, i-klingon)  | accepted              | malformed tags are not an     |
+	|                 | fall back to English           |                       | error: they give English      |
+	| cache, socket   | an object with compute() /     | -                     | plain hashes, code, globs, an |
+	|                 | recv()                         |                       | object without the method     |
+	+-----------------+--------------------------------+-----------------------+-------------------------------+
+
+An undef value is in no partition: it means "use the default".  Options
+are checked one by one, so the error names the first invalid option even
+when the others are at their limits.
+
 =head4 OUTPUT
 
 	{ type => 'object', isa => 'App::Syslogd' }
@@ -577,8 +610,12 @@ Usage:
 	|   (x) must be an integer           |   type                   |   to 65535                  |
 	| validate_strict: Parameter 'port'  | A number is out of range | Use a value inside the      |
 	|   (x) must be no more than 65535   |                          |   range shown above         |
+	| validate_strict: Parameter 'X'     | A number is below its    | Use a value inside the      |
+	|   (x) must be at least 0, or must  |   minimum (port, dns_ttl |   range in the Domains      |
+	|   be a positive number             |   at 0; dns_cache_bytes  |   table                     |
+	|                                    |   at 1)                  |                             |
 	| validate_strict: Parameter         | Not a true/false value   | Use 1, 0, true, false, yes, |
-	|   'resolve' (x) must be a boolean  |                          |   no, on or off             |
+	|   'resolve' (x) must be a boolean  |                          |   no, on, off, TRUE, FALSE  |
 	+------------------------------------+--------------------------+-----------------------------+
 
 =head3 PSEUDOCODE
@@ -755,6 +792,9 @@ Usage:
 
 	{ type => 'integer', min => 0, max => 65535 }
 
+Domain: 0 to 65535.  0 only before open_socket() with C<< port => 0 >>;
+after open_socket(), 1 to 65535.
+
 =head3 MESSAGES
 
 None.
@@ -848,6 +888,9 @@ Usage:
 =head4 OUTPUT
 
 	{ type => 'integer', min => 0 }
+
+Domain: 0 or more; it only ever grows, by one for each datagram that was
+not too short.
 
 =head3 MESSAGES
 
@@ -994,6 +1037,31 @@ Usage:
 		datagram => { type => 'string', optional => 1, position => 0 },
 	}
 
+Domains of the datagram (C<message> is the part after the PRI):
+
+	+-----------------+-----------------------------------+----------------------------------+
+	| Partition       | Examples                          | Result                           |
+	+-----------------+-----------------------------------+----------------------------------+
+	| too short       | undef, "", "x", "x\n" (fewer than | undef                            |
+	|                 | 2 characters after removing       |                                  |
+	|                 | trailing CR, LF and NUL)          |                                  |
+	| valid PRI       | "<0>" to "<191>", no extra        | facility = PRI div 8 (0-23),     |
+	|                 | leading zeros                     | severity = PRI mod 8 (0-7),      |
+	|                 |                                   | valid 1                          |
+	| invalid PRI     | "<192>", "<013>", "<1000>", "<>", | facility 1, severity 5, the      |
+	|                 | no PRI at all                     | whole text, valid 0              |
+	| control bytes   | 0x00-0x1F and 0x7F                | written as \xNN                  |
+	| other bytes     | UTF-8 (umlauts, emoji, combining  | unchanged, same length           |
+	|                 | "Zalgo" marks, the RTL override   |                                  |
+	|                 | U+202E), invalid UTF-8, C1 bytes  |                                  |
+	| references      | [], {}, code, globs               | dies: A datagram must be a       |
+	|                 |                                   | string ...                       |
+	+-----------------+-----------------------------------+----------------------------------+
+
+Boundaries: length 1 gives undef and 2 gives a record; PRI 191 is valid and
+192 is not; PRI 7/8, 15/16, ... are the edges between facilities.  The
+largest UDP datagram (65535 bytes) is accepted whole.
+
 =head4 OUTPUT
 
 	{
@@ -1127,6 +1195,10 @@ Usage:
 		datagram => { type => 'string', optional => 1, position => 0 },
 		peer => { type => 'string', optional => 1, position => 1 },
 	}
+
+Domains of the sender: a packed IPv4 or IPv6 address gives that address
+(or its name); undef, "", short or garbage strings and references give an
+empty Host.  The datagram has the domains listed under L</parse_message>.
 
 =head4 OUTPUT
 
@@ -1381,6 +1453,13 @@ Usage:
 		key => { type => 'string', min => 1, position => 0 },
 		args => { type => 'hashref', optional => 1, position => 1 },
 	}
+
+Domains: C<key> is one of the keys in the table below (an unknown key gives
+the key back; undef, "" or a reference dies).  C<args> is a hash reference
+or undef (anything else dies).  Values may be any text, including
+non-ASCII characters, which appear unchanged.  For C<count>, 1 gives the
+singular and every other number (0, 2, -1, 1.5) the plural; text that is
+not a number counts as 0.
 
 =head4 OUTPUT
 

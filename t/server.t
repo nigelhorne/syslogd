@@ -8,9 +8,6 @@
 use strict;
 use warnings;
 
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
 use Config;
 use Errno qw(EINTR);
 use Fcntl ();
@@ -19,7 +16,7 @@ use IO::Socket::IP;
 use Socket qw(pack_sockaddr_in inet_aton);
 use Test::Most;
 
-use App::Syslogd;
+use_ok('App::Syslogd');
 
 # White-box access to :Private / :Protected helpers, even outside prove
 $Sub::Private::BYPASS = $Sub::Protected::BYPASS = 1;
@@ -87,8 +84,7 @@ my $HEADER = '"Host","facility","severity","msg"';
 }
 
 subtest 'new() validates its arguments' => sub {
-	my $s = App::Syslogd->new();
-	isa_ok($s, 'App::Syslogd');
+	my $s = new_ok('App::Syslogd');
 	is($s->port(), 514, 'default port');
 	is($s->address(), '0.0.0.0', 'default address');
 	is($s->count(), 0, 'nothing recorded yet');
