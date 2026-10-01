@@ -12,6 +12,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Errno qw(EINTR);
+use Fcntl ();
 use File::Temp qw(tempdir);
 use IO::Socket::IP;
 use Socket qw(pack_sockaddr_in inet_aton);
@@ -21,6 +22,11 @@ use App::Syslogd;
 
 # White-box access to :Private / :Protected helpers, even outside prove
 $Sub::Private::BYPASS = $Sub::Protected::BYPASS = 1;
+
+# Windows has no Unix permission bits, no O_NOFOLLOW, no SIGHUP from
+# outside, and does not let a signal interrupt a blocking recv()
+my $WINDOWS = ($^O eq 'MSWin32');
+my $HAVE_NOFOLLOW = eval { Fcntl::O_NOFOLLOW(); 1 };
 
 my $dir = tempdir(CLEANUP => 1);
 my $serial = 0;
@@ -63,6 +69,19 @@ my $HEADER = '"Host","facility","severity","msg"';
 	sub close { $_[0]{closed} = 1; return 1 }
 }
 
+# Wraps a real socket and stops the server after N datagrams
+{
+	package StopAfter;
+	sub new { my ($class, $socket, $limit, $server) = @_; return bless { socket => $socket, limit => $limit, server => $server }, $class }
+	sub recv {
+		my $self = $_[0];
+		my $peer = $self->{socket}->recv($_[1], $_[2]);
+		$self->{server}->stop() if(--$self->{limit} <= 0);
+		return $peer;
+	}
+	sub close { return $_[0]{socket}->close() }
+}
+
 subtest 'new() validates its arguments' => sub {
 	my $s = App::Syslogd->new();
 	isa_ok($s, 'App::Syslogd');
@@ -78,6 +97,13 @@ subtest 'new() validates its arguments' => sub {
 	throws_ok { App::Syslogd->new(prot => 514) } qr/Unknown parameter 'prot'/, 'misspelt argument rejected';
 	throws_ok { App::Syslogd->new(file => '') } qr/file/, 'empty file name rejected';
 	throws_ok { App::Syslogd->new(cache => 'x') } qr/cache/, 'cache must be an object';
+
+	# undef means "use the default", never "set to undef"
+	my $u = App::Syslogd->new(port => undef, file => undef, address => undef, resolve => undef);
+	is($u->port(), 514, 'port => undef gives the default port');
+	is($u->address(), '0.0.0.0', 'address => undef gives the default address');
+	is($u->{file}, '/tmp/syslog.log', 'file => undef gives the default file');
+	is($u->{resolve}, 1, 'resolve => undef gives the default');
 };
 
 subtest 'parse_message(): valid PRI' => sub {
@@ -115,15 +141,21 @@ subtest 'reopen_log() creates a private file with one header' => sub {
 
 	is($s->reopen_log(), $s, 'returns $self');
 	ok(-f $file, 'file created');
-	is((stat $file)[2] & 07777, 0600, 'mode 0600');
+	SKIP: {
+		skip('no Unix permission bits on Windows', 1) if($WINDOWS);
+		is((stat $file)[2] & 07777, 0600, 'mode 0600');
+	}
 	is_deeply(lines_of($file), [$HEADER], 'header written');
 
 	$s->reopen_log()->reopen_log();
 	is_deeply(lines_of($file), [$HEADER], 'reopening does not add a second header');
 
-	chmod(0644, $file);
-	$s->reopen_log();
-	is((stat $file)[2] & 07777, 0600, 'loose permissions on an existing file are tightened');
+	SKIP: {
+		skip('no Unix permission bits on Windows', 1) if($WINDOWS);
+		chmod(0644, $file);
+		$s->reopen_log();
+		is((stat $file)[2] & 07777, 0600, 'loose permissions on an existing file are tightened');
+	}
 };
 
 subtest 'reopen_log() refuses unsafe files' => sub {
@@ -131,13 +163,21 @@ subtest 'reopen_log() refuses unsafe files' => sub {
 	open(my $fh, '>', $target) or die;
 	close $fh;
 
-	my $link = new_log();
-	symlink($target, $link) or die "symlink: $!";
-	throws_ok { App::Syslogd->new(file => $link)->reopen_log() } qr/Could not open log file \Q$link\E/, 'symlink refused';
+	SKIP: {
+		# Without O_NOFOLLOW (Windows) the server cannot refuse symlinks
+		skip('O_NOFOLLOW is not available on this system', 1) unless($HAVE_NOFOLLOW);
+		my $link = new_log();
+		skip("cannot create a symlink: $!", 1) unless(eval { symlink($target, $link) });
+		throws_ok { App::Syslogd->new(file => $link)->reopen_log() } qr/Could not open log file \Q$link\E/, 'symlink refused';
+	}
 
-	my $hard = new_log();
-	link($target, $hard) or die "link: $!";
-	throws_ok { App::Syslogd->new(file => $hard)->reopen_log() } qr/Refusing to log to \Q$hard\E/, 'hard link refused';
+	SKIP: {
+		my $hard = new_log();
+		skip("cannot create a hard link: $!", 1) unless(eval { link($target, $hard) });
+		# Some systems (older Perls on Windows) do not report link counts
+		skip('this system does not report link counts', 1) unless((stat $hard)[3] == 2);
+		throws_ok { App::Syslogd->new(file => $hard)->reopen_log() } qr/Refusing to log to \Q$hard\E/, 'hard link refused';
+	}
 
 	throws_ok { App::Syslogd->new(file => $dir)->reopen_log() } qr/\Q$dir\E/, 'directory refused';
 	throws_ok { App::Syslogd->new(file => "$dir/no/such/dir/x.csv")->reopen_log() } qr/Could not open log file/, 'missing directory reported';
@@ -199,6 +239,12 @@ subtest 'host name resolution and its cache' => sub {
 
 	is(App::Syslogd->new(resolve => 0)->_peer_name($localhost), '127.0.0.1', '--no-resolve logs the address');
 	is(App::Syslogd->new(resolve => 1)->_peer_name('garbage'), '', 'an undecodable sockaddr does not die');
+	is(App::Syslogd->new(resolve => 1)->_peer_name(undef), '', 'an undef sockaddr does not die');
+
+	# process() with no peer still records the message, with an empty host
+	my $nopeer = new_log();
+	App::Syslogd->new(file => $nopeer)->reopen_log()->process('<13>no peer', undef);
+	is(lines_of($nopeer)->[1], '"","1","5","no peer"', 'undef peer logged as an empty host');
 };
 
 subtest 'run() with a fake socket' => sub {
@@ -218,6 +264,10 @@ subtest 'run() with a fake socket' => sub {
 };
 
 subtest 'SIGHUP reopens the log; SIGTERM stops' => sub {
+	# Windows cannot deliver SIGHUP or SIGTERM to the running process this
+	# way, and cannot rename a file that is open
+	plan(skip_all => 'Unix signals') if($WINDOWS);
+
 	my $file = new_log();
 	my $rotated = "$file.1";
 	my $socket = FakeSocket->new(
@@ -288,11 +338,11 @@ subtest 'run() over a real UDP socket' => sub {
 	my $client = IO::Socket::IP->new(PeerHost => '127.0.0.1', PeerPort => $port, Proto => 'udp') or die $@;
 	$client->send($_) foreach('<13>first', '<165>second ' . ('x' x 3000));
 
-	# The datagrams are already queued in the kernel; stop shortly after
-	local $SIG{ALRM} = sub { $s->stop() };
-	alarm(1);
+	# Stop after the second datagram.  A wrapper rather than alarm():
+	# on Windows a signal does not interrupt a blocking recv(), so an
+	# alarm would never end the loop
+	$s->{socket} = StopAfter->new($s->{socket}, 2, $s);
 	$s->run();
-	alarm(0);
 
 	my $lines = lines_of($file);
 	is(scalar(@{$lines}), 3, 'both datagrams recorded');

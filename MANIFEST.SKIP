@@ -79,3 +79,4 @@ CLAUDE.md
 # server, a site configuration and many modules CPAN testers will not have
 ^www/
 \bnytprof
+^VWF-Proposed-Changes\.md$

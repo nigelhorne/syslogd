@@ -12,7 +12,7 @@ use Sub::Protected;
 
 use Carp qw(carp croak);
 use CHI;
-use Fcntl qw(O_WRONLY O_APPEND O_CREAT O_NOFOLLOW);
+use Fcntl qw(O_WRONLY O_APPEND O_CREAT);
 use IO::Handle;
 use IO::Socket::IP;
 use Params::Get;
@@ -53,6 +53,13 @@ Readonly my $DEFAULT_PRI => 13;
 # The log holds other hosts' messages, so only its owner may read it
 Readonly my $LOG_MODE => 0600;
 
+# O_NOFOLLOW is not defined everywhere: on Windows, Fcntl exports the name
+# but calling it dies ("Your vendor has not defined Fcntl macro").  Where it
+# is missing, 0 leaves the open flags unchanged.  Windows symbolic links
+# need administrator rights to create, so the attack it prevents is rare
+# there; see LIMITATIONS.
+Readonly my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
+
 # Column headings written to a brand-new log file.  VWF::Data::syslog_log
 # reads these as its column names, so do not change them lightly.
 Readonly my @CSV_HEADER => qw(Host facility severity msg);
@@ -82,74 +89,183 @@ Version 0.02
 
 =head1 SYNOPSIS
 
+=head2 1. Run a syslog server
+
+This is what the program F<etc/syslogd> does.  It listens for messages
+until it receives SIGTERM or SIGINT (Ctrl-C).
+
 	use App::Syslogd;
 
-	my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
-	$server->open_socket()->reopen_log();
-	print $server->i18n('listening', { address => '0.0.0.0', port => $server->port() }), "\n";
-	$server->run();		# returns after SIGTERM or SIGINT
+	my $server = App::Syslogd->new(
+		port => 5514,				# 514 needs root
+		file => '/var/log/remote-syslog.csv',
+	);
+	$server->open_socket()->reopen_log();	# fail now, not later
+	print $server->i18n('listening', {
+		address => $server->address(),
+		port => $server->port(),
+	}), "\n";
+	$server->run();				# waits here until stopped
+	print $server->i18n('shutdown', { count => $server->count() }), "\n";
+
+=head2 2. Decode one message, without a network or a file
+
+C<parse_message()> uses no state, so you can call it on the class.
+
+	use App::Syslogd;
+
+	my $record = App::Syslogd->parse_message('<34>su: authentication failure');
+	print "facility $record->{facility}, severity $record->{severity}\n";
+	# facility 4, severity 2
+
+=head2 3. Record messages that your own code received
+
+Use this when your program already has a socket loop, for example an event
+loop that watches many sockets.
+
+	use App::Syslogd;
+	use IO::Socket::IP;
+
+	my $recorder = App::Syslogd->new(file => '/var/log/remote.csv', resolve => 0);
+	$recorder->reopen_log();
+
+	my $socket = IO::Socket::IP->new(LocalPort => 5514, Proto => 'udp')
+		or die "Cannot listen: $IO::Socket::errstr";
+	while(my $peer = $socket->recv(my $datagram, 65535)) {
+		$recorder->process($datagram, $peer);
+	}
+
+=head2 4. Use a socket that someone else opened, for a fixed time
+
+Pass the socket to C<new()>, for example one received from systemd socket
+activation, or one opened before giving up root.  C<stop()> ends C<run()>.
+
+	my $server = App::Syslogd->new(socket => $already_bound_socket, file => $file);
+
+	local $SIG{ALRM} = sub { $server->stop() };
+	alarm(3600);		# stop after one hour
+	$server->run();
+
+=head2 5. Change how the sender is written in the log
+
+C<_peer_name()> is protected: a subclass may replace it.
+
+	package My::Syslogd;
+	use parent 'App::Syslogd';
+	use Socket ();
+
+	# Write "name [address]" instead of just the name
+	sub _peer_name {
+		my ($self, $peer) = @_;
+		my $name = $self->SUPER::_peer_name($peer);
+		my (undef, $address) = Socket::getnameinfo($peer, Socket::NI_NUMERICHOST());
+		return "$name [$address]";
+	}
 
 =head1 DESCRIPTION
 
-Receives RFC 3164 / RFC 5424 syslog datagrams over UDP, splits the PRI
-field into facility and severity, and appends one CSV row per datagram:
+=head2 What syslog is
 
-	"Host","facility","severity","msg"
+Many machines (servers, routers, printers, firewalls) can send their log
+messages over the network with the I<syslog> protocol.  Each message is one
+UDP packet, called a I<datagram>.  A message usually starts with a number in
+angle brackets, the I<PRI> (priority), for example C<< <34> >>.  The PRI
+holds two smaller numbers:
 
 =over 4
 
-=item * B<SIGHUP> closes and reopens the log file, for use with logrotate.
+=item * B<facility> = PRI divided by 8, rounded down (0 to 23).  It says which
+part of the system sent the message, for example 4 means "security".
 
-=item * B<SIGTERM> and B<SIGINT> make C<run()> return cleanly.
+=item * B<severity> = the remainder of PRI divided by 8 (0 to 7).  It says how
+serious the message is: 0 is "emergency" and 7 is "debug".
 
-=item * Control characters (including embedded newlines) in a message are
-written as C<\xNN>, so every record is exactly one line and nobody can
-forge a record by sending a newline.
+=back
 
-=item * A datagram without a valid PRI is recorded as C<user.notice> (PRI 13),
-as RFC 3164 section 4.3.3 requires, with the whole datagram as the message.
-A valid PRI is 0-191 with no leading zeros (RFC 5424 section 6.2.1).
+So C<< <34> >> means facility 4 (34 / 8 = 4) and severity 2 (34 - 32 = 2).
 
-=item * The sender is logged by host name, looked up through the system
-resolver (so F</etc/hosts> is honoured) and cached.  With C<--no-resolve>
-it is logged by address.  IPv4 and IPv6 are both supported.
+=head2 What this module does
 
-=item * The log file is created with mode 0600.  The server refuses to write
-through a symlink or a hard link, or to a file owned by another user.
+It waits for syslog datagrams and adds one line to a CSV file for each one.
+The first line of a new file names the columns:
 
-=item * Datagrams of up to 65535 bytes are accepted without truncation.
+	"Host","facility","severity","msg"
+	"router.example.com","4","2","su: authentication failure"
+
+=over 4
+
+=item * B<Host> is the name of the machine that sent the message.  The name
+is found with the normal system lookup (F</etc/hosts>, then DNS) and
+remembered for a few minutes.  If no name is found, or if you turn names
+off, the IP address is written instead.  IPv4 and IPv6 both work.
+
+=item * B<facility> and B<severity> come from the PRI.  If the PRI is missing
+or not valid, the message is still kept: it is recorded as facility 1,
+severity 5 ("user.notice"), and the whole datagram becomes the message.
+RFC 3164 section 4.3.3 asks for this.  A valid PRI is a number from 0 to 191
+with no extra leading zeros.
+
+=item * B<msg> is the rest of the datagram.  Line endings at the end are
+removed.  Other control characters, including a newline in the middle, are
+written as C<\xNN> (for example C<\x0A>).  So every message is exactly one
+line, and nobody can create a fake extra line by sending a newline.
+
+=back
+
+=head2 Other behaviour
+
+=over 4
+
+=item * Signal B<SIGHUP> closes and reopens the log file.  Log rotation tools
+such as logrotate use this: they rename the file, then send SIGHUP, and the
+server starts a new file.
+
+=item * Signals B<SIGTERM> and B<SIGINT> stop the server cleanly.
+
+=item * The log file is created so that only its owner can read it (mode
+0600).  The server will not write through a symbolic link or a hard link, or
+into a file that another user owns.  This protects against attacks that trick
+a root process into overwriting a file.  (Windows is weaker here: see
+L</LIMITATIONS>.)
+
+=item * Datagrams up to 65535 bytes (the largest UDP size) are read
+completely.  Datagrams shorter than 2 characters are ignored.
 
 =back
 
 =head1 COMMAND LINE
 
-The program F<etc/syslogd> is a thin wrapper around this module:
+The program F<etc/syslogd> is a small wrapper around this module:
 
 	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
 		[--no-resolve] [--language en]
 
 =over 4
 
-=item C<--port> - UDP port to listen on, default 514 (which needs root).
+=item C<--port> - the UDP port to listen on.  The default is 514, the
+standard syslog port.  Ports below 1024 need root.
 
-=item C<--address> - local address to bind, default C<0.0.0.0>; use C<::> for IPv6.
+=item C<--address> - the local address to listen on.  The default
+C<0.0.0.0> means "every IPv4 address of this machine".  Use C<::> for IPv6.
 
-=item C<--file> - the CSV log file, default F</tmp/syslog.log>.  The default
-is kept for compatibility only; choose somewhere private for real use (see
-L</LIMITATIONS>).
+=item C<--file> - the CSV log file.  The default F</tmp/syslog.log> exists
+only for compatibility with older versions.  For real use, choose a private
+place, such as F</var/log/remote-syslog.csv> (see L</LIMITATIONS>).
 
-=item C<--no-resolve> - log sender addresses instead of host names.
+=item C<--no-resolve> - write IP addresses instead of host names.  This is
+faster on a busy server.
 
-=item C<--language> - language for the program's own messages; by default
-it is taken from the environment.
+=item C<--language> - the language of the program's own messages, for example
+C<en>.  By default it comes from the environment (C<LANG> and similar).
 
 =back
 
-Send B<SIGHUP> to reopen the log file and B<SIGTERM> or B<SIGINT> to stop.
+Send B<SIGHUP> to reopen the log file.  Send B<SIGTERM>, or press Ctrl-C, to
+stop.
 
 =head2 Log rotation
 
-An example logrotate stanza:
+An example logrotate configuration:
 
 	/var/log/remote-syslog.csv {
 		weekly
@@ -165,84 +281,199 @@ Install the module from CPAN:
 
 	cpanm App::Syslogd
 
-or, from a git checkout:
+or from a git checkout:
 
 	perl Makefile.PL && make && make test && sudo make install
 
-Then install the program by hand.  It is deliberately not installed by
-C<make install>: that would put it in a F<bin> directory, where a program
-called F<syslogd> could shadow the system's F</usr/sbin/syslogd> on C<PATH>.
+Then copy the program by hand:
 
 	sudo cp etc/syslogd /usr/local/etc/
 
-To run from a checkout without installing the module, copy it alongside:
+C<make install> does not install the program on purpose.  It would put it in
+a F<bin> directory, and a program called F<syslogd> there could hide the
+system's own F</usr/sbin/syslogd>.
+
+To use a git checkout without installing the module, copy the module next to
+the program:
 
 	sudo cp -r lib/App /usr/local/lib/
 
-The program looks for its modules in F<../lib> relative to itself (which is
-F</usr/local/lib> once installed, or F<lib/> in a git checkout) as well as
-on Perl's normal C<@INC>.
+The program looks for modules in F<../lib> relative to itself (that is
+F</usr/local/lib> after installation, or F<lib/> in a git checkout), and also
+in Perl's normal module directories.
 
 =head1 DEPENDENCIES
 
-Perl 5.14 or later, plus L<autodie> (with L<IPC::System::Simple>), L<CHI>,
-L<IO::Socket::IP>, L<Locale::Maketext>, L<Params::Get>,
-L<Params::Validate::Strict>, L<Readonly>, L<Socket>, L<Sub::Private>,
-L<Sub::Protected> and L<Text::CSV>.  The exact versions are in F<Makefile.PL>.
+Perl 5.14 or later, and these modules: L<autodie> (which needs
+L<IPC::System::Simple>), L<CHI>, L<IO::Socket::IP>, L<Locale::Maketext>,
+L<Params::Get>, L<Params::Validate::Strict>, L<Readonly>, L<Socket>,
+L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  F<Makefile.PL> lists
+the minimum versions.
 
 =head1 FILES
 
 =over 4
 
-=item F<etc/syslogd> - the command-line program, installed as F</usr/local/etc/syslogd>.
+=item F<etc/syslogd> - the command-line program.  Install it as
+F</usr/local/etc/syslogd>.
 
 =item F<lib/App/Syslogd.pm> - this module.
 
-=item F<lib/App/Syslogd/I18N.pm>, F<lib/App/Syslogd/I18N/en.pm> - the message catalogue.
+=item F<lib/App/Syslogd/I18N.pm> and F<lib/App/Syslogd/I18N/en.pm> - the
+messages that people see, and their English text.
 
-=item F<t/> - the tests; run them with C<prove -l t/>.
+=item F<t/> - the tests.  Run them with C<prove -l t/>.
 
-=item F<www/> - a VWF-based web viewer for the log (git checkout only; it is
-not part of the CPAN distribution).
+=item F<www/> - a web page that shows the log.  It is only in the git
+repository, not in the CPAN distribution.
+
+=back
+
+=head1 ENCODING
+
+The module works with B<bytes>, not with decoded text.  It never decodes or
+encodes anything itself.
+
+=over 4
+
+=item * B<Datagrams> (C<parse_message()>, C<process()>, and everything that
+C<run()> receives) can contain any bytes.  UTF-8 text, other non-ASCII text
+and emoji are written to the file exactly as they arrived.  Invalid UTF-8 is
+also written unchanged.  Only bytes 0x00 to 0x1F and 0x7F are changed (to
+C<\xNN>).  Bytes 0x80 to 0x9F are not changed, so a UTF-8 character is never
+broken.
+
+=item * If you call C<parse_message()> or C<process()> yourself with a Perl
+I<character> string (text that came from C<decode()>, or that contains a
+character above 255, such as an emoji written as C<"\x{1F600}">), first
+encode it to bytes, for example with C<Encode::encode('UTF-8', $text)>.
+Otherwise Perl prints a "Wide character" warning when the line is written.
+
+=item * B<The file name> (C<file>) is passed to the operating system as
+bytes.  A name with non-ASCII characters must be given as encoded bytes
+(normally UTF-8 on Unix).
+
+=item * B<Host names> come from the system resolver.  An international domain
+name normally arrives in its ASCII form (C<xn--...>).
+
+=item * B<The language tag> (C<language>) must be ASCII, for example C<en-gb>.
+
+=item * B<Messages from i18n()> are Perl strings.  The English messages are
+ASCII, but a value you pass in (for example a file name) is copied into the
+message as it is.  If you print a message that contains wide characters,
+set an output layer first: C<binmode(STDOUT, ':encoding(UTF-8)')>.
+
+=back
+
+=head1 COMMON PITFALLS
+
+=over 4
+
+=item * B<undef means "use the default".>  C<< new(file => undef) >> gives the
+default file, not an empty file name.  This is useful when you pass options
+straight from L<Getopt::Long>, but it means you cannot use C<undef> to switch
+something off.  To turn off host names, use C<< resolve => 0 >>.
+
+=item * B<The options are merged one level deep only.>  Each option you give
+replaces the default with the same name; nothing is merged inside a value.
+Objects you pass (C<cache>, C<socket>) are shared, not copied: two servers
+given the same C<cache> object share their host name answers.
+
+=item * B<True and false.>  C<resolve> accepts 1, 0, and the words C<true>,
+C<false>, C<yes>, C<no>, C<on> and C<off>.  Any other value, such as 2, is an
+error.
+
+=item * B<Order of calls.>  C<process()> needs an open log, so call
+C<reopen_log()> first.  C<run()> opens the socket and the log by itself if
+you have not.
+
+=item * B<Signals are handled only inside run().>  Before C<run()> starts and
+after it returns, SIGHUP has its normal effect, which is to end the program.
+C<run()> puts back your own signal handlers when it returns.
+
+=item * B<stop() before run() does nothing.>  C<run()> sets the "running"
+flag when it starts, so an earlier C<stop()> is forgotten.
+
+=item * B<run() closes everything when it returns.>  If you call C<run()>
+again, it opens a new socket.  With C<< port => 0 >>, the new socket can get
+a different port number.
+
+=item * B<A failed reopen stops run().>  If SIGHUP arrives and the log file
+cannot be opened (for example, the directory was removed), C<run()> dies
+with the error.  The socket stays open and the log stays closed.
+
+=item * B<An existing log file is made private.>  C<reopen_log()> changes the
+file's permissions to 0600 without asking.
+
+=item * B<A short datagram is ignored silently.>  After removing line endings
+at the end, a datagram must have at least 2 characters.  C<parse_message()>
+then returns C<undef>, and C<process()> writes nothing and does not count it.
+
+=item * B<A missing sender is not an error.>  C<process($datagram, undef)>
+writes the message with an empty Host column.
+
+=item * B<port() and address() change meaning.>  Before C<open_socket()> they
+return what you asked for.  After it they return what the system actually
+gave, so C<< port => 0 >> becomes a real port number.
+
+=item * B<Backslashes are not escaped.>  A message that really contains the
+four characters C<\x0A> looks the same in the file as an escaped newline.
 
 =back
 
 =head1 METHODS
 
+Every method except C<parse_message()> and C<i18n()> needs an object made by
+C<new()>; those two also work on the class.  Methods that have nothing
+useful to return give back the object, so you can chain calls:
+
+	App::Syslogd->new(port => 5514)->open_socket()->reopen_log()->run();
+
+The mathematical description of each method is in
+L</FORMAL SPECIFICATION>, and the life cycle of an object is in
+L</STATE DIAGRAM>, both at the end of this document.
+
 =head2 new
 
-Purpose: create a server object.  Nothing is bound or opened yet, so the
-object can be built and inspected without privileges.
+Purpose: make a new server object.  It does not open the network or the
+file yet, so you can create and inspect it without any special permissions.
 
-Args (all optional, as a hash or hashref):
+Args: all optional, given as a list of pairs or as one hash reference.  An
+option given as C<undef> uses its default.
 
 =over 4
 
-=item * C<port> - UDP port, default 514.  0 lets the kernel choose; call
-C<port()> after C<open_socket()> to see which.
+=item * C<port> - the UDP port number, 0 to 65535.  Default 514.  0 means
+"let the system choose a free port"; call C<port()> after C<open_socket()>
+to find out which one.
 
-=item * C<address> - local address to bind, default C<0.0.0.0>.  Use C<::> for
-IPv6.
+=item * C<address> - the local address to listen on.  Default C<0.0.0.0> (all
+IPv4 addresses).  Use C<::> for IPv6.
 
-=item * C<file> - CSV log file, default F</tmp/syslog.log>.
+=item * C<file> - the CSV log file.  Default F</tmp/syslog.log>.
 
-=item * C<resolve> - log host names (true, default) or addresses (false).
+=item * C<resolve> - true (the default) to write host names, false to write
+IP addresses.
 
-=item * C<dns_ttl>, C<dns_cache_bytes> - reverse-lookup cache tuning.
+=item * C<dns_ttl> - how many seconds to remember a host name.  Default 300.
 
-=item * C<language> - message language tag; default is from the environment.
+=item * C<dns_cache_bytes> - the most memory, in bytes, used to remember host
+names.  Default 262144.
 
-=item * C<cache> - a L<CHI>-compatible object used instead of the built-in
-reverse-lookup cache.
+=item * C<language> - the language of messages, such as C<en>.  Default: from
+the environment.
 
-=item * C<socket> - an already-bound socket (anything with C<recv>), mainly
-for tests and socket activation.
+=item * C<cache> - your own cache for host names, instead of the built-in
+one.  Any object with a L<CHI>-style C<compute()> method.
+
+=item * C<socket> - a socket that is already open, instead of opening one.
+Any object with a C<recv()> method.
 
 =back
 
-Returns: a blessed C<App::Syslogd>.
+Returns: the new object.
 
-Side Effects: none.
+Side Effects: none.  Dies if an option is unknown or has a wrong value.
 
 Usage:
 
@@ -250,8 +481,13 @@ Usage:
 
 =head3 EXAMPLE
 
-	# Listen on an unprivileged port and log addresses, not names
+	# Listen on a port that does not need root, and write addresses only
 	my $server = App::Syslogd->new(port => 5514, resolve => 0);
+
+	# Options from Getopt::Long: options not given stay undef = default
+	my %opts;
+	GetOptions(\%opts, 'port=i', 'file=s');
+	my $server2 = App::Syslogd->new(\%opts);
 
 =head3 API SPECIFICATION
 
@@ -275,32 +511,29 @@ Usage:
 
 =head3 MESSAGES
 
-	+-------------------------------+------------------------+---------------------------+
-	| Message                       | Meaning                | Resolution                |
-	+-------------------------------+------------------------+---------------------------+
-	| validate_strict: Unknown      | Misspelt argument      | Check the argument list   |
-	|   parameter 'x'               |                        |   above                   |
-	| validate_strict: Parameter    | Out-of-range value     | Use a port in 0..65535    |
-	|   'port' ... must be ...      |                        |                           |
-	+-------------------------------+------------------------+---------------------------+
+	+------------------------------------+--------------------------+-----------------------------+
+	| Message (dies)                     | Meaning                  | What to do                  |
+	+------------------------------------+--------------------------+-----------------------------+
+	| validate_strict: Unknown parameter | An option name is wrong  | Check the spelling against  |
+	|   'x'                              |                          |   the list above            |
+	| validate_strict: Parameter 'port'  | A value is the wrong     | Use a whole number from 0   |
+	|   (x) must be an integer           |   type                   |   to 65535                  |
+	| validate_strict: Parameter 'port'  | A number is out of range | Use a value inside the      |
+	|   (x) must be no more than 65535   |                          |   range shown above         |
+	| validate_strict: Parameter         | Not a true/false value   | Use 1, 0, true, false, yes, |
+	|   'resolve' (x) must be a boolean  |                          |   no, on or off             |
+	+------------------------------------+--------------------------+-----------------------------+
 
-=head3 FORMAL SPECIFICATION
+=head3 PSEUDOCODE
 
-	[ADDRESS, PATH, LANGTAG]
-	PORT == 0 .. 65535
-
-	Server
-	  port : PORT ; address : ADDRESS ; file : PATH ; resolve : 𝔹
-	  count : ℕ ; listening, logging, running : 𝔹
-
-	New
-	  Server'
-	  args? : NAME ⇸ VALUE
-	  ─────────
-	  dom args? ⊆ dom NEW_SCHEMA
-	  port' = args?(port) if port ∈ dom args? else 514
-	  file' = args?(file) if file ∈ dom args? else /tmp/syslog.log
-	  count' = 0 ∧ ¬listening' ∧ ¬logging' ∧ ¬running'
+	check the options against the schema (die if one is wrong)
+	remove options whose value is undef
+	start from the defaults, then copy the options over them
+	set the message counter to 0
+	choose the message language
+	if no cache was given, make an in-memory cache
+	make the CSV writer
+	return the object
 
 =cut
 
@@ -314,7 +547,12 @@ sub new
 		input => Params::Get::get_params(undef, \@_) || {},
 	});
 
-	# Caller's values win over defaults
+	# An undef value means "use the default": without this,
+	# new(file => undef) replaced the default with undef and failed later,
+	# far from the mistake
+	delete @{$args}{grep { !defined($args->{$_}) } keys %{$args}};
+
+	# Caller's values win over defaults (a one-level merge: nothing nested)
 	my $self = bless { %DEFAULTS, %{$args}, count => 0 }, $class;
 
 	# One handle per object: two servers in one process may speak
@@ -338,14 +576,15 @@ sub new
 
 =head2 open_socket
 
-Purpose: bind the UDP socket.  Do this before dropping privileges if the port
-is below 1024.
+Purpose: start listening for UDP datagrams on the configured address and
+port.  If the port is below 1024, do this before your program gives up root.
 
 Args: none.
 
-Returns: C<$self>, for chaining.
+Returns: the object, so you can chain another call.
 
-Side Effects: binds a socket.  Does nothing if a socket was given to C<new()>.
+Side Effects: opens a UDP socket.  Does nothing if a socket is already open,
+including one given to C<new()>.
 
 Usage:
 
@@ -353,8 +592,9 @@ Usage:
 
 =head3 EXAMPLE
 
+	# Let the system choose a free port, then ask which one it chose
 	my $server = App::Syslogd->new(port => 0)->open_socket();
-	print 'Kernel chose port ', $server->port(), "\n";
+	print 'Listening on port ', $server->port(), "\n";
 
 =head3 API SPECIFICATION
 
@@ -368,20 +608,14 @@ Usage:
 
 =head3 MESSAGES
 
-	+--------------------------------+-------------------------+----------------------------+
-	| Message                        | Meaning                 | Resolution                 |
-	+--------------------------------+-------------------------+----------------------------+
-	| Could not create a UDP socket  | bind() failed: port in  | Run as root for port 514,  |
-	|   on ADDR port N: ERROR        |   use, no permission or |   stop the other syslogd,  |
-	|                                |   bad address           |   or fix --address         |
-	+--------------------------------+-------------------------+----------------------------+
-
-=head3 FORMAL SPECIFICATION
-
-	OpenSocket
-	  ΔServer
-	  ─────────
-	  listening' ∧ (port = 0 ⇒ port' ∈ 1 .. 65535) ∧ (port ≠ 0 ⇒ port' = port)
+	+---------------------------------+---------------------------+------------------------------+
+	| Message (dies)                  | Meaning                   | What to do                   |
+	+---------------------------------+---------------------------+------------------------------+
+	| Could not create a UDP socket   | The system refused: the   | Run as root for ports below  |
+	|   on ADDR port N: ERROR         |   port is in use, needs   |   1024, stop the other       |
+	|                                 |   root, or the address is |   syslog server, or correct  |
+	|                                 |   wrong                   |   the address                |
+	+---------------------------------+---------------------------+------------------------------+
 
 =cut
 
@@ -405,12 +639,13 @@ sub open_socket
 
 =head2 port
 
-Purpose: the UDP port actually in use.
+Purpose: tell you the UDP port number.
 
 Args: none.
 
-Returns: an integer.  After C<open_socket()> with C<port =E<gt> 0> this is the
-kernel-assigned port; before C<open_socket()> it is the configured port.
+Returns: a whole number from 0 to 65535.  Before C<open_socket()> it is the
+port you asked for.  After it, it is the port really in use, so
+C<< port => 0 >> becomes the number the system chose.
 
 Side Effects: none.
 
@@ -436,14 +671,6 @@ Usage:
 
 None.
 
-=head3 FORMAL SPECIFICATION
-
-	Port
-	  ΞServer
-	  p! : PORT
-	  ─────────
-	  p! = port
-
 =cut
 
 sub port
@@ -458,12 +685,12 @@ sub port
 
 =head2 address
 
-Purpose: the local address the socket is bound to.
+Purpose: tell you the local address the server listens on.
 
 Args: none.
 
-Returns: a string.  After C<open_socket()> this is what the kernel reports;
-before it, the configured address.
+Returns: a string, such as C<0.0.0.0> or C<::1>.  Before C<open_socket()> it
+is the address you asked for.  After it, it is the address the system reports.
 
 Side Effects: none.
 
@@ -473,7 +700,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	print App::Syslogd->new(address => "::")->address(), "\n";	# ::
+	print App::Syslogd->new(address => '::')->address(), "\n";	# ::
 
 =head3 API SPECIFICATION
 
@@ -483,19 +710,11 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => "string", min => 1 }
+	{ type => 'string', min => 1 }
 
 =head3 MESSAGES
 
 None.
-
-=head3 FORMAL SPECIFICATION
-
-	Address
-	  ΞServer
-	  a! : ADDRESS
-	  ─────────
-	  a! = address
 
 =cut
 
@@ -511,11 +730,13 @@ sub address
 
 =head2 count
 
-Purpose: the number of datagrams recorded so far.
+Purpose: tell you how many datagrams have been written to the log.
 
 Args: none.
 
-Returns: a non-negative integer.
+Returns: a whole number, 0 or more.  Ignored datagrams (shorter than 2
+characters) are not counted.  A datagram that could not be written because
+the disk was full is counted.
 
 Side Effects: none.
 
@@ -525,7 +746,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	$server->process("<13>hello", $peer);
+	$server->reopen_log()->process('<13>hello', $peer);
 	print $server->count(), "\n";	# 1
 
 =head3 API SPECIFICATION
@@ -542,14 +763,6 @@ Usage:
 
 None.
 
-=head3 FORMAL SPECIFICATION
-
-	Count
-	  ΞServer
-	  n! : ℕ
-	  ─────────
-	  n! = count
-
 =cut
 
 sub count
@@ -561,16 +774,29 @@ sub count
 
 =head2 reopen_log
 
-Purpose: (re)open the CSV log.  Called at start-up and on SIGHUP, so that
-after logrotate renames the file a fresh one is created.
+Purpose: open the CSV log file, closing it first if it is already open.  Use
+it once at the start.  C<run()> also calls it when SIGHUP arrives, so that
+after a log rotation tool renames the file, a new file is started.
 
 Args: none.
 
-Returns: C<$self>, for chaining.
+Returns: the object, so you can chain another call.
 
-Side Effects: closes any open log; creates the file with mode 0600 if absent
-and writes the header row if it is empty; forces mode 0600 on an existing
-file.
+Side Effects:
+
+=over 4
+
+=item * Closes the log file if it is open.
+
+=item * Creates the file if it does not exist, readable only by its owner.
+
+=item * Writes the column names if the file is empty.
+
+=item * Changes an existing file's permissions to 0600.
+
+=item * Dies, leaving no log open, if the file cannot be used safely.
+
+=back
 
 Usage:
 
@@ -578,9 +804,9 @@ Usage:
 
 =head3 EXAMPLE
 
-	# logrotate postrotate script:  kill -HUP $(cat /run/syslogd.pid)
-	# ...which, inside run(), calls:
-	$server->reopen_log();
+	# Open the log before starting, so that a problem is reported at once
+	my $server = App::Syslogd->new(file => '/var/log/remote.csv');
+	eval { $server->reopen_log(); 1 } or die "Cannot start: $@";
 
 =head3 API SPECIFICATION
 
@@ -594,23 +820,20 @@ Usage:
 
 =head3 MESSAGES
 
-	+------------------------------+------------------------------+--------------------------------+
-	| Message                      | Meaning                      | Resolution                     |
-	+------------------------------+------------------------------+--------------------------------+
-	| Could not open log file F:   | open(2) failed; ERROR is $!  | Create the directory or fix    |
-	|   ERROR                      |   in the current locale      |   its permissions              |
-	| Refusing to log to F: it     | F is a symlink, a hard link, | Remove F and let the server    |
-	|   must be a regular file ... |   or owned by someone else   |   create it                    |
-	+------------------------------+------------------------------+--------------------------------+
-
-=head3 FORMAL SPECIFICATION
-
-	ReopenLog
-	  ΔServer
-	  ─────────
-	  logging'
-	  owner(file) = euid ∧ links(file) = 1 ∧ mode(file) = 0600
-	  size(file) = 0 ⇒ contents'(file) = ⟨HEADER⟩
+	+-------------------------------+--------------------------------+-------------------------------+
+	| Message (dies)                | Meaning                        | What to do                    |
+	+-------------------------------+--------------------------------+-------------------------------+
+	| Could not open log file F:    | The system could not open the  | Create the directory, or fix  |
+	|   ERROR                       |   file.  ERROR is the system's |   its permissions.  Remove a  |
+	|                               |   reason.  A symbolic link or  |   symbolic link; give a file  |
+	|                               |   a directory also gives this  |   name, not a directory       |
+	| Refusing to log to F: it must | F is a hard link or another    | Remove F and let the server   |
+	|   be a regular file, owned by |   user's file                  |   create it again             |
+	|   this user, with exactly one |                                |                               |
+	|   link                        |                                |                               |
+	| Could not write to log file   | The column names could not be  | Free some disk space          |
+	|   F: ERROR                    |   written to a new file        |                               |
+	+-------------------------------+--------------------------------+-------------------------------+
 
 =cut
 
@@ -628,39 +851,53 @@ sub reopen_log
 
 =head2 parse_message
 
-Purpose: split a raw datagram into facility, severity and message.  Pure: it
-touches no state, so it can be used and tested on its own.
+Purpose: split one datagram into its facility, severity and message text.
+It uses no state and writes nothing, so you can call it on the class and use
+it on its own.
 
-Args: the raw datagram (a byte string).
+Args: one datagram, as a string of bytes.
 
-Returns: C<undef> for datagrams too short to be a message, otherwise a
-hashref:
+Returns: C<undef> if the datagram is too short to be a message (fewer than 2
+characters after removing line endings at the end).  Otherwise a hash
+reference with these keys:
 
-	{ facility => 0..23, severity => 0..7, message => '...', valid => 0|1 }
+=over 4
 
-C<valid> is false when the PRI was missing or out of range; the record is
-then user.notice and C<message> is the whole datagram.
+=item * C<facility> - 0 to 23.
+
+=item * C<severity> - 0 to 7.
+
+=item * C<message> - the text after the PRI, with control characters
+written as C<\xNN>.
+
+=item * C<valid> - 1 if the datagram had a valid PRI.  0 if not; then facility
+is 1, severity is 5, and C<message> is the whole datagram.
+
+=back
 
 Side Effects: none.
 
 Usage:
 
-	my $rec = App::Syslogd->parse_message('<34>su: root failed');
+	my $record = App::Syslogd->parse_message($datagram);
 
 =head3 EXAMPLE
 
-	my $rec = App::Syslogd->parse_message("<34>su: 'su root' failed\n");
+	my $r = App::Syslogd->parse_message("<34>su: 'su root' failed\n");
 	# { facility => 4, severity => 2, message => "su: 'su root' failed", valid => 1 }
 
-	$rec = App::Syslogd->parse_message("no pri\there");
+	$r = App::Syslogd->parse_message("no pri\there");
 	# { facility => 1, severity => 5, message => 'no pri\x09here', valid => 0 }
+
+	$r = App::Syslogd->parse_message("x\n");
+	# undef: too short
 
 =head3 API SPECIFICATION
 
 =head4 INPUT
 
 	{
-		datagram => { type => 'string', position => 0 },
+		datagram => { type => 'string', optional => 1, position => 0 },
 	}
 
 =head4 OUTPUT
@@ -678,30 +915,24 @@ Usage:
 
 =head3 MESSAGES
 
-None; malformed input is recorded, never rejected.
-
-=head3 FORMAL SPECIFICATION
-
-	ParseMessage
-	  d? : seq BYTE
-	  r! : RECORD ∪ {⊥}
-	  ─────────
-	  let t == stripTrailing({CR, LF, NUL}, d?) •
-	  #t < 2 ⇒ r! = ⊥
-	  #t ≥ 2 ∧ t = ⟨'<'⟩ ⁀ digits(p) ⁀ ⟨'>'⟩ ⁀ b ∧ p ≤ 191 ⇒
-	    r! = ⟨facility ↦ p div 8, severity ↦ p mod 8, message ↦ escape(b), valid ↦ true⟩
-	  otherwise ⇒
-	    r! = ⟨facility ↦ 1, severity ↦ 5, message ↦ escape(t), valid ↦ false⟩
+None.  A malformed datagram is recorded, never rejected.
 
 =head3 PSEUDOCODE
 
-	strip trailing CR, LF and NUL
+	treat undef as an empty string
+	remove CR, LF and NUL characters from the end
 	if fewer than 2 characters remain: return undef
-	if text is "<" PRI ">" BODY with PRI a canonical integer <= 191:
-		valid = true
+	if the text is "<" NUMBER ">" REST, where NUMBER is 0 to 191
+	   written without extra leading zeros:
+		valid = 1
 	else:
-		PRI = 13, BODY = whole text, valid = false
-	return { PRI div 8, PRI mod 8, escape_controls(BODY), valid }
+		NUMBER = 13, REST = the whole text, valid = 0
+	return {
+		facility => NUMBER divided by 8, rounded down,
+		severity => remainder of NUMBER divided by 8,
+		message  => REST with control characters written as \xNN,
+		valid    => valid,
+	}
 
 =cut
 
@@ -731,35 +962,55 @@ sub parse_message
 
 =head2 process
 
-Purpose: record one received datagram.
+Purpose: write one received datagram to the log.
 
-Args: the raw datagram, and the sender's packed C<sockaddr> as returned by
-C<recv>.
+Args:
 
-Returns: C<$self>, for chaining.
+=over 4
 
-Side Effects: may perform a reverse DNS lookup (cached); appends one row to
-the log; increments C<count>.  A write failure is reported with C<carp> and
-the datagram is dropped, so a full disk does not kill the daemon.
+=item 1. The datagram, as a string of bytes.
+
+=item 2. The sender's address, in the packed form that C<recv()> returns.
+C<undef> is allowed: the Host column is then empty.
+
+=back
+
+Returns: the object, so you can chain another call.
+
+Side Effects:
+
+=over 4
+
+=item * May look up the sender's host name (the answer is remembered).
+
+=item * Adds one line to the log and adds 1 to C<count()>, unless the
+datagram is too short, in which case nothing happens.
+
+=item * If the line cannot be written (for example, the disk is full), it
+warns and continues.  That message is lost, but the server keeps working.
+
+=back
 
 Usage:
 
-	my $peer = $socket->recv(my $data, 65535);
-	$server->process($data, $peer);
+	my $peer = $socket->recv(my $datagram, 65535);
+	$server->process($datagram, $peer);
 
 =head3 EXAMPLE
 
 	use Socket qw(pack_sockaddr_in inet_aton);
+
 	my $peer = pack_sockaddr_in(514, inet_aton('192.0.2.1'));
 	$server->reopen_log()->process('<13>hello', $peer);
+	# The file now ends with: "192.0.2.1","1","5","hello"
 
 =head3 API SPECIFICATION
 
 =head4 INPUT
 
 	{
-		datagram => { type => 'string', position => 0 },
-		peer => { type => 'string', min => 1, position => 1 },
+		datagram => { type => 'string', optional => 1, position => 0 },
+		peer => { type => 'string', optional => 1, position => 1 },
 	}
 
 =head4 OUTPUT
@@ -768,26 +1019,14 @@ Usage:
 
 =head3 MESSAGES
 
-	+-----------------------------+----------------------------+----------------------------+
-	| Message                     | Meaning                    | Resolution                 |
-	+-----------------------------+----------------------------+----------------------------+
-	| process() was called before | No log file is open        | Call reopen_log() first    |
-	|   reopen_log() succeeded    |   (croak)                  |                            |
-	| Could not write to log file | write(2) failed, e.g. disk | Free space; the datagram   |
-	|   F: ERROR                  |   full (carp)              |   was lost                 |
-	+-----------------------------+----------------------------+----------------------------+
-
-=head3 FORMAL SPECIFICATION
-
-	Process
-	  ΔServer
-	  d? : seq BYTE ; peer? : SOCKADDR
-	  ─────────
-	  logging
-	  ParseMessage(d?) = ⊥ ⇒ count' = count ∧ contents' = contents
-	  ParseMessage(d?) = r ≠ ⊥ ⇒
-	    count' = count + 1 ∧
-	    contents'(file) = contents(file) ⁀ ⟨csv(host(peer?), r)⟩
+	+-----------------------------------+------------------------------+-------------------------------+
+	| Message                           | Meaning                      | What to do                    |
+	+-----------------------------------+------------------------------+-------------------------------+
+	| process() was called before       | No log file is open (dies)   | Call reopen_log() first       |
+	|   reopen_log() succeeded          |                              |                               |
+	| Could not write to log file F:    | The line was not written,    | Free disk space; this message |
+	|   ERROR                           |   e.g. disk full (warning)   |   is lost, later ones are not |
+	+-----------------------------------+------------------------------+-------------------------------+
 
 =cut
 
@@ -809,16 +1048,27 @@ sub process
 
 =head2 run
 
-Purpose: the receive loop.
+Purpose: the main loop.  Wait for datagrams and write each one to the log,
+until told to stop.
 
 Args: none.
 
-Returns: C<$self>, after SIGTERM, SIGINT or C<stop()>.
+Returns: the object, after SIGTERM, SIGINT or C<stop()>.
 
-Side Effects: calls C<open_socket()> and C<reopen_log()> if they have not been
-called; installs SIGHUP, SIGTERM and SIGINT handlers for its duration only
-(the caller's handlers are restored on return); closes the socket and the
-log on return.
+Side Effects:
+
+=over 4
+
+=item * Calls C<open_socket()> and C<reopen_log()> first if they have not been
+called.
+
+=item * While it runs: SIGHUP reopens the log, and SIGTERM or SIGINT stop the
+loop.  Your own handlers for these three signals are put back when it
+returns.
+
+=item * When it returns, the socket and the log file are closed.
+
+=back
 
 Usage:
 
@@ -827,8 +1077,9 @@ Usage:
 =head3 EXAMPLE
 
 	my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
-	$server->run();
+	$server->run();		# Ctrl-C to stop
 	print $server->i18n('shutdown', { count => $server->count() }), "\n";
+	# Syslog server shutting down after recording 42 messages
 
 =head3 API SPECIFICATION
 
@@ -842,35 +1093,35 @@ Usage:
 
 =head3 MESSAGES
 
-	+-------------------------------+----------------------------+-------------------------+
-	| Message                       | Meaning                    | Resolution              |
-	+-------------------------------+----------------------------+-------------------------+
-	| Error receiving a datagram:   | recv(2) failed for a       | Usually transient;      |
-	|   ERROR                       |   reason other than EINTR  |   logged and retried    |
-	|                               |   (carp)                   |                         |
-	| (any open_socket() or reopen_log() | Start-up or SIGHUP reopen  | See those methods       |
-	|   message)                    |   failed (croak)           |                         |
-	+-------------------------------+----------------------------+-------------------------+
-
-=head3 FORMAL SPECIFICATION
-
-	Run ≙ (OpenSocket ⨾ ReopenLog) ⨾ Loop
-	Loop ≙ μ L • (¬running ∧ Close) □
-	             (running ∧ hup ∧ ReopenLog ⨾ L) □
-	             (running ∧ ¬hup ∧ Receive ⨾ Process ⨾ L)
+	+---------------------------------+--------------------------------+------------------------------+
+	| Message                         | Meaning                        | What to do                   |
+	+---------------------------------+--------------------------------+------------------------------+
+	| Error receiving a datagram:     | Reading from the network       | Usually nothing: the loop    |
+	|   ERROR                         |   failed (warning).  Not given |   continues.  If it repeats, |
+	|                                 |   when a signal interrupts the |   check the network          |
+	|                                 |   wait                         |                              |
+	| Any message of open_socket() or | Starting, or reopening the     | See those methods            |
+	|   reopen_log()                  |   log after SIGHUP, failed     |                              |
+	|                                 |   (dies)                       |                              |
+	+---------------------------------+--------------------------------+------------------------------+
 
 =head3 PSEUDOCODE
 
-	listen and open the log if not already done
-	install HUP -> "reopen requested", TERM/INT -> "stop"
-	while running:
-		if reopen requested: reopen the log
+	if no socket is open: open_socket()
+	if no log is open: reopen_log()
+	for the duration of run():
+		SIGHUP          -> set "reopen requested"
+		SIGTERM, SIGINT -> clear "running"
+	set "running"
+	while "running":
+		if "reopen requested": clear it, then reopen_log()
 		wait for a datagram
-		if interrupted by a signal: loop again (to act on the flag)
-		if any other error: warn and loop again
-		process the datagram
-	close socket and log
-	restore previous signal handlers
+		if a datagram arrived: process() it
+		(a signal ends the wait early, so the flags are seen at once;
+		 any other read error is a warning, and the loop continues)
+	close the socket and the log
+	put back the caller's signal handlers
+	return the object
 
 =cut
 
@@ -906,13 +1157,15 @@ sub run
 
 =head2 stop
 
-Purpose: ask C<run()> to return after the current datagram.
+Purpose: ask C<run()> to finish.  C<run()> returns after the datagram it is
+handling, or at once if it is waiting.
 
 Args: none.
 
-Returns: C<$self>.
+Returns: the object.
 
-Side Effects: clears the running flag.
+Side Effects: clears the "running" flag.  Calling it before C<run()> has no
+effect, because C<run()> sets the flag when it starts.
 
 Usage:
 
@@ -920,8 +1173,9 @@ Usage:
 
 =head3 EXAMPLE
 
+	# Run for one minute
 	local $SIG{ALRM} = sub { $server->stop() };
-	alarm 60;	# run for a minute
+	alarm(60);
 	$server->run();
 
 =head3 API SPECIFICATION
@@ -938,13 +1192,6 @@ Usage:
 
 None.
 
-=head3 FORMAL SPECIFICATION
-
-	Stop
-	  ΔServer
-	  ─────────
-	  ¬running'
-
 =cut
 
 sub stop
@@ -958,22 +1205,37 @@ sub stop
 
 =head2 i18n
 
-Purpose: render a user-facing message in the server's language.
+Purpose: make a message for people to read, in the server's language.  All
+of this module's own messages are made with it, so they can be translated.
 
-Args: a message key and an optional hashref of named arguments.  May be
-called as a class method (e.g. for a usage message before C<new()>), in which
-case the language comes from the environment.
+Args:
 
-Returns: the rendered string.
+=over 4
+
+=item 1. The message key, for example C<listening>.  The keys are in the
+table below.
+
+=item 2. Optional: a hash reference of values to put into the message, for
+example C<< { port => 514 } >>.  A missing value becomes an empty string.
+
+=back
+
+It also works on the class (C<< App::Syslogd->i18n(...) >>); the language then
+comes from the environment.
+
+Returns: the message as a string.  An unknown key does not die: you get the
+key and its values back, such as C<no_such_key (a=1)>.
 
 Side Effects: none.
 
 Usage:
 
-	croak $self->i18n('open_failed', { file => $file, error => "$!" });
+	print $server->i18n('listening', { address => '0.0.0.0', port => 514 }), "\n";
 
 =head3 EXAMPLE
 
+	print App::Syslogd->i18n('shutdown', { count => 1 }), "\n";
+	# Syslog server shutting down after recording 1 message
 	print App::Syslogd->i18n('shutdown', { count => 3 }), "\n";
 	# Syslog server shutting down after recording 3 messages
 
@@ -992,27 +1254,27 @@ Usage:
 
 =head3 MESSAGES
 
-	+----------------+------------------------------------------------+
-	| Key            | English text                                   |
-	+----------------+------------------------------------------------+
-	| usage          | Usage: PROGRAM [--port ...] ...                |
-	| listening      | Syslog server listening on ADDR UDP port N     |
-	| shutdown       | ... shutting down after recording N message(s) |
-	| socket_failed  | Could not create a UDP socket on ADDR port N   |
-	| open_failed    | Could not open log file F: ERROR               |
-	| unsafe_file    | Refusing to log to F: ...                      |
-	| write_failed   | Could not write to log file F: ERROR           |
-	| recv_failed    | Error receiving a datagram: ERROR              |
-	| not_listening  | run() was called before open_socket() ...       |
-	| no_log_open    | process() was called before reopen_log() ...   |
-	+----------------+------------------------------------------------+
+The keys, the values each one uses, and the English text:
 
-=head3 FORMAL SPECIFICATION
-
-	I18n
-	  key? : KEY ; args? : NAME ⇸ VALUE ; out! : STRING
-	  ─────────
-	  out! = Text(handle(language), key?, args?)
+	+---------------+------------------------+--------------------------------------------------+
+	| Key           | Values                 | English text                                     |
+	+---------------+------------------------+--------------------------------------------------+
+	| usage         | program                | Usage: PROGRAM [--port <port_number>] ...        |
+	| listening     | address, port          | Syslog server listening on ADDRESS UDP port PORT |
+	| shutdown      | count                  | Syslog server shutting down after recording      |
+	|               |                        |   COUNT message(s)                               |
+	| socket_failed | address, port, error   | Could not create a UDP socket on ADDRESS port    |
+	|               |                        |   PORT: ERROR                                    |
+	| open_failed   | file, error            | Could not open log file FILE: ERROR              |
+	| unsafe_file   | file                   | Refusing to log to FILE: it must be a regular    |
+	|               |                        |   file, owned by this user, with exactly one     |
+	|               |                        |   link                                           |
+	| write_failed  | file, error            | Could not write to log file FILE: ERROR          |
+	| recv_failed   | error                  | Error receiving a datagram: ERROR                |
+	| not_listening | (none)                 | run() was called before open_socket() succeeded  |
+	| no_log_open   | (none)                 | process() was called before reopen_log()         |
+	|               |                        |   succeeded                                      |
+	+---------------+------------------------+--------------------------------------------------+
 
 =cut
 
@@ -1068,7 +1330,7 @@ sub _open_log :Private
 	my $fh;
 	{
 		no autodie qw(sysopen);
-		sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | O_NOFOLLOW, $LOG_MODE)
+		sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW, $LOG_MODE)
 			or croak($self->i18n('open_failed', { file => $file, error => "$!" }));
 	}
 
@@ -1174,8 +1436,11 @@ sub _peer_name :Protected
 {
 	my ($self, $peer) = @_;
 
-	# getnameinfo copes with both families, unlike inet_ntoa
-	my (undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV);
+	# getnameinfo copes with both families, unlike inet_ntoa.  It dies on
+	# undef ("addr is not a string"), so a missing peer is treated like an
+	# undecodable one: logged as an empty host
+	my $address = '';
+	(undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV) if(defined($peer));
 	$address //= '';
 
 	return $address unless($self->{resolve} && length($address));
@@ -1207,49 +1472,68 @@ sub _escape_controls :Private
 
 =over 4
 
-=item * B<The default log file is in /tmp.>  It is kept for compatibility with
-earlier versions.  The server refuses symlinks, hard links and files owned
-by anyone else, which closes the classic /tmp attacks, but an attacker can
-still delete the file between rotations.  Use C<--file> to put it somewhere
-private such as F</var/log>.
+=item * B<The default log file is in /tmp.>  This keeps compatibility with
+older versions.  The checks described in L</DESCRIPTION> stop the usual
+attacks on files in F</tmp>, but another user can still delete the file.
+Use C<file> (or C<--file>) to choose a private place such as F</var/log>.
 
-=item * B<The web viewer cannot read the log.>  The file is mode 0600 (owned
-by whoever runs the daemon, usually root), but the VWF pages under F<www/>
-run as the web server user.  You must choose between privacy and the
-viewer, for example with a shared group and a change to C<$LOG_MODE>.
+=item * B<The web viewer cannot read the log.>  The file is readable only by
+its owner (usually root), but the web pages in F<www/> run as the web
+server's user.  You must choose between privacy and the viewer, for example
+by using a shared group and changing C<$LOG_MODE> in the source.
 
-=item * B<No privilege drop.>  Port 514 needs root (or CAP_NET_BIND_SERVICE)
-and the server keeps root for its whole life.  Prefer a high port with a
-firewall redirect, or systemd socket activation passing the socket to
-C<new(socket =E<gt> ...)>.
+=item * B<It does not give up root.>  Port 514 needs root (or the
+CAP_NET_BIND_SERVICE capability), and the server keeps root while it runs.
+Better: use a port above 1023 with a firewall redirect, or let systemd open
+the socket and pass it with C<< new(socket => ...) >>.
 
-=item * B<No receive timestamp.>  Rows hold only what the sender put in the
-message.  Adding a column would break the header of existing files and
-VWF::Data::syslog_log, so it needs a migration and has not been done.
+=item * B<No time of arrival.>  A line holds only what the sender put in the
+message.  Adding a column would break existing files and the web viewer, so
+it needs a migration and has not been done.
 
-=item * B<Reverse DNS is synchronous.>  The cache limits the damage, but the
-first packet from a host with a slow resolver blocks the loop, and UDP
-datagrams that arrive meanwhile can be dropped by the kernel.  Use
-C<--no-resolve> on busy servers.
+=item * B<Host name lookups block.>  Answers are remembered, but the first
+message from a host with a slow DNS server makes the loop wait, and the
+system may drop datagrams that arrive during the wait.  Use C<--no-resolve>
+on a busy server.
 
-=item * B<UDP only.>  No TCP (RFC 6587) or TLS (RFC 5425) transport, so there
-is no delivery guarantee and no authentication: anyone who can reach the
-port can write to the log.
+=item * B<UDP only.>  There is no TCP (RFC 6587) or TLS (RFC 5425).  So
+delivery is not guaranteed, and anyone who can reach the port can write to
+the log.
 
-=item * B<Messages are not parsed beyond PRI.>  RFC 3164 timestamps and
-host names, and RFC 5424 structured data, stay in the C<msg> column.
+=item * B<Only the PRI is decoded.>  Time stamps and host names inside RFC 3164
+messages, and RFC 5424 structured data, stay in the C<msg> column.
 
-=item * B<CSV formula injection.>  A message starting with C<=>, C<+>, C<->
-or C<@> may be run as a formula if the file is opened in a spreadsheet.
-The data is stored unchanged on purpose; beware when opening it.
+=item * B<Spreadsheet formulas.>  A message that starts with C<=>, C<+>, C<->
+or C<@> may run as a formula if you open the file in a spreadsheet.  The
+data is kept unchanged on purpose; take care when you open it.
 
-=item * B<Backslashes are not escaped.>  A literal C<\x0A> in a message
-cannot be told apart from an escaped newline.
+=item * B<Backslashes are not escaped>, so the text C<\x0A> and an escaped
+newline look the same (see L</COMMON PITFALLS>).
 
-=item * B<Not Object::Configure.>  C<%DEFAULTS> is a flat hash of the kind
-Object::Configure uses, but C<configure()> is not called: it brings in a
-global Log::Abstraction logger, which may log through syslog, and a
-syslog server logging to itself can loop.
+=item * B<Windows is less protected.>  The module works on Windows, but:
+
+=over 4
+
+=item * Windows has no C<O_NOFOLLOW>, so the server cannot refuse a symbolic
+link as the log file.  (Creating a symbolic link on Windows normally needs
+administrator rights, which makes this attack rare.)
+
+=item * Mode 0600 does not make the file private: Windows uses access control
+lists, which this module does not change.  Put the log in a folder that only
+the right users can read.
+
+=item * There is no C<kill -HUP> from outside the process, so log rotation by
+signal is not available.  Stop and restart the server instead.
+
+=item * A signal such as Ctrl-C may not interrupt the wait for a datagram, so
+the server may stop only after the next datagram arrives.
+
+=back
+
+=item * B<Object::Configure is not used.>  C<%DEFAULTS> has the flat form that
+Object::Configure uses, but its C<configure()> is not called.  It would add a
+global logger that may log through syslog, and a syslog server that logs to
+itself can loop.
 
 =back
 
@@ -1263,6 +1547,297 @@ Copyright 2026 Nigel Horne.
 
 This program is released under the GNU General Public License, version 2
 (see the F<LICENSE> file).  If you use it, please let me know.
+
+=head1 FORMAL SPECIFICATION
+
+This section describes each method exactly, in the Z notation.  You do not
+need it to use the module; the descriptions in L</METHODS> say the same
+things in words.
+
+=head2 State
+
+	[ADDRESS, PATH, LANGTAG, SOCKADDR, BYTE, NAME, VALUE]
+	PORT == 0 .. 65535
+	HEADER == ⟨"Host", "facility", "severity", "msg"⟩
+	RECORD == ⟨facility : 0 .. 23, severity : 0 .. 7,
+	           message : seq BYTE, valid : 𝔹⟩
+
+	Server
+	  port : PORT ; address : ADDRESS ; file : PATH
+	  resolve : 𝔹 ; language : LANGTAG
+	  count : ℕ
+	  bound, logging, running, hup : 𝔹
+	  contents : PATH ⇸ seq (seq BYTE)
+	  ─────────
+	  running ⇒ bound ∧ logging
+
+	ΞServer ≙ [ ΔServer | θServer' = θServer ]
+
+=head2 new
+
+	New
+	  Server'
+	  args? : NAME ⇸ VALUE
+	  ─────────
+	  let a == args? ⩥ {⊥} •
+	    dom args? ⊆ dom NEW_SCHEMA ∧
+	    θServer' = (DEFAULTS ⊕ a) ⊕ {count ↦ 0} ∧
+	    bound' = (socket ∈ dom a) ∧ ¬logging' ∧ ¬running' ∧ ¬hup'
+
+	NewFail
+	  ΞServer
+	  args? : NAME ⇸ VALUE
+	  error! : STRING
+	  ─────────
+	  dom args? ⊈ dom NEW_SCHEMA ∨ ¬ conforms(args?, NEW_SCHEMA)
+
+=head2 open_socket
+
+	OpenSocketOk
+	  ΔServer
+	  ─────────
+	  bound' ∧ logging' = logging ∧ count' = count
+	  (port = 0 ∧ ¬bound ⇒ port' ∈ 1 .. 65535)
+	  (port ≠ 0 ∨ bound ⇒ port' = port)
+
+	OpenSocketFail
+	  ΞServer
+	  error! : STRING
+	  ─────────
+	  ¬bound ∧ ¬ canBind(address, port)
+
+	OpenSocket ≙ OpenSocketOk ∨ OpenSocketFail
+
+=head2 port
+
+	Port
+	  ΞServer
+	  p! : PORT
+	  ─────────
+	  p! = port
+
+=head2 address
+
+	Address
+	  ΞServer
+	  a! : ADDRESS
+	  ─────────
+	  a! = address
+
+=head2 count
+
+	Count
+	  ΞServer
+	  n! : ℕ
+	  ─────────
+	  n! = count
+
+=head2 reopen_log
+
+	ReopenLogOk
+	  ΔServer
+	  ─────────
+	  logging' ∧ bound' = bound ∧ count' = count
+	  isRegular(file) ∧ ¬ isSymlink(file)
+	  owner(file) = euid ∧ links(file) = 1 ∧ mode'(file) = 0600
+	  contents(file) = ⟨⟩ ⇒ contents'(file) = ⟨csv(HEADER)⟩
+	  contents(file) ≠ ⟨⟩ ⇒ contents'(file) = contents(file)
+
+	ReopenLogFail
+	  ΔServer
+	  error! : STRING
+	  ─────────
+	  ¬logging' ∧ bound' = bound ∧ count' = count
+
+	ReopenLog ≙ ReopenLogOk ∨ ReopenLogFail
+
+=head2 parse_message
+
+	ParseMessage
+	  d? : seq BYTE
+	  r! : RECORD ∪ {⊥}
+	  ─────────
+	  let t == stripTrailing({CR, LF, NUL}, d?) •
+	  #t < 2 ⇒ r! = ⊥
+	  #t ≥ 2 ∧ (∃ p : 0 .. 191 ; b : seq BYTE •
+	           t = ⟨'<'⟩ ⁀ canonical(p) ⁀ ⟨'>'⟩ ⁀ b) ⇒
+	    r! = ⟨facility ↦ p div 8, severity ↦ p mod 8,
+	          message ↦ escape(b), valid ↦ true⟩
+	  otherwise ⇒
+	    r! = ⟨facility ↦ 1, severity ↦ 5,
+	          message ↦ escape(t), valid ↦ false⟩
+
+	escape : seq BYTE → seq BYTE
+	∀ c : BYTE • escape(⟨c⟩) =
+	  if c ∈ 0 .. 31 ∪ {127} then "\x" ⁀ hex2(c) else ⟨c⟩
+	∀ s, u : seq BYTE • escape(s ⁀ u) = escape(s) ⁀ escape(u)
+
+=head2 process
+
+	ProcessOk
+	  ΔServer
+	  d? : seq BYTE ; peer? : SOCKADDR ∪ {⊥}
+	  ─────────
+	  logging ∧ bound' = bound ∧ logging'
+	  ParseMessage(d?) = ⊥ ⇒ count' = count ∧ contents' = contents
+	  ParseMessage(d?) = r ≠ ⊥ ⇒
+	    count' = count + 1 ∧
+	    (writable(file) ⇒
+	      contents'(file) = contents(file) ⁀ ⟨csv(host(peer?), r)⟩) ∧
+	    (¬ writable(file) ⇒ contents' = contents)
+
+	host(⊥) = ""
+	resolve ⇒ host(p) = reverseName(p) if found, else numeric(p)
+	¬resolve ⇒ host(p) = numeric(p)
+
+	ProcessFail
+	  ΞServer
+	  error! : STRING
+	  ─────────
+	  ¬logging
+
+	Process ≙ ProcessOk ∨ ProcessFail
+
+=head2 run
+
+	Start ≙ (¬bound ∧ OpenSocket ∨ bound ∧ ΞServer) ⨾
+	        (¬logging ∧ ReopenLog ∨ logging ∧ ΞServer)
+
+	Loop ≙ μ L •
+	    (¬running ∧ Shutdown)
+	  □ (running ∧ hup ∧ [ ΔServer | ¬hup' ] ⨾ ReopenLog ⨾ L)
+	  □ (running ∧ ¬hup ∧ Receive ⨾ Process ⨾ L)
+
+	Shutdown
+	  ΔServer
+	  ─────────
+	  ¬bound' ∧ ¬logging' ∧ ¬running' ∧ count' = count
+
+	Run ≙ Start ⨾ [ ΔServer | running' ] ⨾ Loop
+
+	SIGHUP received during Run      ⇒ hup' = true
+	SIGTERM or SIGINT during Run    ⇒ running' = false
+
+=head2 stop
+
+	Stop
+	  ΔServer
+	  ─────────
+	  ¬running' ∧ bound' = bound ∧ logging' = logging ∧ count' = count
+
+=head2 i18n
+
+	I18n
+	  key? : KEY ; args? : NAME ⇸ VALUE ; out! : STRING
+	  ─────────
+	  key? ∈ dom ARGUMENT_ORDER ⇒
+	    out! = render(lexicon(language, key?),
+	                  ⟨args?(n) | n ∈ ARGUMENT_ORDER(key?)⟩)
+	  key? ∉ dom ARGUMENT_ORDER ⇒ key? ⊑ out!
+
+=head1 STATE DIAGRAM
+
+An object is always in one of six states.  The boxes are the states; the
+arrows are the method calls or events that move it from one state to another.
+The text in square brackets is what happens during the move.
+
+	                      new()
+	                        |   [check options; nothing opened]
+	                        |
+	                        |       new(socket => S) starts in BOUND instead
+	                        v
+	          +---------------------------+
+	          |           IDLE            |<--------------------------------+
+	          |  no socket, no log file   |                                 |
+	          +---------------------------+                                 |
+	              |                   |                                     |
+	 open_socket()|                   |reopen_log()                         |
+	 [bind UDP    |                   |[open or create file (0600),         |
+	  socket]     |                   | write header if empty]              |
+	              v                   v                                     |
+	      +---------------+   +---------------+                             |
+	      |     BOUND     |   |    LOGGING    |<-- process()                |
+	      | socket open,  |   | log open,     |    [write row, count + 1]   |
+	      | no log file   |   | no socket     |                             |
+	      +---------------+   +---------------+                             |
+	              |                   |                                     |
+	  reopen_log()|                   |open_socket()                        |
+	              |    +---------+    |                                     |
+	              +--->|  READY  |<---+                                     |
+	                   | socket  |<-- process()   [write row, count + 1]    |
+	                   | and log |<-- reopen_log() [close, reopen file]     |
+	                   +---------+                                          |
+	                        |                                               |
+	                        | run()   [also allowed from IDLE, BOUND or     |
+	                        |          LOGGING: opens what is missing;      |
+	                        v          installs HUP/TERM/INT handlers]      |
+	                   +---------+                                          |
+	   datagram ------>|         |   [process(): write row, count + 1]      |
+	   SIGHUP -------->| RUNNING |   [reopen_log() at top of loop]          |
+	   read error ---->|         |   [warning; keep going]                  |
+	                   +---------+                                          |
+	                        |                                               |
+	                        | SIGTERM, SIGINT or stop()                     |
+	                        v         [clear "running" flag]                |
+	                   +----------+                                         |
+	                   | STOPPING |   the current wait or datagram ends     |
+	                   +----------+                                         |
+	                        |                                               |
+	                        | loop sees the flag                            |
+	                        | [close socket and log; restore caller's       |
+	                        |  signal handlers; run() returns]              |
+	                        +-----------------------------------------------+
+
+=head2 Transition table
+
+	+----------+-------------------------------+----------+------------------------------------+
+	| From     | Trigger                       | To       | Action / side effect               |
+	+----------+-------------------------------+----------+------------------------------------+
+	| (none)   | new()                         | IDLE     | options checked and stored         |
+	| (none)   | new(socket => S)              | BOUND    | S used as the socket               |
+	| IDLE     | open_socket()                 | BOUND    | UDP socket bound                   |
+	| IDLE     | reopen_log()                  | LOGGING  | file opened or created, header     |
+	| BOUND    | reopen_log()                  | READY    | file opened or created, header     |
+	| LOGGING  | open_socket()                 | READY    | UDP socket bound                   |
+	| BOUND    | open_socket()                 | BOUND    | nothing (already bound)            |
+	| READY    | open_socket()                 | READY    | nothing (already bound)            |
+	| LOGGING  | reopen_log()                  | LOGGING  | file closed and opened again       |
+	| READY    | reopen_log()                  | READY    | file closed and opened again       |
+	| LOGGING  | process()                     | LOGGING  | one row written, count + 1         |
+	| READY    | process()                     | READY    | one row written, count + 1         |
+	| IDLE,    | run()                         | RUNNING  | open what is missing, install      |
+	| BOUND,   |                               |          |   signal handlers, set "running"   |
+	| LOGGING, |                               |          |                                    |
+	| READY    |                               |          |                                    |
+	| RUNNING  | datagram arrives              | RUNNING  | process(): row written, count + 1  |
+	| RUNNING  | SIGHUP                        | RUNNING  | log closed and opened again        |
+	| RUNNING  | read error (not a signal)     | RUNNING  | warning "Error receiving ..."      |
+	| RUNNING  | SIGTERM, SIGINT or stop()     | STOPPING | "running" flag cleared             |
+	| STOPPING | the wait or datagram ends     | IDLE     | socket and log closed, handlers    |
+	|          |                               |          |   restored, run() returns          |
+	+----------+-------------------------------+----------+------------------------------------+
+
+Failures (the method dies and the object changes as shown):
+
+	+----------+-------------------------------+----------+------------------------------------+
+	| From     | Trigger                       | To       | Action / side effect               |
+	+----------+-------------------------------+----------+------------------------------------+
+	| IDLE,    | open_socket() fails           | (same)   | dies "Could not create a UDP       |
+	| LOGGING  |                               |          |   socket ..."                      |
+	| IDLE,    | reopen_log() fails            | (same)   | dies "Could not open log file ..." |
+	| BOUND    |                               |          |   or "Refusing to log ..."         |
+	| LOGGING, | reopen_log() fails            | IDLE or  | log closed, then dies "Could not   |
+	| READY    |                               | BOUND    |   open log file ..." or            |
+	|          |                               |          |   "Refusing to log ..."            |
+	| IDLE,    | process()                     | (same)   | dies "process() was called before  |
+	| BOUND    |                               |          |   reopen_log() succeeded"          |
+	| RUNNING  | SIGHUP, and the reopen fails  | BOUND    | log closed, handlers restored,     |
+	|          |                               |          |   run() dies with the error        |
+	+----------+-------------------------------+----------+------------------------------------+
+
+C<port()>, C<address()>, C<count()>, C<parse_message()> and C<i18n()> never
+change the state.  C<stop()> outside C<run()> changes nothing that matters,
+because C<run()> sets the "running" flag again when it starts.
 
 =cut
 

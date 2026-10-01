@@ -8,7 +8,9 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
-use parent -norequire, 'App::Syslogd::I18N';
+# Not -norequire: a translation that inherits from this package (as the
+# documentation recommends) may be loaded before App::Syslogd::I18N is
+use parent 'App::Syslogd::I18N';
 
 our $VERSION = '0.02';
 
@@ -24,5 +26,43 @@ our %Lexicon = (
 	not_listening => 'run() was called before open_socket() succeeded',
 	no_log_open => 'process() was called before reopen_log() succeeded',
 );
+
+=head1 NAME
+
+App::Syslogd::I18N::en - English messages for App::Syslogd
+
+=head1 VERSION
+
+Version 0.02
+
+=head1 SYNOPSIS
+
+You do not use this package directly.  L<App::Syslogd::I18N> loads it:
+
+	my $lh = App::Syslogd::I18N->handle('en');
+
+=head1 DESCRIPTION
+
+The English text of every message.  It is also the fallback: when no
+lexicon matches the user's language, English is used.  Other languages
+should inherit from this package, so that a message they have not translated
+yet is still shown in English.  L<App::Syslogd::I18N> explains the format.
+
+=head1 ENCODING
+
+All the text is ASCII.
+
+=head1 AUTHOR
+
+Nigel Horne, C<< <njh at nigelhorne.com> >>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2026 Nigel Horne.
+
+This program is released under the GNU General Public License, version 2
+(see the F<LICENSE> file).  If you use it, please let me know.
+
+=cut
 
 1;
