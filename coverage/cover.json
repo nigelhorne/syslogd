@@ -4,66 +4,66 @@
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855665.70349,
+         "finish" : 1790858952.20361,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "-e",
-         "start" : 1790855662.0742,
+         "start" : 1790858949.34659,
          "version" : "0.02"
       },
       {
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855662.2282,
+         "finish" : 1790858949.50005,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "-e",
-         "start" : 1790855662.2281,
+         "start" : 1790858949.49987,
          "version" : "0.02"
       },
       {
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855662.64102,
+         "finish" : 1790858949.91935,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "t/00-load.t",
-         "start" : 1790855662.63606,
+         "start" : 1790858949.9137,
          "version" : "0.02"
       },
       {
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855663.19345,
+         "finish" : 1790858950.50273,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "t/i18n.t",
-         "start" : 1790855663.12911,
+         "start" : 1790858950.43346,
          "version" : "0.02"
       },
       {
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855663.78986,
+         "finish" : 1790858951.11521,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "t/locales.t",
-         "start" : 1790855663.7063,
+         "start" : 1790858951.0321,
          "version" : "0.02"
       },
       {
          "OS" : "linux",
          "abstract" : "A small UDP syslog receiver that writes a CSV file",
          "dir" : "/home/runner/work/syslogd/syslogd",
-         "finish" : 1790855665.49929,
+         "finish" : 1790858951.98281,
          "name" : "App-Syslogd",
          "perl" : "5.40.5",
          "run" : "t/server.t",
-         "start" : 1790855664.33476,
+         "start" : 1790858951.66691,
          "version" : "0.02"
       }
    ],
@@ -84,10 +84,10 @@
             "uncoverable" : 0
          },
          "statement" : {
-            "covered" : 201,
+            "covered" : 205,
             "error" : 16,
-            "percentage" : 92.6267281105991,
-            "total" : 217
+            "percentage" : 92.7601809954751,
+            "total" : 221
          },
          "subroutine" : {
             "covered" : 58,
@@ -96,10 +96,10 @@
             "total" : 61
          },
          "total" : {
-            "covered" : 315,
+            "covered" : 319,
             "error" : 42,
-            "percentage" : 88.2352941176471,
-            "total" : 357,
+            "percentage" : 88.3656509695291,
+            "total" : 361,
             "uncoverable" : 0
          }
       },
@@ -119,9 +119,9 @@
             "uncoverable" : 0
          },
          "statement" : {
-            "covered" : 136,
+            "covered" : 140,
             "percentage" : 100,
-            "total" : 136
+            "total" : 140
          },
          "subroutine" : {
             "covered" : 39,
@@ -129,10 +129,10 @@
             "total" : 39
          },
          "total" : {
-            "covered" : 215,
+            "covered" : 219,
             "error" : 6,
-            "percentage" : 97.2850678733032,
-            "total" : 221,
+            "percentage" : 97.3333333333333,
+            "total" : 225,
             "uncoverable" : 0
          }
       },

@@ -33,11 +33,11 @@ https://pjcj.net
 <tr><td class="h">7</td><td></td><td></td><td></td><td></td><td></td><td class="s"># [quant,...] pluralisation and [sprintf,...] formatting; all we add is</td></tr>
 <tr><td class="h">8</td><td></td><td></td><td></td><td></td><td></td><td class="s"># named arguments (so callers never depend on positional order) and a</td></tr>
 <tr><td class="h">9</td><td></td><td></td><td></td><td></td><td></td><td class="s"># [gender,...] bracket method.</td></tr>
-<tr><td class="h">10</td><td colspan="6"></td></tr><tr><td class="h">11</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L11">4</a></div></td><td><div>66317</div><div>3</div><div>51</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">12</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L12">4</a></div></td><td><div>6</div><div>2</div><div>99</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">13</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L13">4</a></div></td><td><div>231</div><div>6058</div><div>14</div></td><td class="s">use autodie qw(:all);</td></tr>
-<tr><td class="h">14</td><td colspan="6"></td></tr><tr><td class="h">15</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L15">4</a></div></td><td><div>14064</div><div>4</div><div>15</div></td><td class="s">use parent &#39;Locale::Maketext&#39;;</td></tr>
-<tr><td class="h">16</td><td colspan="6"></td></tr><tr><td class="h">17</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L17">4</a></div></td><td><div>21776</div><div>1638</div><div>748</div></td><td class="s">use Readonly;</td></tr>
+<tr><td class="h">10</td><td colspan="6"></td></tr><tr><td class="h">11</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L11">4</a></div></td><td><div>69175</div><div>3</div><div>61</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">12</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L12">4</a></div></td><td><div>9</div><div>4</div><div>125</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">13</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L13">4</a></div></td><td><div>229</div><div>6189</div><div>17</div></td><td class="s">use autodie qw(:all);</td></tr>
+<tr><td class="h">14</td><td colspan="6"></td></tr><tr><td class="h">15</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L15">4</a></div></td><td><div>15346</div><div>3</div><div>18</div></td><td class="s">use parent &#39;Locale::Maketext&#39;;</td></tr>
+<tr><td class="h">16</td><td colspan="6"></td></tr><tr><td class="h">17</td><td><div class="c3">4</div><div class="c3">4</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L17">4</a></div></td><td><div>24697</div><div>1705</div><div>883</div></td><td class="s">use Readonly;</td></tr>
 <tr><td class="h">18</td><td colspan="6"></td></tr><tr><td class="h">19</td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.02&#39;;</td></tr>
 <tr><td class="h">20</td><td colspan="6"></td></tr><tr><td class="h">21</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Language used when nothing in the environment matches a lexicon we ship</td></tr>
 <tr><td class="h">22</td><td></td><td></td><td></td><td></td><td></td><td class="s">Readonly my $FALLBACK_LANGUAGE =&gt; &#39;en&#39;;</td></tr>
@@ -57,7 +57,7 @@ https://pjcj.net
 <tr><td class="h">37</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_log_open =&gt; [],</td></tr>
 <tr><td class="h">38</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
 <tr><td class="h">39</td><td colspan="6"></td></tr><tr><td class="h">40</td><td></td><td></td><td></td><td></td><td></td><td class="s">=encoding utf8</td></tr>
-<tr><td class="h">41</td><td colspan="6"></td></tr><tr><td class="h">42 - 112</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
+<tr><td class="h">41</td><td colspan="6"></td></tr><tr><td class="h">42 - 217</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
 
 App::Syslogd::I18N - Localised messages for App::Syslogd
 
@@ -67,31 +67,145 @@ Version 0.02
 
 =head1 SYNOPSIS
 
+=head2 1. Get a message in the user&#39;s language
+
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;use App::Syslogd::I18N;
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;en&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# language from the environment
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;text(&#39;listening&#39;, { address =&gt; &#39;0.0.0.0&#39;, port =&gt; 514 }), &quot;\n&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Syslog server listening on 0.0.0.0 UDP port 514
+
+=head2 2. Ask for one language
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;en-gb&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;text(&#39;shutdown&#39;, { count =&gt; 2 }), &quot;\n&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Syslog server shutting down after recording 2 messages
+
+=head2 3. Add a translation
+
+Put this in F&lt;lib/App/Syslogd/I18N/de.pm&gt;.&nbsp;&nbsp;Inherit from the English
+lexicon, so that any message you have not translated yet is still shown in
+English instead of causing an error.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;package App::Syslogd::I18N::de;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;use parent &#39;App::Syslogd::I18N::en&#39;;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;our %Lexicon = (
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listening =&gt; &#39;Syslog-Server wartet auf [_1], UDP-Port [_2]&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown =&gt; &#39;Syslog-Server endet nach [quant,_1,Nachricht,Nachrichten]&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1;
 
 =head1 DESCRIPTION
 
-Each language lives in its own C&lt;App::Syslogd::I18N::xx&gt; package with a
-C&lt;%Lexicon&gt; hash, in the usual L&lt;Locale::Maketext&gt; way.&nbsp;&nbsp;Lexicon entries
-use bracket notation, so a translation can use C&lt;[quant,_1,file,files]&gt;,
-C&lt;[sprintf,%05d,_1]&gt; or C&lt;[gender,_1,his,her,their]&gt;.
+A program shows messages to people: &quot;listening on port 514&quot;, &quot;could not
+open the file&quot;, and so on.&nbsp;&nbsp;This module keeps those messages in one place, so
+that they can be translated into other languages.
+
+Each message has a I&lt;key&gt; (a short name, such as C&lt;listening&gt;) and some
+I&lt;values&gt; (such as the port number).&nbsp;&nbsp;You give the key and the values; you
+get back the finished sentence in the chosen language.
+
+Each language is a small Perl package called C&lt;App::Syslogd::I18N::xx&gt;
+(where C&lt;xx&gt; is the language code) with a hash called C&lt;%Lexicon&gt;.&nbsp;&nbsp;The hash
+maps each key to its text.&nbsp;&nbsp;The text uses the &quot;bracket notation&quot; of
+L&lt;Locale::Maketext&gt;:
+
+=over 4
+
+=item * C&lt;[_1]&gt;, C&lt;[_2]&gt;, ... are replaced by the values, in the order given
+by the table in L&lt;/text&gt;.
+
+=item * C&lt;[quant,_1,message,messages]&gt; chooses the singular or plural form
+for the number in C&lt;[_1]&gt;, and writes the number.
+
+=item * C&lt;[sprintf,%05d,_1]&gt; formats a value, as Perl&#39;s C&lt;sprintf&gt; does.
+
+=item * C&lt;[gender,_1,his,her,their]&gt; chooses a word by gender; see
+L&lt;/gender&gt;.
+
+=item * A real square bracket is written C&lt;~[&gt; or C&lt;~]&gt;.
+
+=back
+
+=head1 ENCODING
+
+=over 4
+
+=item * B&lt;Language tags&gt; must be ASCII, for example C&lt;en&gt; or C&lt;en-gb&gt;.
+
+=item * B&lt;Lexicon text&gt; may contain any Unicode characters, including
+non-ASCII letters and emoji, if the language file starts with C&lt;use utf8;&gt;.
+The English lexicon is pure ASCII.
+
+=item * B&lt;Values&gt; are copied into the message unchanged.&nbsp;&nbsp;They may be byte
+strings or character strings.&nbsp;&nbsp;Square brackets and C&lt;~&gt; in a value are not
+special: only the lexicon text is parsed.
+
+=item * B&lt;The result&gt; is a Perl string.&nbsp;&nbsp;If it contains characters above
+255 (for example from a translation with emoji), set an output layer before
+printing it: C&lt;binmode(STDOUT, &#39;:encoding(UTF-8)&#39;)&gt;.&nbsp;&nbsp;Otherwise Perl prints
+a &quot;Wide character&quot; warning.
+
+=back
+
+=head1 COMMON PITFALLS
+
+=over 4
+
+=item * B&lt;A translation must inherit from the English lexicon.&gt;&nbsp;&nbsp;If
+C&lt;App::Syslogd::I18N::de&gt; inherits only from C&lt;App::Syslogd::I18N&gt;, any key
+it does not translate makes L&lt;Locale::Maketext&gt; die with &quot;maketext doesn&#39;t
+know how to say&quot;.&nbsp;&nbsp;Inherit from C&lt;App::Syslogd::I18N::en&gt;, as in the
+SYNOPSIS, and missing keys fall back to English.
+
+=item * B&lt;Missing values become empty strings.&gt;&nbsp;&nbsp;C&lt;&lt; text(&#39;open_failed&#39;, {}) &gt;&gt;
+gives &quot;Could not open log file : &quot; with no warning.&nbsp;&nbsp;This is on purpose (an
+error message should never fail), but check your values if a message looks
+incomplete.
+
+=item * B&lt;undef or non-numbers in a plural become 0.&gt;
+C&lt;&lt; text(&#39;shutdown&#39;, { count =&gt; undef }) &gt;&gt; says &quot;0 messages&quot;.
+
+=item * B&lt;An unknown key does not die.&gt;&nbsp;&nbsp;C&lt;&lt; text(&#39;no_such_key&#39;, { a =&gt; 1 }) &gt;&gt;
+returns C&lt;no_such_key (a=1)&gt;.&nbsp;&nbsp;This keeps the information in an error path,
+but it means a misspelt key is not reported.&nbsp;&nbsp;Test the messages you use.
+
+=item * B&lt;Values are matched to positions by name, not by order.&gt;&nbsp;&nbsp;The order
+of the C&lt;[_1]&gt;, C&lt;[_2]&gt; slots comes from a fixed table (see L&lt;/text&gt;), not
+from the order you write the hash.&nbsp;&nbsp;A new key must be added to that table
+too, or it is treated as unknown.
+
+=item * B&lt;gender() knows only &quot;male&quot; and &quot;female&quot;.&gt;&nbsp;&nbsp;Any other value,
+including C&lt;m&gt;, C&lt;f&gt; and C&lt;undef&gt;, gives the neutral form.&nbsp;&nbsp;Upper and lower
+case are the same.
+
+=item * B&lt;The language comes from the environment&gt; when you give none:
+C&lt;LANGUAGE&gt;, C&lt;LC_ALL&gt;, C&lt;LC_MESSAGES&gt;, then C&lt;LANG&gt;.&nbsp;&nbsp;A language with no
+lexicon falls back to English without a warning.
+
+=item * B&lt;Operating-system errors stay in English.&gt;&nbsp;&nbsp;A value such as C&lt;&quot;$!&quot;&gt;
+is in the C locale unless the code that made it used C&lt;use locale&gt;, whatever
+C&lt;LC_ALL&gt; says.
+
+=back
 
 =head1 METHODS
 
 =head2 handle
 
-Purpose: return a language handle, falling back to English.
+Purpose: get a &quot;language handle&quot;, the object that makes messages in one
+language.
 
-Args: an optional language tag (e.g. C&lt;de&gt;, C&lt;en-gb&gt;); with none, the
-language is detected from the environment (C&lt;LANGUAGE&gt;, C&lt;LC_ALL&gt;,
+Args: optional: a language tag, such as C&lt;de&gt; or C&lt;en-gb&gt;.&nbsp;&nbsp;Without one, the
+language is taken from the environment (C&lt;LANGUAGE&gt;, C&lt;LC_ALL&gt;,
 C&lt;LC_MESSAGES&gt;, C&lt;LANG&gt;).
 
-Returns: a C&lt;App::Syslogd::I18N&gt; subclass object.&nbsp;&nbsp;Never C&lt;undef&gt;.
+Returns: an object of a C&lt;App::Syslogd::I18N&gt; subclass.&nbsp;&nbsp;Never C&lt;undef&gt;: if
+there is no lexicon for the language, you get the English one.
 
-Side Effects: none.
+Side Effects: may load the language&#39;s module file.
 
 Usage:
 
@@ -99,8 +213,8 @@ Usage:
 
 =head3 EXAMPLE
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;fr&#39;);&nbsp;&nbsp;&nbsp;# no French yet...
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ref($lh), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# ...App::Syslogd::I18N::en
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;fr&#39;);&nbsp;&nbsp;&nbsp;# there is no French yet...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print ref($lh), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# ...so: App::Syslogd::I18N::en
 
 =head3 API SPECIFICATION
 
@@ -118,33 +232,52 @@ Usage:
 
 None.
 
-=head3 FORMAL SPECIFICATION
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Handle
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lang? : LANGTAG
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;h! : HANDLE
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(lang? &acirc;&#136;&#136; dom lexicons &acirc;&#135;&#146; language(h!) = lang?) &acirc;&#136;&sect;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(lang? &acirc;&#136;&#137; dom lexicons &acirc;&#135;&#146; language(h!) = en)
-
 =cut</pre></td></tr>
-<tr><td class="h">113</td><td colspan="6"></td></tr><tr><td class="h">114</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub handle</td></tr>
-<tr><td class="h">115</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">116</td><td><div class="c3">43</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L116">43</a></div></td><td><div>93556</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $language) = @_;</td></tr>
-<tr><td class="h">117</td><td colspan="6"></td></tr><tr><td class="h">118</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Locale::Maketext returns undef when no lexicon matches, which is</td></tr>
-<tr><td class="h">119</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# never useful to a caller that just wants a message printed</td></tr>
-<tr><td class="h">120</td><td><div class="c3">43</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L120">100</a></div></td><td></td><td></td><td><div>61</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @tags = defined($language) ? ($language) : ();</td></tr>
-<tr><td class="h">121</td><td colspan="6"></td></tr><tr><td class="h">122</td><td><div class="c3">43</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L122">33</a></div></td><td></td><td><div>97</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $class-&gt;get_handle(@tags) || $class-&gt;get_handle($FALLBACK_LANGUAGE);</td></tr>
-<tr><td class="h">123</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">124</td><td colspan="6"></td></tr><tr><td class="h">125 - 175</td><td colspan="5"></td><td class="s"><pre>=head2 text
+<tr><td class="h">218</td><td colspan="6"></td></tr><tr><td class="h">219</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub handle</td></tr>
+<tr><td class="h">220</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">221</td><td><div class="c3">46</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L221">46</a></div></td><td><div>98927</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($class, $language) = @_;</td></tr>
+<tr><td class="h">222</td><td colspan="6"></td></tr><tr><td class="h">223</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Locale::Maketext returns undef when no lexicon matches, which is</td></tr>
+<tr><td class="h">224</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# never useful to a caller that just wants a message printed</td></tr>
+<tr><td class="h">225</td><td><div class="c3">46</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L225">100</a></div></td><td></td><td></td><td><div>66</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @tags = defined($language) ? ($language) : ();</td></tr>
+<tr><td class="h">226</td><td colspan="6"></td></tr><tr><td class="h">227</td><td><div class="c3">46</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L227">33</a></div></td><td></td><td><div>140</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $class-&gt;get_handle(@tags) || $class-&gt;get_handle($FALLBACK_LANGUAGE);</td></tr>
+<tr><td class="h">228</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">229</td><td colspan="6"></td></tr><tr><td class="h">230 - 306</td><td colspan="5"></td><td class="s"><pre>=head2 text
 
-Purpose: render one message.
+Purpose: make one finished message.
 
-Args: a message key and an optional hashref of named arguments.
+Args:
 
-Returns: the rendered string.&nbsp;&nbsp;An unknown key renders as the key followed by
-its arguments rather than dying, because the most likely caller is an error
-path and losing the original error would be worse than an untranslated one.
+=over 4
+
+=item 1. The message key.
+
+=item 2. Optional: a hash reference of named values.&nbsp;&nbsp;A missing value becomes
+an empty string.
+
+=back
+
+The keys, and the values each one uses (in slot order C&lt;[_1]&gt;, C&lt;[_2]&gt;,
+...):
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+---------------+----------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Key&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Values, in order&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+---------------+----------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| usage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| program&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| listening&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| address, port&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| shutdown&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| count&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| socket_failed | address, port, error |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| open_failed&nbsp;&nbsp;&nbsp;| file, error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| unsafe_file&nbsp;&nbsp;&nbsp;| file&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| write_failed&nbsp;&nbsp;| file, error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| recv_failed&nbsp;&nbsp;&nbsp;| error&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| not_listening | (none)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| no_log_open&nbsp;&nbsp;&nbsp;| (none)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+---------------+----------------------+
+
+Returns: the message, as a string.&nbsp;&nbsp;An unknown key does not die: it returns
+the key, followed by its values in brackets if there are any.&nbsp;&nbsp;The most
+likely caller is reporting an error, and losing that error would be worse
+than showing an untranslated key.
 
 Side Effects: none.
 
@@ -157,6 +290,7 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;en&#39;);
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;text(&#39;shutdown&#39;, { count =&gt; 1 }), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# &quot;... 1 message&quot;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;text(&#39;shutdown&#39;, { count =&gt; 2 }), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# &quot;... 2 messages&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;text(&#39;no_such_key&#39;, { a =&gt; 1 }), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# &quot;no_such_key (a=1)&quot;
 
 =head3 API SPECIFICATION
 
@@ -173,46 +307,54 @@ Usage:
 
 =head3 MESSAGES
 
-None of its own; see L&lt;App::Syslogd/MESSAGES&gt; for the catalogue.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------------------------------+----------------------------+------------------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Message (dies)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Meaning&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| What to do&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------------------------------+----------------------------+------------------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| maketext doesn&#39;t know how to say: | A translation has no text&nbsp;&nbsp;| Make the language inherit&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;KEY&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;for KEY and does not&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;from App::Syslogd::I18N::en|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;inherit from English&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;(see COMMON PITFALLS)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------------------------------+----------------------------+------------------------------+
 
-=head3 FORMAL SPECIFICATION
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Text
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? : KEY
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args? : NAME &acirc;&#135;&cedil; VALUE
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out! : STRING
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? &acirc;&#136;&#136; dom ARGUMENT_ORDER &acirc;&#135;&#146;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out! = render(lexicon(key?), &acirc;&#159;&uml;args?(n) | n &acirc;&#136;&#136; ARGUMENT_ORDER(key?)&acirc;&#159;&copy;)
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? &acirc;&#136;&#137; dom ARGUMENT_ORDER &acirc;&#135;&#146; key? &acirc;&#138;&#145; out!
+The English text of every key is in L&lt;App::Syslogd/i18n&gt;.
 
 =cut</pre></td></tr>
-<tr><td class="h">176</td><td colspan="6"></td></tr><tr><td class="h">177</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub text</td></tr>
-<tr><td class="h">178</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">179</td><td><div class="c3">34</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L179">34</a></div></td><td><div>4405</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $key, $args) = @_;</td></tr>
-<tr><td class="h">180</td><td colspan="6"></td></tr><tr><td class="h">181</td><td><div class="c3">34</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--condition.html#L181">100</a></div></td><td></td><td><div>41</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$args ||= {};</td></tr>
-<tr><td class="h">182</td><td colspan="6"></td></tr><tr><td class="h">183</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Unknown keys still produce something readable; see POD above</td></tr>
-<tr><td class="h">184</td><td><div class="c3">34</div></td><td></td><td></td><td></td><td><div>74</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $order = $ARGUMENT_ORDER{$key};</td></tr>
-<tr><td class="h">185</td><td><div class="c3">34</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L185">100</a></div></td><td></td><td></td><td><div>126</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($order)) {</td></tr>
-<tr><td class="h">186</td><td><div class="c3">2</div><div class="c3">2</div><div class="c3">2</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L186">50</a></div></td><td></td><td><div>1</div><div>4</div><div>4</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $detail = join(&#39;, &#39;, map { &quot;$_=&quot; . ($args-&gt;{$_} // &#39;&#39;) } sort keys %{$args});</td></tr>
-<tr><td class="h">187</td><td><div class="c3">2</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L187">100</a></div></td><td></td><td></td><td><div>6</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return length($detail) ? &quot;$key ($detail)&quot; : $key;</td></tr>
-<tr><td class="h">188</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">189</td><td colspan="6"></td></tr><tr><td class="h">190</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Missing arguments become empty strings so a sloppy caller gets a</td></tr>
-<tr><td class="h">191</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# slightly odd message instead of &quot;Use of uninitialized value&quot; noise</td></tr>
-<tr><td class="h">192</td><td><div class="c3">32</div><div class="c3">57</div><div class="c3">32</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--condition.html#L192">100</a></div></td><td></td><td><div>25</div><div>187</div><div>55</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;maketext($key, map { $args-&gt;{$_} // &#39;&#39; } @{$order});</td></tr>
-<tr><td class="h">193</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">194</td><td colspan="6"></td></tr><tr><td class="h">195 - 235</td><td colspan="5"></td><td class="s"><pre>=head2 gender
+<tr><td class="h">307</td><td colspan="6"></td></tr><tr><td class="h">308</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub text</td></tr>
+<tr><td class="h">309</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">310</td><td><div class="c3">34</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L310">34</a></div></td><td><div>5412</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $key, $args) = @_;</td></tr>
+<tr><td class="h">311</td><td colspan="6"></td></tr><tr><td class="h">312</td><td><div class="c3">34</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--condition.html#L312">100</a></div></td><td></td><td><div>44</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$args ||= {};</td></tr>
+<tr><td class="h">313</td><td colspan="6"></td></tr><tr><td class="h">314</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Unknown keys still produce something readable; see POD above</td></tr>
+<tr><td class="h">315</td><td><div class="c3">34</div></td><td></td><td></td><td></td><td><div>136</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $order = $ARGUMENT_ORDER{$key};</td></tr>
+<tr><td class="h">316</td><td><div class="c3">34</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L316">100</a></div></td><td></td><td></td><td><div>154</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($order)) {</td></tr>
+<tr><td class="h">317</td><td><div class="c3">2</div><div class="c3">2</div><div class="c3">2</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L317">50</a></div></td><td></td><td><div>3</div><div>8</div><div>5</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $detail = join(&#39;, &#39;, map { &quot;$_=&quot; . ($args-&gt;{$_} // &#39;&#39;) } sort keys %{$args});</td></tr>
+<tr><td class="h">318</td><td><div class="c3">2</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L318">100</a></div></td><td></td><td></td><td><div>7</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return length($detail) ? &quot;$key ($detail)&quot; : $key;</td></tr>
+<tr><td class="h">319</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">320</td><td colspan="6"></td></tr><tr><td class="h">321</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Missing arguments become empty strings so a sloppy caller gets a</td></tr>
+<tr><td class="h">322</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# slightly odd message instead of &quot;Use of uninitialized value&quot; noise</td></tr>
+<tr><td class="h">323</td><td><div class="c3">32</div><div class="c3">57</div><div class="c3">32</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--condition.html#L323">100</a></div></td><td></td><td><div>33</div><div>214</div><div>66</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;maketext($key, map { $args-&gt;{$_} // &#39;&#39; } @{$order});</td></tr>
+<tr><td class="h">324</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">325</td><td colspan="6"></td></tr><tr><td class="h">326 - 369</td><td colspan="5"></td><td class="s"><pre>=head2 gender
 
-Bracket-notation method: C&lt;[gender,_1,male form,female form,neutral form]&gt;.
+Purpose: choose a word by grammatical gender inside a message.&nbsp;&nbsp;You do not
+call it directly; a lexicon uses it with bracket notation:
+C&lt;[gender,_1,male form,female form,neutral form]&gt;.
 
-Purpose: choose a word by grammatical gender.&nbsp;&nbsp;Anything other than C&lt;male&gt; or
-C&lt;female&gt; (including C&lt;undef&gt;) selects the neutral form.
+Args: the gender value, then the male, female and neutral forms.
 
-Returns: the chosen string.
+Returns: the male form for C&lt;male&gt;, the female form for C&lt;female&gt; (upper or
+lower case), and the neutral form for anything else, including C&lt;undef&gt;.
+
+Side Effects: none.
+
+Usage:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# In a lexicon:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;owner_changed =&gt; &#39;[_1] changed [gender,_2,his,her,their] password&#39;,
 
 =head3 EXAMPLE
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# In a lexicon: &#39;owner&#39; =&gt; &#39;[_1] changed [gender,_2,his,her,their] password&#39;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;en&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;gender(&#39;Female&#39;, &#39;his&#39;, &#39;her&#39;, &#39;their&#39;), &quot;\n&quot;;&nbsp;&nbsp;# her
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print $lh-&gt;gender(undef, &#39;his&#39;, &#39;her&#39;, &#39;their&#39;), &quot;\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# their
 
 =head3 API SPECIFICATION
 
@@ -233,27 +375,18 @@ Returns: the chosen string.
 
 None.
 
-=head3 FORMAL SPECIFICATION
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gender
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g? : STRING ; m?, f?, n?, out! : STRING
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(g? = male &acirc;&#135;&#146; out! = m?) &acirc;&#136;&sect; (g? = female &acirc;&#135;&#146; out! = f?) &acirc;&#136;&sect;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(g? &acirc;&#136;&#137; {male, female} &acirc;&#135;&#146; out! = n?)
-
 =cut</pre></td></tr>
-<tr><td class="h">236</td><td colspan="6"></td></tr><tr><td class="h">237</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub gender</td></tr>
-<tr><td class="h">238</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">239</td><td><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L239">4</a></div></td><td><div>296</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $gender, $male, $female, $neutral) = @_;</td></tr>
-<tr><td class="h">240</td><td colspan="6"></td></tr><tr><td class="h">241</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# A single lookup table keeps this to one return statement</td></tr>
-<tr><td class="h">242</td><td><div class="c3">4</div></td><td></td><td></td><td></td><td><div>6</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my %form = (male =&gt; $male, female =&gt; $female);</td></tr>
-<tr><td class="h">243</td><td colspan="6"></td></tr><tr><td class="h">244</td><td><div class="c3">4</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L244">100</a></div></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L244">67</a></div></td><td></td><td><div>17</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return defined($gender) &amp;&amp; exists($form{lc $gender}) ? $form{lc $gender} : $neutral;</td></tr>
-<tr><td class="h">245</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">246</td><td colspan="6"></td></tr><tr><td class="h">247 - 264</td><td colspan="5"></td><td class="s"><pre>=head1 LIMITATIONS
+<tr><td class="h">370</td><td colspan="6"></td></tr><tr><td class="h">371</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub gender</td></tr>
+<tr><td class="h">372</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">373</td><td><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-pm--subroutine.html#L373">4</a></div></td><td><div>363</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $gender, $male, $female, $neutral) = @_;</td></tr>
+<tr><td class="h">374</td><td colspan="6"></td></tr><tr><td class="h">375</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# A single lookup table keeps this to one return statement</td></tr>
+<tr><td class="h">376</td><td><div class="c3">4</div></td><td></td><td></td><td></td><td><div>6</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my %form = (male =&gt; $male, female =&gt; $female);</td></tr>
+<tr><td class="h">377</td><td colspan="6"></td></tr><tr><td class="h">378</td><td><div class="c3">4</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-I18N-pm--branch.html#L378">100</a></div></td><td><div class="c0"><a href="lib-App-Syslogd-I18N-pm--condition.html#L378">67</a></div></td><td></td><td><div>24</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return defined($gender) &amp;&amp; exists($form{lc $gender}) ? $form{lc $gender} : $neutral;</td></tr>
+<tr><td class="h">379</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">380</td><td colspan="6"></td></tr><tr><td class="h">381 - 466</td><td colspan="5"></td><td class="s"><pre>=head1 LIMITATIONS
 
-Only English ships today.&nbsp;&nbsp;Messages that embed C&lt;$!&gt; are only as localised
-as Perl makes C&lt;$!&gt;: outside C&lt;use locale&gt; Perl reports OS errors in the
-C locale, whatever C&lt;LC_ALL&gt; says.
+Only English is included.&nbsp;&nbsp;Messages that contain an operating-system error
+(C&lt;$!&gt;) show it in English, as explained in L&lt;/COMMON PITFALLS&gt;.
 
 =head1 AUTHOR
 
@@ -266,8 +399,77 @@ Copyright 2026 Nigel Horne.
 This program is released under the GNU General Public License, version 2
 (see the F&lt;LICENSE&gt; file).&nbsp;&nbsp;If you use it, please let me know.
 
+=head1 FORMAL SPECIFICATION
+
+This section describes each method exactly, in the Z notation.&nbsp;&nbsp;You do not
+need it to use the module.
+
+=head2 handle
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[LANGTAG, KEY, NAME, VALUE, STRING]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lexicons : LANGTAG &acirc;&#135;&cedil; (KEY &acirc;&#135;&cedil; STRING)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;en &acirc;&#136;&#136; dom lexicons
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Handle
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lang? : LANGTAG &acirc;&#136;&ordf; {&acirc;&#138;&yen;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;h! : HANDLE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;let l == (if lang? = &acirc;&#138;&yen; then fromEnvironment else lang?) &acirc;&#128;&cent;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(l &acirc;&#136;&#136; dom lexicons &acirc;&#135;&#146; language(h!) = l) &acirc;&#136;&sect;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(l &acirc;&#136;&#137; dom lexicons &acirc;&#135;&#146; language(h!) = en)
+
+=head2 text
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARGUMENT_ORDER : KEY &acirc;&#135;&cedil; seq NAME
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Text
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;h? : HANDLE ; key? : KEY ; args? : NAME &acirc;&#135;&cedil; VALUE
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out! : STRING
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? &acirc;&#136;&#136; dom ARGUMENT_ORDER &acirc;&#135;&#146;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out! = render(lexicon(language(h?), key?),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#159;&uml; n : ran ARGUMENT_ORDER(key?) &acirc;&#128;&cent;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if n &acirc;&#136;&#136; dom args? &acirc;&#136;&sect; args?(n) &acirc;&#137;&nbsp; &acirc;&#138;&yen; then args?(n) else &quot;&quot; &acirc;&#159;&copy;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? &acirc;&#136;&#137; dom ARGUMENT_ORDER &acirc;&#136;&sect; args? = &acirc;&#136;&#133; &acirc;&#135;&#146; out! = key?
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key? &acirc;&#136;&#137; dom ARGUMENT_ORDER &acirc;&#136;&sect; args? &acirc;&#137;&nbsp; &acirc;&#136;&#133; &acirc;&#135;&#146;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out! = key? &acirc;&#129;&#128; &quot; (&quot; &acirc;&#129;&#128; join(&quot;, &quot;, sorted(args?)) &acirc;&#129;&#128; &quot;)&quot;
+
+=head2 gender
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gender
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g? : STRING &acirc;&#136;&ordf; {&acirc;&#138;&yen;} ; m?, f?, n? : STRING ; out! : STRING
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(g? &acirc;&#137;&nbsp; &acirc;&#138;&yen; &acirc;&#136;&sect; lower(g?) = &quot;male&quot; &acirc;&#135;&#146; out! = m?) &acirc;&#136;&sect;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(g? &acirc;&#137;&nbsp; &acirc;&#138;&yen; &acirc;&#136;&sect; lower(g?) = &quot;female&quot; &acirc;&#135;&#146; out! = f?) &acirc;&#136;&sect;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(g? = &acirc;&#138;&yen; &acirc;&#136;&uml; lower(g?) &acirc;&#136;&#137; {&quot;male&quot;, &quot;female&quot;} &acirc;&#135;&#146; out! = n?)
+
+=head1 STATE DIAGRAM
+
+A language handle has no states that change.&nbsp;&nbsp;C&lt;handle()&gt; makes it, and
+after that C&lt;text()&gt; and C&lt;gender()&gt; only read it.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handle(LANG)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[load LANG&#39;s lexicon, or English if there is none]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;READY&nbsp;&nbsp;&nbsp;|&lt;-- text(KEY, VALUES)&nbsp;&nbsp;[return a message; no change]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&lt;-- gender(...)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[return a word; no change]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+--------+-------------------+--------+--------------------------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| From&nbsp;&nbsp;&nbsp;| Trigger&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| To&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| Action / side effect&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+--------+-------------------+--------+--------------------------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| (none) | handle(LANG)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| READY&nbsp;&nbsp;| language chosen; module may be&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;loaded&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| READY&nbsp;&nbsp;| text(KEY, VALUES) | READY&nbsp;&nbsp;| message returned&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| READY&nbsp;&nbsp;| gender(...)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| READY&nbsp;&nbsp;| word returned&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| READY&nbsp;&nbsp;| text() for a key&nbsp;&nbsp;| READY&nbsp;&nbsp;| dies &quot;maketext doesn&#39;t know how to&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;the language&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;say&quot; (only if the language does&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;lacks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;not inherit from English)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+--------+-------------------+--------+--------------------------------------+
+
 =cut</pre></td></tr>
-<tr><td class="h">265</td><td colspan="6"></td></tr><tr><td class="h">266</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">467</td><td colspan="6"></td></tr><tr><td class="h">468</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
 </table>
 </body>
 </html>

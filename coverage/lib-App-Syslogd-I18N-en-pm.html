@@ -29,24 +29,63 @@ https://pjcj.net
 <tr><td class="h">2</td><td colspan="6"></td></tr><tr><td class="h">3</td><td></td><td></td><td></td><td></td><td></td><td class="s"># English lexicon.&nbsp;&nbsp;Square brackets are Maketext syntax; a literal bracket</td></tr>
 <tr><td class="h">4</td><td></td><td></td><td></td><td></td><td></td><td class="s"># is written &quot;~[&quot; or &quot;~]&quot;.&nbsp;&nbsp;Argument order is defined by %ARGUMENT_ORDER in</td></tr>
 <tr><td class="h">5</td><td></td><td></td><td></td><td></td><td></td><td class="s"># App::Syslogd::I18N, not here.</td></tr>
-<tr><td class="h">6</td><td colspan="6"></td></tr><tr><td class="h">7</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L7">3</a></div></td><td><div>1556</div><div>21</div><div>56</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">8</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L8">3</a></div></td><td><div>5</div><div>2</div><div>83</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">9</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L9">3</a></div></td><td><div>6</div><div>2</div><div>12</div></td><td class="s">use autodie qw(:all);</td></tr>
-<tr><td class="h">10</td><td colspan="6"></td></tr><tr><td class="h">11</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L11">3</a></div></td><td><div>6646</div><div>3</div><div>16</div></td><td class="s">use parent -norequire, &#39;App::Syslogd::I18N&#39;;</td></tr>
-<tr><td class="h">12</td><td colspan="6"></td></tr><tr><td class="h">13</td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.02&#39;;</td></tr>
-<tr><td class="h">14</td><td colspan="6"></td></tr><tr><td class="h">15</td><td></td><td></td><td></td><td></td><td></td><td class="s">our %Lexicon = (</td></tr>
-<tr><td class="h">16</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage =&gt; &#39;Usage: [_1] ~[--port &lt;port_number&gt;~] ~[--address &lt;address&gt;~] ~[--file &lt;CSV file&gt;~] ~[--no-resolve~] ~[--language &lt;tag&gt;~]&#39;,</td></tr>
-<tr><td class="h">17</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listening =&gt; &#39;Syslog server listening on [_1] UDP port [_2]&#39;,</td></tr>
-<tr><td class="h">18</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown =&gt; &#39;Syslog server shutting down after recording [quant,_1,message,messages]&#39;,</td></tr>
-<tr><td class="h">19</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;socket_failed =&gt; &#39;Could not create a UDP socket on [_1] port [_2]: [_3]&#39;,</td></tr>
-<tr><td class="h">20</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;open_failed =&gt; &#39;Could not open log file [_1]: [_2]&#39;,</td></tr>
-<tr><td class="h">21</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsafe_file =&gt; &#39;Refusing to log to [_1]: it must be a regular file, owned by this user, with exactly one link&#39;,</td></tr>
-<tr><td class="h">22</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_failed =&gt; &#39;Could not write to log file [_1]: [_2]&#39;,</td></tr>
-<tr><td class="h">23</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recv_failed =&gt; &#39;Error receiving a datagram: [_1]&#39;,</td></tr>
-<tr><td class="h">24</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_listening =&gt; &#39;run() was called before open_socket() succeeded&#39;,</td></tr>
-<tr><td class="h">25</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_log_open =&gt; &#39;process() was called before reopen_log() succeeded&#39;,</td></tr>
-<tr><td class="h">26</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
-<tr><td class="h">27</td><td colspan="6"></td></tr><tr><td class="h">28</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">6</td><td colspan="6"></td></tr><tr><td class="h">7</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L7">3</a></div></td><td><div>1818</div><div>4</div><div>49</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">8</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L8">3</a></div></td><td><div>5</div><div>3</div><div>124</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">9</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L9">3</a></div></td><td><div>8</div><div>1</div><div>28</div></td><td class="s">use autodie qw(:all);</td></tr>
+<tr><td class="h">10</td><td colspan="6"></td></tr><tr><td class="h">11</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Not -norequire: a translation that inherits from this package (as the</td></tr>
+<tr><td class="h">12</td><td></td><td></td><td></td><td></td><td></td><td class="s"># documentation recommends) may be loaded before App::Syslogd::I18N is</td></tr>
+<tr><td class="h">13</td><td><div class="c3">3</div><div class="c3">3</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L13">3</a></div></td><td><div>6725</div><div>3</div><div>12</div></td><td class="s">use parent &#39;App::Syslogd::I18N&#39;;</td></tr>
+<tr><td class="h">14</td><td colspan="6"></td></tr><tr><td class="h">15</td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.02&#39;;</td></tr>
+<tr><td class="h">16</td><td colspan="6"></td></tr><tr><td class="h">17</td><td></td><td></td><td></td><td></td><td></td><td class="s">our %Lexicon = (</td></tr>
+<tr><td class="h">18</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage =&gt; &#39;Usage: [_1] ~[--port &lt;port_number&gt;~] ~[--address &lt;address&gt;~] ~[--file &lt;CSV file&gt;~] ~[--no-resolve~] ~[--language &lt;tag&gt;~]&#39;,</td></tr>
+<tr><td class="h">19</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listening =&gt; &#39;Syslog server listening on [_1] UDP port [_2]&#39;,</td></tr>
+<tr><td class="h">20</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;shutdown =&gt; &#39;Syslog server shutting down after recording [quant,_1,message,messages]&#39;,</td></tr>
+<tr><td class="h">21</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;socket_failed =&gt; &#39;Could not create a UDP socket on [_1] port [_2]: [_3]&#39;,</td></tr>
+<tr><td class="h">22</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;open_failed =&gt; &#39;Could not open log file [_1]: [_2]&#39;,</td></tr>
+<tr><td class="h">23</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unsafe_file =&gt; &#39;Refusing to log to [_1]: it must be a regular file, owned by this user, with exactly one link&#39;,</td></tr>
+<tr><td class="h">24</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;write_failed =&gt; &#39;Could not write to log file [_1]: [_2]&#39;,</td></tr>
+<tr><td class="h">25</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recv_failed =&gt; &#39;Error receiving a datagram: [_1]&#39;,</td></tr>
+<tr><td class="h">26</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_listening =&gt; &#39;run() was called before open_socket() succeeded&#39;,</td></tr>
+<tr><td class="h">27</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_log_open =&gt; &#39;process() was called before reopen_log() succeeded&#39;,</td></tr>
+<tr><td class="h">28</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
+<tr><td class="h">29</td><td colspan="6"></td></tr><tr><td class="h">30 - 66</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
+
+App::Syslogd::I18N::en - English messages for App::Syslogd
+
+=head1 VERSION
+
+Version 0.02
+
+=head1 SYNOPSIS
+
+You do not use this package directly.&nbsp;&nbsp;L&lt;App::Syslogd::I18N&gt; loads it:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = App::Syslogd::I18N-&gt;handle(&#39;en&#39;);
+
+=head1 DESCRIPTION
+
+The English text of every message.&nbsp;&nbsp;It is also the fallback: when no
+lexicon matches the user&#39;s language, English is used.&nbsp;&nbsp;Other languages
+should inherit from this package, so that a message they have not translated
+yet is still shown in English.&nbsp;&nbsp;L&lt;App::Syslogd::I18N&gt; explains the format.
+
+=head1 ENCODING
+
+All the text is ASCII.
+
+=head1 AUTHOR
+
+Nigel Horne, C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2026 Nigel Horne.
+
+This program is released under the GNU General Public License, version 2
+(see the F&lt;LICENSE&gt; file).&nbsp;&nbsp;If you use it, please let me know.
+
+=cut</pre></td></tr>
+<tr><td class="h">67</td><td colspan="6"></td></tr><tr><td class="h">68</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
 </table>
 </body>
 </html>
