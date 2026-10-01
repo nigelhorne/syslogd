@@ -1,4 +1,4 @@
-# Dependencies of bin/syslogd and lib/Syslogd (the www/ viewer has its own,
+# Dependencies of etc/syslogd and lib/App (the www/ viewer has its own,
 # much larger, set: see the use lines in www/cgi-bin/page.fcgi)
 requires 'perl', '5.014';
 requires 'autodie';

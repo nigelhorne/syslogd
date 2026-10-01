@@ -1,14 +1,14 @@
-package Syslogd::Server::I18N::en;
+package App::Syslogd::I18N::en;
 
 # English lexicon.  Square brackets are Maketext syntax; a literal bracket
 # is written "~[" or "~]".  Argument order is defined by %ARGUMENT_ORDER in
-# Syslogd::Server::I18N, not here.
+# App::Syslogd::I18N, not here.
 
 use strict;
 use warnings;
 use autodie qw(:all);
 
-use parent -norequire, 'Syslogd::Server::I18N';
+use parent -norequire, 'App::Syslogd::I18N';
 
 our $VERSION = '0.02';
 

@@ -11,11 +11,11 @@ use lib "$Bin/../lib", "$Bin/../www/lib";
 use Test::Most;
 
 BEGIN {
-	use_ok('Syslogd::Server::I18N');
-	use_ok('Syslogd::Server');
+	use_ok('App::Syslogd::I18N');
+	use_ok('App::Syslogd');
 	use_ok('VWF::Blacklist');
 }
 
-diag("Testing Syslogd::Server $Syslogd::Server::VERSION, Perl $], $^X");
+diag("Testing App::Syslogd $App::Syslogd::VERSION, Perl $], $^X");
 
 done_testing();

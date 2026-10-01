@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# Syslogd::Server: construction, parsing, recording, log safety, the
+# App::Syslogd: construction, parsing, recording, log safety, the
 # receive loop (with a fake socket and with a real one), signals and
 # encapsulation.  White-box: private helpers are called directly, which
 # Sub::Private and Sub::Protected allow under the test harness.
@@ -17,7 +17,7 @@ use IO::Socket::IP;
 use Socket qw(pack_sockaddr_in inet_aton);
 use Test::Most;
 
-use Syslogd::Server;
+use App::Syslogd;
 
 # White-box access to :Private / :Protected helpers, even outside prove
 $Sub::Private::BYPASS = $Sub::Protected::BYPASS = 1;
@@ -64,24 +64,24 @@ my $HEADER = '"Host","facility","severity","msg"';
 }
 
 subtest 'new() validates its arguments' => sub {
-	my $s = Syslogd::Server->new();
-	isa_ok($s, 'Syslogd::Server');
+	my $s = App::Syslogd->new();
+	isa_ok($s, 'App::Syslogd');
 	is($s->port(), 514, 'default port');
 	is($s->address(), '0.0.0.0', 'default address');
 	is($s->count(), 0, 'nothing recorded yet');
 
-	is(Syslogd::Server->new({ port => 5514 })->port(), 5514, 'hashref form');
-	is(Syslogd::Server->new(port => 0)->port(), 0, 'port 0 (kernel chooses) allowed');
+	is(App::Syslogd->new({ port => 5514 })->port(), 5514, 'hashref form');
+	is(App::Syslogd->new(port => 0)->port(), 0, 'port 0 (kernel chooses) allowed');
 
-	throws_ok { Syslogd::Server->new(port => 65_536) } qr/port/, 'port above 65535 rejected';
-	throws_ok { Syslogd::Server->new(port => -1) } qr/port/, 'negative port rejected';
-	throws_ok { Syslogd::Server->new(prot => 514) } qr/Unknown parameter 'prot'/, 'misspelt argument rejected';
-	throws_ok { Syslogd::Server->new(file => '') } qr/file/, 'empty file name rejected';
-	throws_ok { Syslogd::Server->new(cache => 'x') } qr/cache/, 'cache must be an object';
+	throws_ok { App::Syslogd->new(port => 65_536) } qr/port/, 'port above 65535 rejected';
+	throws_ok { App::Syslogd->new(port => -1) } qr/port/, 'negative port rejected';
+	throws_ok { App::Syslogd->new(prot => 514) } qr/Unknown parameter 'prot'/, 'misspelt argument rejected';
+	throws_ok { App::Syslogd->new(file => '') } qr/file/, 'empty file name rejected';
+	throws_ok { App::Syslogd->new(cache => 'x') } qr/cache/, 'cache must be an object';
 };
 
 subtest 'parse_message(): valid PRI' => sub {
-	my $p = sub { Syslogd::Server->parse_message(@_) };
+	my $p = sub { App::Syslogd->parse_message(@_) };
 
 	is_deeply($p->('<34>su: failed'), { facility => 4, severity => 2, message => 'su: failed', valid => 1 }, 'auth.crit');
 	is_deeply($p->('<0>x'), { facility => 0, severity => 0, message => 'x', valid => 1 }, 'PRI 0 (kern.emerg)');
@@ -92,26 +92,26 @@ subtest 'parse_message(): valid PRI' => sub {
 
 subtest 'parse_message(): invalid PRI becomes user.notice (RFC 3164 4.3.3)' => sub {
 	foreach my $bad ('no pri', '<192>too big', '<013>leading zero', '<1000>four digits', '<>empty', '<-1>negative', '13>no open') {
-		my $r = Syslogd::Server->parse_message($bad);
+		my $r = App::Syslogd->parse_message($bad);
 		is_deeply($r, { facility => 1, severity => 5, message => $bad, valid => 0 }, "'$bad'");
 	}
 };
 
 subtest 'parse_message(): boundaries and escaping' => sub {
-	is(Syslogd::Server->parse_message(undef), undef, 'undef ignored');
-	is(Syslogd::Server->parse_message(''), undef, 'empty ignored');
-	is(Syslogd::Server->parse_message('x'), undef, 'one character ignored');
-	is(Syslogd::Server->parse_message("x\n"), undef, 'one character plus newline ignored');
-	ok(Syslogd::Server->parse_message('xy'), 'two characters recorded');
+	is(App::Syslogd->parse_message(undef), undef, 'undef ignored');
+	is(App::Syslogd->parse_message(''), undef, 'empty ignored');
+	is(App::Syslogd->parse_message('x'), undef, 'one character ignored');
+	is(App::Syslogd->parse_message("x\n"), undef, 'one character plus newline ignored');
+	ok(App::Syslogd->parse_message('xy'), 'two characters recorded');
 
-	is(Syslogd::Server->parse_message("<13>a\nb\tc\x7Fd")->{message}, 'a\x0Ab\x09c\x7Fd', 'control characters escaped');
-	is(Syslogd::Server->parse_message("<13>caf\xC3\xA9")->{message}, "caf\xC3\xA9", 'high-bit bytes kept');
-	is(Syslogd::Server->parse_message("<13>\0mid")->{message}, '\x00mid', 'embedded NUL escaped');
+	is(App::Syslogd->parse_message("<13>a\nb\tc\x7Fd")->{message}, 'a\x0Ab\x09c\x7Fd', 'control characters escaped');
+	is(App::Syslogd->parse_message("<13>caf\xC3\xA9")->{message}, "caf\xC3\xA9", 'high-bit bytes kept');
+	is(App::Syslogd->parse_message("<13>\0mid")->{message}, '\x00mid', 'embedded NUL escaped');
 };
 
 subtest 'reopen_log() creates a private file with one header' => sub {
 	my $file = new_log();
-	my $s = Syslogd::Server->new(file => $file, resolve => 0);
+	my $s = App::Syslogd->new(file => $file, resolve => 0);
 
 	is($s->reopen_log(), $s, 'returns $self');
 	ok(-f $file, 'file created');
@@ -133,19 +133,19 @@ subtest 'reopen_log() refuses unsafe files' => sub {
 
 	my $link = new_log();
 	symlink($target, $link) or die "symlink: $!";
-	throws_ok { Syslogd::Server->new(file => $link)->reopen_log() } qr/Could not open log file \Q$link\E/, 'symlink refused';
+	throws_ok { App::Syslogd->new(file => $link)->reopen_log() } qr/Could not open log file \Q$link\E/, 'symlink refused';
 
 	my $hard = new_log();
 	link($target, $hard) or die "link: $!";
-	throws_ok { Syslogd::Server->new(file => $hard)->reopen_log() } qr/Refusing to log to \Q$hard\E/, 'hard link refused';
+	throws_ok { App::Syslogd->new(file => $hard)->reopen_log() } qr/Refusing to log to \Q$hard\E/, 'hard link refused';
 
-	throws_ok { Syslogd::Server->new(file => $dir)->reopen_log() } qr/\Q$dir\E/, 'directory refused';
-	throws_ok { Syslogd::Server->new(file => "$dir/no/such/dir/x.csv")->reopen_log() } qr/Could not open log file/, 'missing directory reported';
+	throws_ok { App::Syslogd->new(file => $dir)->reopen_log() } qr/\Q$dir\E/, 'directory refused';
+	throws_ok { App::Syslogd->new(file => "$dir/no/such/dir/x.csv")->reopen_log() } qr/Could not open log file/, 'missing directory reported';
 };
 
 subtest 'process() writes well-formed CSV' => sub {
 	my $file = new_log();
-	my $s = Syslogd::Server->new(file => $file, resolve => 0)->reopen_log();
+	my $s = App::Syslogd->new(file => $file, resolve => 0)->reopen_log();
 
 	is($s->process('<34>said "hi", then left', $PEER), $s, 'returns $self');
 	$s->process("<13>two\nlines", $PEER);
@@ -170,7 +170,7 @@ subtest 'process() writes well-formed CSV' => sub {
 };
 
 subtest 'process() before reopen_log()' => sub {
-	throws_ok { Syslogd::Server->new()->process('<13>x', $PEER) } qr/before reopen_log\(\)/, 'croaks';
+	throws_ok { App::Syslogd->new()->process('<13>x', $PEER) } qr/before reopen_log\(\)/, 'croaks';
 };
 
 subtest 'host name resolution and its cache' => sub {
@@ -184,7 +184,7 @@ subtest 'host name resolution and its cache' => sub {
 	}
 	my $cache = CountingCache->new();
 
-	my $s = Syslogd::Server->new(file => $file, cache => $cache)->reopen_log();
+	my $s = App::Syslogd->new(file => $file, cache => $cache)->reopen_log();
 	my $localhost = pack_sockaddr_in(514, inet_aton('127.0.0.1'));
 	$s->process('<13>a', $localhost)->process('<13>b', $localhost)->process('<13>c', $PEER);
 
@@ -193,8 +193,8 @@ subtest 'host name resolution and its cache' => sub {
 	like($lines->[3], qr/\A"192\.0\.2\.1"/, 'unresolvable address logged numerically');
 	is($cache->{calls}{'127.0.0.1'}, 2, 'cache consulted per datagram');
 
-	is(Syslogd::Server->new(resolve => 0)->_peer_name($localhost), '127.0.0.1', '--no-resolve logs the address');
-	is(Syslogd::Server->new(resolve => 1)->_peer_name('garbage'), '', 'an undecodable sockaddr does not die');
+	is(App::Syslogd->new(resolve => 0)->_peer_name($localhost), '127.0.0.1', '--no-resolve logs the address');
+	is(App::Syslogd->new(resolve => 1)->_peer_name('garbage'), '', 'an undecodable sockaddr does not die');
 };
 
 subtest 'run() with a fake socket' => sub {
@@ -204,7 +204,7 @@ subtest 'run() with a fake socket' => sub {
 		queue => ['<13>one', 'x', '<14>two'],
 		on_empty => sub { $s->stop() },
 	);
-	$s = Syslogd::Server->new(file => $file, resolve => 0, socket => $socket);
+	$s = App::Syslogd->new(file => $file, resolve => 0, socket => $socket);
 
 	is($s->run(), $s, 'run() returns $self after stop()');
 	is($s->count(), 2, 'two datagrams recorded');
@@ -228,7 +228,7 @@ subtest 'SIGHUP reopens the log; SIGTERM stops' => sub {
 	my $outer = 0;
 	local $SIG{HUP} = sub { $outer++ };
 
-	my $s = Syslogd::Server->new(file => $file, resolve => 0, socket => $socket);
+	my $s = App::Syslogd->new(file => $file, resolve => 0, socket => $socket);
 	$s->run();
 
 	is_deeply(lines_of($rotated), [$HEADER, '"192.0.2.1","1","5","before"'], 'rotated file keeps old rows');
@@ -249,7 +249,7 @@ subtest 'recv() errors are reported, EINTR is not' => sub {
 		*ErrSocket::recv = sub { $calls++; $! = $calls == 1 ? Errno::EBADF() : Errno::EINTR(); $s->stop() if($calls > 1); return undef };
 		*ErrSocket::close = sub { 1 };
 	}
-	$s = Syslogd::Server->new(file => new_log(), socket => $socket);
+	$s = App::Syslogd->new(file => new_log(), socket => $socket);
 
 	warnings_like { $s->run() } [qr/Error receiving a datagram/], 'one warning, for EBADF only';
 };
@@ -258,7 +258,7 @@ subtest 'write failures warn and do not die' => sub {
 	SKIP: {
 		skip('/dev/full is Linux-specific', 2) unless(-c '/dev/full' && -w '/dev/full');
 
-		my $s = Syslogd::Server->new(file => new_log(), resolve => 0)->reopen_log();
+		my $s = App::Syslogd->new(file => new_log(), resolve => 0)->reopen_log();
 		open(my $full, '>>', '/dev/full') or skip("/dev/full: $!", 2);
 		$full->autoflush(1);
 		$s->{fh} = $full;
@@ -274,7 +274,7 @@ subtest 'write failures warn and do not die' => sub {
 
 subtest 'run() over a real UDP socket' => sub {
 	my $file = new_log();
-	my $s = Syslogd::Server->new(port => 0, address => '127.0.0.1', file => $file, resolve => 0);
+	my $s = App::Syslogd->new(port => 0, address => '127.0.0.1', file => $file, resolve => 0);
 
 	is($s->open_socket(), $s, 'open_socket() returns $self');
 	my $port = $s->port();
@@ -296,12 +296,12 @@ subtest 'run() over a real UDP socket' => sub {
 };
 
 subtest 'open_socket() failure' => sub {
-	my $first = Syslogd::Server->new(port => 0, address => '127.0.0.1')->open_socket();
+	my $first = App::Syslogd->new(port => 0, address => '127.0.0.1')->open_socket();
 	my $port = $first->port();
 
-	throws_ok { Syslogd::Server->new(port => $port, address => '127.0.0.1')->open_socket() }
+	throws_ok { App::Syslogd->new(port => $port, address => '127.0.0.1')->open_socket() }
 		qr/Could not create a UDP socket on 127\.0\.0\.1 port $port/, 'port in use';
-	throws_ok { Syslogd::Server->new(port => 0, address => 'no.such.host.invalid')->open_socket() }
+	throws_ok { App::Syslogd->new(port => 0, address => 'no.such.host.invalid')->open_socket() }
 		qr/Could not create a UDP socket on no\.such\.host\.invalid/, 'bad address';
 };
 
@@ -311,17 +311,17 @@ subtest 'encapsulation is enforced outside the test harness' => sub {
 	local $Sub::Private::config{harness_bypass} = 0;
 	local $Sub::Protected::config{harness_bypass} = 0;
 
-	my $s = Syslogd::Server->new(file => new_log());
+	my $s = App::Syslogd->new(file => new_log());
 	foreach my $private (qw(_open_log _close_log _write_header _write_row _receive _shutdown)) {
 		throws_ok { $s->$private() } qr/private/, "$private is private";
 	}
-	throws_ok { Syslogd::Server::_escape_controls('x') } qr/private/, '_escape_controls is private';
+	throws_ok { App::Syslogd::_escape_controls('x') } qr/private/, '_escape_controls is private';
 	throws_ok { $s->_peer_name($PEER) } qr/protected/, '_peer_name is protected';
 
 	# ...but a subclass may override or call the protected one
 	{
 		package My::Server;
-		our @ISA = ('Syslogd::Server');
+		our @ISA = ('App::Syslogd');
 		sub name_of { my ($self, $peer) = @_; return 'sub:' . $self->_peer_name($peer) }
 	}
 	is(My::Server->new(resolve => 0)->name_of($PEER), 'sub:192.0.2.1', 'subclass can call _peer_name');

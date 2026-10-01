@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # Receive syslog datagrams over UDP and append them to a CSV file.
-# All of the work is in Syslogd::Server; this file only turns the command
+# All of the work is in App::Syslogd; this file only turns the command
 # line into constructor arguments, so that the logic can be unit tested.
 #
 #	syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
@@ -14,20 +14,23 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
+# Installed as /usr/local/etc/syslogd, so "../lib" is /usr/local/lib: copy
+# lib/App there.  The same path also finds lib/ when run from a git
+# checkout (etc/../lib), and a normal @INC install still works.
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long qw(GetOptions);
-use Syslogd::Server;
+use App::Syslogd;
 
-# Only options the user actually gave are passed on, so Syslogd::Server's
+# Only options the user actually gave are passed on, so App::Syslogd's
 # %DEFAULTS stay the single place where defaults are defined
 my %opts;
 GetOptions(\%opts, 'port=i', 'address=s', 'file=s', 'resolve!', 'language=s')
-	or die Syslogd::Server->i18n('usage', { program => $0 }), "\n";
+	or die App::Syslogd->i18n('usage', { program => $0 }), "\n";
 
 # Bind first so a busy port is reported before anything is written
-my $server = Syslogd::Server->new(\%opts)->open_socket()->reopen_log();
+my $server = App::Syslogd->new(\%opts)->open_socket()->reopen_log();
 
 print $server->i18n('listening', { address => $server->address(), port => $server->port() }), "\n";
 

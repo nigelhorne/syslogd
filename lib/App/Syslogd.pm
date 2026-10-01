@@ -1,4 +1,4 @@
-package Syslogd::Server;
+package App::Syslogd;
 
 use strict;
 use warnings;
@@ -21,7 +21,7 @@ use Readonly;
 use Socket qw(getnameinfo NI_NAMEREQD NI_NUMERICHOST NIx_NOSERV);
 use Text::CSV;
 
-use Syslogd::Server::I18N;
+use App::Syslogd::I18N;
 
 our $VERSION = '0.02';
 
@@ -74,7 +74,7 @@ Readonly my %NEW_SCHEMA => (
 
 =head1 NAME
 
-Syslogd::Server - A small UDP syslog receiver that writes a CSV file
+App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
 =head1 VERSION
 
@@ -82,9 +82,9 @@ Version 0.02
 
 =head1 SYNOPSIS
 
-	use Syslogd::Server;
+	use App::Syslogd;
 
-	my $server = Syslogd::Server->new(port => 5514, file => '/var/log/remote.csv');
+	my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
 	$server->open_socket()->reopen_log();
 	print $server->i18n('listening', { address => '0.0.0.0', port => $server->port() }), "\n";
 	$server->run();		# returns after SIGTERM or SIGINT
@@ -108,6 +108,87 @@ forge a record by sending a newline.
 
 =item * A datagram without a valid PRI is recorded as C<user.notice> (PRI 13),
 as RFC 3164 section 4.3.3 requires, with the whole datagram as the message.
+A valid PRI is 0-191 with no leading zeros (RFC 5424 section 6.2.1).
+
+=item * The sender is logged by host name, looked up through the system
+resolver (so F</etc/hosts> is honoured) and cached.  With C<--no-resolve>
+it is logged by address.  IPv4 and IPv6 are both supported.
+
+=item * The log file is created with mode 0600.  The server refuses to write
+through a symlink or a hard link, or to a file owned by another user.
+
+=item * Datagrams of up to 65535 bytes are accepted without truncation.
+
+=back
+
+=head1 COMMAND LINE
+
+The program F<etc/syslogd> is a thin wrapper around this module:
+
+	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+		[--no-resolve] [--language en]
+
+=over 4
+
+=item C<--port> - UDP port to listen on, default 514 (which needs root).
+
+=item C<--address> - local address to bind, default C<0.0.0.0>; use C<::> for IPv6.
+
+=item C<--file> - the CSV log file, default F</tmp/syslog.log>.  The default
+is kept for compatibility only; choose somewhere private for real use (see
+L</LIMITATIONS>).
+
+=item C<--no-resolve> - log sender addresses instead of host names.
+
+=item C<--language> - language for the program's own messages; by default
+it is taken from the environment.
+
+=back
+
+Send B<SIGHUP> to reopen the log file and B<SIGTERM> or B<SIGINT> to stop.
+
+=head2 Log rotation
+
+An example logrotate stanza:
+
+	/var/log/remote-syslog.csv {
+		weekly
+		rotate 8
+		postrotate
+			pkill -HUP -f /usr/local/etc/syslogd
+		endscript
+	}
+
+=head1 INSTALLATION
+
+	cpanm --installdeps .
+	sudo cp etc/syslogd /usr/local/etc/
+	sudo cp -r lib/App /usr/local/lib/
+
+The program looks for its modules in F<../lib> relative to itself, which is
+F</usr/local/lib> once installed, or F<lib/> in a git checkout.  Modules
+installed anywhere on Perl's normal C<@INC> are also found.
+
+=head1 DEPENDENCIES
+
+Perl 5.14 or later, plus L<autodie> (with L<IPC::System::Simple>), L<CHI>,
+L<IO::Socket::IP>, L<Locale::Maketext>, L<Params::Get>,
+L<Params::Validate::Strict>, L<Readonly>, L<Socket>, L<Sub::Private>,
+L<Sub::Protected> and L<Text::CSV>.  The exact versions are in F<cpanfile>.
+
+=head1 FILES
+
+=over 4
+
+=item F<etc/syslogd> - the command-line program, installed as F</usr/local/etc/syslogd>.
+
+=item F<lib/App/Syslogd.pm> - this module.
+
+=item F<lib/App/Syslogd/I18N.pm>, F<lib/App/Syslogd/I18N/en.pm> - the message catalogue.
+
+=item F<t/> - the tests; run them with C<prove -l t/>.
+
+=item F<www/> - a VWF-based web viewer for the log.
 
 =back
 
@@ -144,18 +225,18 @@ for tests and socket activation.
 
 =back
 
-Returns: a blessed C<Syslogd::Server>.
+Returns: a blessed C<App::Syslogd>.
 
 Side Effects: none.
 
 Usage:
 
-	my $server = Syslogd::Server->new({ port => 514, resolve => 0 });
+	my $server = App::Syslogd->new({ port => 514, resolve => 0 });
 
 =head3 EXAMPLE
 
 	# Listen on an unprivileged port and log addresses, not names
-	my $server = Syslogd::Server->new(port => 5514, resolve => 0);
+	my $server = App::Syslogd->new(port => 5514, resolve => 0);
 
 =head3 API SPECIFICATION
 
@@ -175,7 +256,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -223,7 +304,7 @@ sub new
 
 	# One handle per object: two servers in one process may speak
 	# different languages
-	$self->{lh} = Syslogd::Server::I18N->handle($self->{language});
+	$self->{lh} = App::Syslogd::I18N->handle($self->{language});
 
 	# Reverse DNS is synchronous; without a cache one slow resolver would
 	# stall the receive loop for every packet from that host
@@ -257,7 +338,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	my $server = Syslogd::Server->new(port => 0)->open_socket();
+	my $server = App::Syslogd->new(port => 0)->open_socket();
 	print 'Kernel chose port ', $server->port(), "\n";
 
 =head3 API SPECIFICATION
@@ -268,7 +349,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -324,7 +405,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	print Syslogd::Server->new()->port(), "\n";	# 514
+	print App::Syslogd->new()->port(), "\n";	# 514
 
 =head3 API SPECIFICATION
 
@@ -377,7 +458,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	print Syslogd::Server->new(address => "::")->address(), "\n";	# ::
+	print App::Syslogd->new(address => "::")->address(), "\n";	# ::
 
 =head3 API SPECIFICATION
 
@@ -494,7 +575,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -549,14 +630,14 @@ Side Effects: none.
 
 Usage:
 
-	my $rec = Syslogd::Server->parse_message('<34>su: root failed');
+	my $rec = App::Syslogd->parse_message('<34>su: root failed');
 
 =head3 EXAMPLE
 
-	my $rec = Syslogd::Server->parse_message("<34>su: 'su root' failed\n");
+	my $rec = App::Syslogd->parse_message("<34>su: 'su root' failed\n");
 	# { facility => 4, severity => 2, message => "su: 'su root' failed", valid => 1 }
 
-	$rec = Syslogd::Server->parse_message("no pri\there");
+	$rec = App::Syslogd->parse_message("no pri\there");
 	# { facility => 1, severity => 5, message => 'no pri\x09here', valid => 0 }
 
 =head3 API SPECIFICATION
@@ -668,7 +749,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -730,7 +811,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	my $server = Syslogd::Server->new(port => 5514, file => '/var/log/remote.csv');
+	my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
 	$server->run();
 	print $server->i18n('shutdown', { count => $server->count() }), "\n";
 
@@ -742,7 +823,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -836,7 +917,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server' }
+	{ type => 'object', isa => 'App::Syslogd' }
 
 =head3 MESSAGES
 
@@ -878,7 +959,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	print Syslogd::Server->i18n('shutdown', { count => 3 }), "\n";
+	print App::Syslogd->i18n('shutdown', { count => 3 }), "\n";
 	# Syslog server shutting down after recording 3 messages
 
 =head3 API SPECIFICATION
@@ -925,7 +1006,7 @@ sub i18n
 	my ($self, $key, $args) = @_;
 
 	# Class-method calls have no object and so no stored handle
-	my $lh = ref($self) ? $self->{lh} : Syslogd::Server::I18N->handle();
+	my $lh = ref($self) ? $self->{lh} : App::Syslogd::I18N->handle();
 
 	return $lh->text($key, $args);
 }

@@ -1,6 +1,6 @@
-package Syslogd::Server::I18N;
+package App::Syslogd::I18N;
 
-# Message catalogue for Syslogd::Server.
+# Message catalogue for App::Syslogd.
 #
 # This is a thin layer over Locale::Maketext (core Perl) rather than a
 # home-grown catalogue.  Maketext already gives us language negotiation,
@@ -41,7 +41,7 @@ Readonly my %ARGUMENT_ORDER => (
 
 =head1 NAME
 
-Syslogd::Server::I18N - Localised messages for Syslogd::Server
+App::Syslogd::I18N - Localised messages for App::Syslogd
 
 =head1 VERSION
 
@@ -49,14 +49,14 @@ Version 0.02
 
 =head1 SYNOPSIS
 
-	use Syslogd::Server::I18N;
+	use App::Syslogd::I18N;
 
-	my $lh = Syslogd::Server::I18N->handle('en');
+	my $lh = App::Syslogd::I18N->handle('en');
 	print $lh->text('listening', { address => '0.0.0.0', port => 514 }), "\n";
 
 =head1 DESCRIPTION
 
-Each language lives in its own C<Syslogd::Server::I18N::xx> package with a
+Each language lives in its own C<App::Syslogd::I18N::xx> package with a
 C<%Lexicon> hash, in the usual L<Locale::Maketext> way.  Lexicon entries
 use bracket notation, so a translation can use C<[quant,_1,file,files]>,
 C<[sprintf,%05d,_1]> or C<[gender,_1,his,her,their]>.
@@ -71,18 +71,18 @@ Args: an optional language tag (e.g. C<de>, C<en-gb>); with none, the
 language is detected from the environment (C<LANGUAGE>, C<LC_ALL>,
 C<LC_MESSAGES>, C<LANG>).
 
-Returns: a C<Syslogd::Server::I18N> subclass object.  Never C<undef>.
+Returns: a C<App::Syslogd::I18N> subclass object.  Never C<undef>.
 
 Side Effects: none.
 
 Usage:
 
-	my $lh = Syslogd::Server::I18N->handle();
+	my $lh = App::Syslogd::I18N->handle();
 
 =head3 EXAMPLE
 
-	my $lh = Syslogd::Server::I18N->handle('fr');	# no French yet...
-	print ref($lh), "\n";				# ...Syslogd::Server::I18N::en
+	my $lh = App::Syslogd::I18N->handle('fr');	# no French yet...
+	print ref($lh), "\n";				# ...App::Syslogd::I18N::en
 
 =head3 API SPECIFICATION
 
@@ -94,7 +94,7 @@ Usage:
 
 =head4 OUTPUT
 
-	{ type => 'object', isa => 'Syslogd::Server::I18N' }
+	{ type => 'object', isa => 'App::Syslogd::I18N' }
 
 =head3 MESSAGES
 
@@ -140,7 +140,7 @@ Usage:
 
 =head3 EXAMPLE
 
-	my $lh = Syslogd::Server::I18N->handle('en');
+	my $lh = App::Syslogd::I18N->handle('en');
 	print $lh->text('shutdown', { count => 1 }), "\n";	# "... 1 message"
 	print $lh->text('shutdown', { count => 2 }), "\n";	# "... 2 messages"
 
@@ -159,7 +159,7 @@ Usage:
 
 =head3 MESSAGES
 
-None of its own; see L<Syslogd::Server/MESSAGES> for the catalogue.
+None of its own; see L<App::Syslogd/MESSAGES> for the catalogue.
 
 =head3 FORMAL SPECIFICATION
 

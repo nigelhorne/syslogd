@@ -4,7 +4,7 @@
 #
 # 1. Geographic: the web viewer's country blacklist (VWF::Blacklist, which
 #    feeds CGI::ACL) against real GeoIP lookups.
-# 2. System: OS error strings embedded in Syslogd::Server's messages under
+# 2. System: OS error strings embedded in App::Syslogd's messages under
 #    different LC_ALL settings.  The expected text is always taken from
 #    Perl's own "$!" (never POSIX::strerror), so the test cannot disagree
 #    with the code about which C library string is used.
@@ -21,7 +21,7 @@ use POSIX qw(setlocale LC_ALL);
 use Test::Most;
 use Test::Needs qw(IP::Country::Fast CGI::ACL);
 
-use Syslogd::Server;
+use App::Syslogd;
 use VWF::Blacklist;
 
 # Addresses whose country has been stable for many years.  If the bundled
@@ -127,18 +127,18 @@ foreach my $locale ('en_US.UTF-8', 'de_DE.UTF-8', 'ja_JP.UTF-8') {
 		# Missing directory: ENOENT from sysopen
 		my $enoent = do { local $! = ENOENT; "$!" };
 		my $missing = "$dir/no/such/dir/log.csv";
-		throws_ok { Syslogd::Server->new(file => $missing)->reopen_log() }
+		throws_ok { App::Syslogd->new(file => $missing)->reopen_log() }
 			qr/\A\QCould not open log file $missing: $enoent\E/, "ENOENT: '$enoent'";
 
 		# Port in use: EADDRINUSE from bind
 		my $in_use = do { local $! = EADDRINUSE; "$!" };
-		my $first = Syslogd::Server->new(port => 0, address => '127.0.0.1')->open_socket();
+		my $first = App::Syslogd->new(port => 0, address => '127.0.0.1')->open_socket();
 		my $port = $first->port();
-		throws_ok { Syslogd::Server->new(port => $port, address => '127.0.0.1')->open_socket() }
+		throws_ok { App::Syslogd->new(port => $port, address => '127.0.0.1')->open_socket() }
 			qr/\QCould not create a UDP socket on 127.0.0.1 port $port\E.*\Q$in_use\E/, "EADDRINUSE: '$in_use'";
 
 		# Our own text falls back to English: no de or ja lexicon ships
-		like(Syslogd::Server->new()->i18n('shutdown', { count => 2 }), qr/2 messages/, 'catalogue falls back to English');
+		like(App::Syslogd->new()->i18n('shutdown', { count => 2 }), qr/2 messages/, 'catalogue falls back to English');
 	};
 }
 
