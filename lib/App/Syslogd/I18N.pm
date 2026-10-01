@@ -14,6 +14,7 @@ use autodie qw(:all);
 
 use parent 'Locale::Maketext';
 
+use Carp qw(croak);
 use Readonly;
 
 our $VERSION = '0.02';
@@ -35,6 +36,9 @@ Readonly my %ARGUMENT_ORDER => (
 	recv_failed => [qw(error)],
 	not_listening => [],
 	no_log_open => [],
+	not_a_datagram => [qw(type)],
+	missing_key => [],
+	bad_values => [qw(type)],
 );
 
 =encoding utf8
@@ -258,6 +262,9 @@ The keys, and the values each one uses (in slot order C<[_1]>, C<[_2]>,
 	| recv_failed   | error                |
 	| not_listening | (none)               |
 	| no_log_open   | (none)               |
+	| not_a_datagram| type                 |
+	| missing_key   | (none)               |
+	| bad_values    | type                 |
 	+---------------+----------------------+
 
 Returns: the message, as a string.  An unknown key does not die: it returns
@@ -299,6 +306,10 @@ Usage:
 	| maketext doesn't know how to say: | A translation has no text  | Make the language inherit    |
 	|   KEY                             |   for KEY and does not     |   from App::Syslogd::I18N::en|
 	|                                   |   inherit from English     |   (see COMMON PITFALLS)      |
+	| A message key is needed           | KEY was undef, empty or a  | Pass a key from the table    |
+	|                                   |   reference                |                              |
+	| Message values must be a hash     | The values were not a hash | Pass { name => value, ... }  |
+	|   reference (the type given was T)|   reference                |                              |
 	+-----------------------------------+----------------------------+------------------------------+
 
 The English text of every key is in L<App::Syslogd/i18n>.
@@ -309,7 +320,13 @@ sub text
 {
 	my ($self, $key, $args) = @_;
 
+	# Programming errors, reported clearly rather than as an
+	# "uninitialized" warning or Perl's "Not a HASH reference"
+	croak($self->text('missing_key')) if(!defined($key) || ref($key) || !length($key));
 	$args ||= {};
+	if(ref($args) ne 'HASH') {
+		croak($self->text('bad_values', { type => ref($args) || 'SCALAR' }));
+	}
 
 	# Unknown keys still produce something readable; see POD above
 	my $order = $ARGUMENT_ORDER{$key};

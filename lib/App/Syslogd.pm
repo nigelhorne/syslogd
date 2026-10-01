@@ -27,6 +27,7 @@ use Fcntl qw(O_WRONLY O_APPEND O_CREAT SEEK_END);
 use IO::Handle;
 use IO::Socket::IP;
 use Object::Configure;
+use overload ();
 use Params::Get;
 use Params::Validate::Strict;
 use Readonly;
@@ -71,6 +72,12 @@ Readonly my $LOG_MODE => 0600;
 # need administrator rights to create, so the attack it prevents is rare
 # there; see LIMITATIONS.
 Readonly my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
+
+# O_NONBLOCK makes opening a FIFO fail at once (ENXIO) instead of waiting
+# for a reader.  Without it anyone could create a FIFO at the default
+# /tmp/syslog.log and the server would hang for ever at start-up.  It has
+# no effect on the regular files we accept.  Not defined on Windows.
+Readonly my $O_NONBLOCK => eval { Fcntl::O_NONBLOCK() } // 0;
 
 # chmod() on a filehandle needs fchmod(), which Windows Perl does not have
 # ("The fchmod function is unimplemented").  Windows does not use Unix
@@ -217,7 +224,9 @@ The first line of a new file names the columns:
 =item * B<Host> is the name of the machine that sent the message.  The name
 is found with the normal system lookup (F</etc/hosts>, then DNS) and
 remembered for a few minutes.  If no name is found, or if you turn names
-off, the IP address is written instead.  IPv4 and IPv6 both work.
+off, the IP address is written instead.  IPv4 and IPv6 both work.  Whoever
+controls an address controls its reverse-DNS name, so control characters in
+a name are written as C<\xNN>, as in the message.
 
 =item * B<facility> and B<severity> come from the PRI.  If the PRI is missing
 or not valid, the message is still kept: it is recorded as facility 1,
@@ -898,8 +907,9 @@ Usage:
 	+-------------------------------+--------------------------------+-------------------------------+
 	| Could not open log file F:    | The system could not open the  | Create the directory, or fix  |
 	|   ERROR                       |   file.  ERROR is the system's |   its permissions.  Remove a  |
-	|                               |   reason.  A symbolic link or  |   symbolic link; give a file  |
-	|                               |   a directory also gives this  |   name, not a directory       |
+	|                               |   reason.  A symbolic link, a  |   symbolic link or FIFO; give |
+	|                               |   directory or a FIFO (named   |   a file name, not a          |
+	|                               |   pipe) also gives this        |   directory                   |
 	| Refusing to log to F: it must | F is a hard link or another    | Remove F and let the server   |
 	|   be a regular file, owned by |   user's file                  |   create it again             |
 	|   this user, with exactly one |                                |                               |
@@ -991,7 +1001,16 @@ Usage:
 
 =head3 MESSAGES
 
-None.  A malformed datagram is recorded, never rejected.
+	+------------------------------------+------------------------------+-----------------------------+
+	| Message (dies)                     | Meaning                      | What to do                  |
+	+------------------------------------+------------------------------+-----------------------------+
+	| A datagram must be a string (the   | A reference was passed; it   | Pass the received bytes     |
+	|   type given was TYPE)             |   would have been recorded   |                             |
+	|                                    |   as "ARRAY(0x...)"          |                             |
+	+------------------------------------+------------------------------+-----------------------------+
+
+A malformed string is recorded, never rejected.  An object that turns
+itself into a string (overloads C<"">) is accepted as that string.
 
 =head3 PSEUDOCODE
 
@@ -1015,6 +1034,12 @@ None.  A malformed datagram is recorded, never rejected.
 sub parse_message
 {
 	my ($self, $datagram) = @_;
+
+	# A reference would be logged as "ARRAY(0x...)"; only a string (or an
+	# object that turns itself into one) is a datagram
+	if(ref($datagram) && !overload::Method($datagram, q{""})) {
+		croak(($self // __PACKAGE__)->i18n('not_a_datagram', { type => ref($datagram) }));
+	}
 
 	# Senders disagree about terminators: "\n", "\r\n" and "\0" are all seen
 	(my $text = $datagram // '') =~ s/[\r\n\0]+\z//;
@@ -1047,7 +1072,8 @@ Args:
 =item 1. The datagram, as a string of bytes.
 
 =item 2. The sender's address, in the packed form that C<recv()> returns.
-C<undef> is allowed: the Host column is then empty.
+C<undef>, or anything that is not a packed address (such as a reference),
+gives an empty Host column.
 
 =back
 
@@ -1057,7 +1083,9 @@ Side Effects:
 
 =over 4
 
-=item * May look up the sender's host name (the answer is remembered).
+=item * May look up the sender's host name (the answer is remembered).  If
+the cache fails (dies) or gives no answer, the IP address is written: a cache
+problem never stops the logging.
 
 =item * Adds one line to the log and adds 1 to C<count()>, unless the
 datagram is too short, in which case nothing happens.
@@ -1102,8 +1130,11 @@ Usage:
 	+-----------------------------------+------------------------------+-------------------------------+
 	| process() was called before       | No log file is open (dies)   | Call reopen_log() first       |
 	|   reopen_log() succeeded          |                              |                               |
+	| A datagram must be a string (the  | The datagram was a reference | Pass the received bytes       |
+	|   type given was TYPE)            |   (dies)                     |                               |
 	| Could not write to log file F:    | The line was not written,    | Free disk space; this message |
-	|   ERROR                           |   e.g. disk full (warning)   |   is lost, later ones are not |
+	|   ERROR                           |   e.g. disk full, or the CSV |   is lost, later ones are not |
+	|                                   |   writer refused (warning)   |                               |
 	+-----------------------------------+------------------------------+-------------------------------+
 
 =cut
@@ -1119,7 +1150,11 @@ sub process
 
 	# Too-short datagrams are dropped quietly, as the original script did
 	if(my $record = $self->parse_message($datagram)) {
-		my $host = $self->_peer_name($peer);
+		# Escaped like the message: a reverse-DNS (PTR) name is chosen by
+		# whoever controls the sender's address and may hold newlines or
+		# terminal escape sequences.  Done here rather than in
+		# _peer_name(), so that a subclass's override is covered too.
+		my $host = _escape_controls($self->_peer_name($peer));
 		$self->_write_row([$host, @{$record}{qw(facility severity message)}]);
 		$self->{count}++;
 	}
@@ -1360,6 +1395,11 @@ The keys, the values each one uses, and the English text:
 	| not_listening | (none)                 | run() was called before open_socket() succeeded  |
 	| no_log_open   | (none)                 | process() was called before reopen_log()         |
 	|               |                        |   succeeded                                      |
+	| not_a_datagram| type                   | A datagram must be a string (the type given was  |
+	|               |                        |   TYPE)                                          |
+	| missing_key   | (none)                 | A message key is needed                          |
+	| bad_values    | type                   | Message values must be a hash reference (the     |
+	|               |                        |   type given was TYPE)                           |
 	+---------------+------------------------+--------------------------------------------------+
 
 =cut
@@ -1417,7 +1457,7 @@ sub _open_log
 	my $fh;
 	{
 		no autodie qw(sysopen);
-		sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW, $LOG_MODE)
+		sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW | $O_NONBLOCK, $LOG_MODE)
 			or croak($self->i18n('open_failed', { file => $file, error => "$!" }));
 	}
 
@@ -1449,8 +1489,8 @@ sub _write_header
 {
 	my ($self, $fh) = @_;
 
-	$self->{csv}->combine(@CSV_HEADER);
-	my $error = $self->_append_line($fh, $self->{csv}->string());
+	my ($line, $error) = $self->_csv_line([@CSV_HEADER]);
+	$error //= $self->_append_line($fh, $line);
 	croak($self->i18n('write_failed', { file => $self->{file}, error => $error })) if(defined($error));
 
 	return $self;
@@ -1534,14 +1574,31 @@ sub _write_row
 {
 	my ($self, $row) = @_;
 
-	# combine() then our own write, rather than Text::CSV's print(): the
-	# XS print emits a spurious "uninitialized" warning when write() fails
-	my $csv = $self->{csv};
-	$csv->combine(@{$row});
-	my $error = $self->_append_line($self->{fh}, $csv->string());
+	my ($line, $error) = $self->_csv_line($row);
+	$error //= $self->_append_line($self->{fh}, $line);
 	carp($self->i18n('write_failed', { file => $self->{file}, error => $error })) if(defined($error));
 
 	return $self;
+}
+
+# _csv_line
+# Purpose:	turn fields into one CSV line (shared by the header and rows).
+# Entry:	$fields an arrayref.
+# Exit:		($line) on success, or (undef, $error) if Text::CSV refuses,
+#		so that a refused row is reported, not silently written as
+#		nothing (or as the previous row, which string() would repeat).
+# Side Effects:	none.
+# combine() then our own write, rather than Text::CSV's print(): the XS
+# print emits a spurious "uninitialized" warning when write() fails.
+sub _csv_line
+{
+	my ($self, $fields) = @_;
+	my $csv = $self->{csv};
+
+	return (undef, '' . ($csv->error_diag() || 'Text::CSV could not build the line'))
+		unless($csv->combine(@{$fields}) && defined($csv->string()));
+
+	return ($csv->string());
 }
 
 # _peer_name
@@ -1556,21 +1613,30 @@ sub _peer_name
 {
 	my ($self, $peer) = @_;
 
-	# getnameinfo copes with both families, unlike inet_ntoa.  It dies on
-	# undef ("addr is not a string"), so a missing peer is treated like an
-	# undecodable one: logged as an empty host
-	my $address = '';
-	(undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV) if(defined($peer));
+	# Only a packed address can be decoded: getnameinfo dies on undef or a
+	# reference ("addr is not a string"), so those are treated like an
+	# undecodable address and logged as an empty host
+	return '' if(!defined($peer) || ref($peer));
+
+	# getnameinfo copes with both families, unlike inet_ntoa
+	my (undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV);
 	$address //= '';
 
 	return $address unless($self->{resolve} && length($address));
 
 	# getnameinfo consults /etc/hosts before DNS (via nsswitch.conf), so
-	# there is no need to read /etc/hosts ourselves
-	return $self->{cache}->compute($address, $self->{dns_ttl}, sub {
-		my ($error, $name) = getnameinfo($peer, NI_NAMEREQD, NIx_NOSERV);
-		return $error ? $address : $name;
-	});
+	# there is no need to read /etc/hosts ourselves.  A cache that fails
+	# (a remote cache timing out, say) or answers nothing must not stop
+	# the logging: fall back to the address.
+	local $@;
+	my $name = eval {
+		$self->{cache}->compute($address, $self->{dns_ttl}, sub {
+			my ($error, $found) = getnameinfo($peer, NI_NAMEREQD, NIx_NOSERV);
+			return $error ? $address : $found;
+		});
+	};
+
+	return (defined($name) && length($name)) ? $name : $address;
 }
 
 # _escape_controls
@@ -1606,7 +1672,7 @@ sub _escape_controls
 	Readonly my %PROTECTION => (
 		'Sub::Private' => [qw(
 			_receive _open_log _write_header _append_line _close_log
-			_shutdown _write_row _escape_controls
+			_shutdown _write_row _csv_line _escape_controls
 		)],
 		# Protected, not private: a subclass may override it (see SYNOPSIS)
 		'Sub::Protected' => [qw(_peer_name)],

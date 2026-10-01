@@ -42,8 +42,21 @@ Revision history for App-Syslogd
 	- Settings from Object::Configure (configuration files and
 	  App__Syslogd__* environment variables) are validated like
 	  arguments; they used to be accepted unchecked
+	- Security: a FIFO at the log path is refused instead of hanging the
+	  server for ever at start-up (O_NONBLOCK)
+	- Security: control characters in reverse-DNS names are escaped in
+	  the Host column, as they are in the message
+	- A failing DNS cache (or one that answers nothing) falls back to the
+	  address instead of killing process() and run()
+	- A row that Text::CSV refuses is reported as a write failure instead
+	  of being silently lost
+	- parse_message() refuses references; a sender that is not a packed
+	  address gives an empty Host instead of a Socket error
+	- App::Syslogd::I18N::text() reports a missing key or values that are
+	  not a hash reference clearly
 	- t/function.t: white-box tests of every function
 	- t/unit.t: black-box tests of every documented message and state
+	- t/edge_cases.t: hostile, boundary and security tests
 	- t/integration.t: end-to-end workflows, the program, and both
 	  Text::CSV backends
 	- Documentation rewritten in plain English, with ENCODING, COMMON

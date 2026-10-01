@@ -109,7 +109,9 @@ The first line of a new file names the columns:
 - **Host** is the name of the machine that sent the message.  The name
 is found with the normal system lookup (`/etc/hosts`, then DNS) and
 remembered for a few minutes.  If no name is found, or if you turn names
-off, the IP address is written instead.  IPv4 and IPv6 both work.
+off, the IP address is written instead.  IPv4 and IPv6 both work.  Whoever
+controls an address controls its reverse-DNS name, so control characters in
+a name are written as `\xNN`, as in the message.
 - **facility** and **severity** come from the PRI.  If the PRI is missing
 or not valid, the message is still kept: it is recorded as facility 1,
 severity 5 ("user.notice"), and the whole datagram becomes the message.
@@ -599,8 +601,9 @@ Usage:
         +-------------------------------+--------------------------------+-------------------------------+
         | Could not open log file F:    | The system could not open the  | Create the directory, or fix  |
         |   ERROR                       |   file.  ERROR is the system's |   its permissions.  Remove a  |
-        |                               |   reason.  A symbolic link or  |   symbolic link; give a file  |
-        |                               |   a directory also gives this  |   name, not a directory       |
+        |                               |   reason.  A symbolic link, a  |   symbolic link or FIFO; give |
+        |                               |   directory or a FIFO (named   |   a file name, not a          |
+        |                               |   pipe) also gives this        |   directory                   |
         | Refusing to log to F: it must | F is a hard link or another    | Remove F and let the server   |
         |   be a regular file, owned by |   user's file                  |   create it again             |
         |   this user, with exactly one |                                |                               |
@@ -668,7 +671,16 @@ Usage:
 
 ### MESSAGES
 
-None.  A malformed datagram is recorded, never rejected.
+        +------------------------------------+------------------------------+-----------------------------+
+        | Message (dies)                     | Meaning                      | What to do                  |
+        +------------------------------------+------------------------------+-----------------------------+
+        | A datagram must be a string (the   | A reference was passed; it   | Pass the received bytes     |
+        |   type given was TYPE)             |   would have been recorded   |                             |
+        |                                    |   as "ARRAY(0x...)"          |                             |
+        +------------------------------------+------------------------------+-----------------------------+
+
+A malformed string is recorded, never rejected.  An object that turns
+itself into a string (overloads `""`) is accepted as that string.
 
 ### PSEUDOCODE
 
@@ -695,13 +707,16 @@ Args:
 
 - 1. The datagram, as a string of bytes.
 - 2. The sender's address, in the packed form that `recv()` returns.
-`undef` is allowed: the Host column is then empty.
+`undef`, or anything that is not a packed address (such as a reference),
+gives an empty Host column.
 
 Returns: the object, so you can chain another call.
 
 Side Effects:
 
-- May look up the sender's host name (the answer is remembered).
+- May look up the sender's host name (the answer is remembered).  If
+the cache fails (dies) or gives no answer, the IP address is written: a cache
+problem never stops the logging.
 - Adds one line to the log and adds 1 to `count()`, unless the
 datagram is too short, in which case nothing happens.
 - If the line cannot be written (for example, the disk is full), it
@@ -742,8 +757,11 @@ Usage:
         +-----------------------------------+------------------------------+-------------------------------+
         | process() was called before       | No log file is open (dies)   | Call reopen_log() first       |
         |   reopen_log() succeeded          |                              |                               |
+        | A datagram must be a string (the  | The datagram was a reference | Pass the received bytes       |
+        |   type given was TYPE)            |   (dies)                     |                               |
         | Could not write to log file F:    | The line was not written,    | Free disk space; this message |
-        |   ERROR                           |   e.g. disk full (warning)   |   is lost, later ones are not |
+        |   ERROR                           |   e.g. disk full, or the CSV |   is lost, later ones are not |
+        |                                   |   writer refused (warning)   |                               |
         +-----------------------------------+------------------------------+-------------------------------+
 
 ## run
@@ -920,6 +938,11 @@ The keys, the values each one uses, and the English text:
         | not_listening | (none)                 | run() was called before open_socket() succeeded  |
         | no_log_open   | (none)                 | process() was called before reopen_log()         |
         |               |                        |   succeeded                                      |
+        | not_a_datagram| type                   | A datagram must be a string (the type given was  |
+        |               |                        |   TYPE)                                          |
+        | missing_key   | (none)                 | A message key is needed                          |
+        | bad_values    | type                   | Message values must be a hash reference (the     |
+        |               |                        |   type given was TYPE)                           |
         +---------------+------------------------+--------------------------------------------------+
 
 # LIMITATIONS

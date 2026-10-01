@@ -25,6 +25,9 @@ our %Lexicon = (
 	recv_failed => 'Error receiving a datagram: [_1]',
 	not_listening => 'run() was called before open_socket() succeeded',
 	no_log_open => 'process() was called before reopen_log() succeeded',
+	not_a_datagram => 'A datagram must be a string (the type given was [_1])',
+	missing_key => 'A message key is needed',
+	bad_values => 'Message values must be a hash reference (the type given was [_1])',
 );
 
 =head1 NAME

@@ -150,7 +150,9 @@ my %ledger = map { $_ => 1 } (
 	'i18n: class call',
 	'i18n: unknown key',
 	map({ "i18n: key $_" } qw(usage listening shutdown socket_failed open_failed unsafe_file
-		write_failed recv_failed not_listening no_log_open)),
+		write_failed recv_failed not_listening no_log_open not_a_datagram missing_key bad_values)),
+	'parse_message: message A datagram must be a string',
+	'process: anything but an address gives an empty host',
 	# App::Syslogd::I18N
 	'handle: requested language',
 	'handle: English fallback',
@@ -159,6 +161,8 @@ my %ledger = map { $_ => 1 } (
 	'text: missing values are empty',
 	'text: unknown key',
 	"text: message maketext doesn't know how to say",
+	'text: message A message key is needed',
+	'text: message Message values must be a hash reference',
 	'gender: male form',
 	'gender: female form',
 	'gender: neutral form',
@@ -533,6 +537,10 @@ subtest 'parse_message' => sub {
 		is(App::Syslogd->parse_message($short), undef, 'too short: undef');
 	}
 	covered('parse_message: undef when too short');
+
+	throws_ok { App::Syslogd->parse_message(['<13>x']) }
+		exact('A datagram must be a string (the type given was ARRAY)'), 'a reference is refused';
+	covered('parse_message: message A datagram must be a string');
 };
 
 subtest 'process' => sub {
@@ -552,6 +560,7 @@ subtest 'process' => sub {
 		$server->process("<13>two\nlines", $PEER);
 	}
 	$server->process('<13>no sender', undef);
+	$server->process('<13>not an address', [$PEER]);
 	$server->process('x', $PEER);
 
 	is_deeply(lines_of($file), [
@@ -559,11 +568,12 @@ subtest 'process' => sub {
 		qq{"$CONFIG{peer_name}","4","2","said ""hi"", left"},
 		qq{"$CONFIG{peer_ip}","1","5","two\\x0Alines"},
 		'"","1","5","no sender"',
+		'"","1","5","not an address"',
 	], 'one quoted line per datagram');
 	covered('process: one line per datagram', 'process: host name when resolving',
 		'process: address when the name is not found', 'process: undef sender gives an empty host',
-		'process: short datagram ignored');
-	is($server->count(), 3, 'count: the short one is not counted');
+		'process: short datagram ignored', 'process: anything but an address gives an empty host');
+	is($server->count(), 4, 'count: the short one is not counted');
 	returns_ok($server->count(), $SCHEMA{count}, 'count() is a non-negative integer');
 	covered('count: datagrams written');
 
@@ -740,6 +750,9 @@ subtest 'i18n' => sub {
 		recv_failed => [{ error => 'E' }, 'Error receiving a datagram: E'],
 		not_listening => [{}, 'run() was called before open_socket() succeeded'],
 		no_log_open => [{}, 'process() was called before reopen_log() succeeded'],
+		not_a_datagram => [{ type => 'ARRAY' }, 'A datagram must be a string (the type given was ARRAY)'],
+		missing_key => [{}, 'A message key is needed'],
+		bad_values => [{ type => 'SCALAR' }, 'Message values must be a hash reference (the type given was SCALAR)'],
 	);
 	foreach my $key (sort keys %expect) {
 		my ($values, $text) = @{$expect{$key}};
@@ -815,6 +828,15 @@ subtest 'App::Syslogd::I18N::text' => sub {
 	throws_ok { App::Syslogd::I18N::x_unit_orphan->new()->text('shutdown', { count => 1 }) }
 		qr/\Amaketext doesn't know how to say:\nshutdown\n/, 'a translation that does not inherit from English';
 	covered("text: message maketext doesn't know how to say");
+
+	throws_ok { $lh->text(undef) } exact('A message key is needed'), 'no key';
+	throws_ok { $lh->text('') } exact('A message key is needed'), 'an empty key';
+	covered('text: message A message key is needed');
+	throws_ok { $lh->text('listening', [1]) }
+		exact('Message values must be a hash reference (the type given was ARRAY)'), 'values as an array';
+	throws_ok { $lh->text('listening', 'port') }
+		exact('Message values must be a hash reference (the type given was SCALAR)'), 'values as a plain string';
+	covered('text: message Message values must be a hash reference');
 };
 
 subtest 'App::Syslogd::I18N::gender' => sub {

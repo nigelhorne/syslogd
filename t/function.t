@@ -26,9 +26,6 @@
 use strict;
 use warnings;
 
-use FindBin qw($Bin);
-use lib "$Bin/../lib";
-
 use Errno qw(EINTR EBADF ENOENT ENOSPC);
 use File::Temp qw(tempdir);
 use Readonly;
@@ -80,6 +77,9 @@ Readonly my %ARGUMENT_ORDER => (
 	recv_failed => [qw(error)],
 	not_listening => [],
 	no_log_open => [],
+	not_a_datagram => [qw(type)],
+	missing_key => [],
+	bad_values => [qw(type)],
 );
 
 # Output schemas copied from the POD's API SPECIFICATION sections
