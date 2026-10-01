@@ -31,3 +31,10 @@ on 'test' => sub {
 	recommends 'CGI::ACL';
 	recommends 'IP::Country::Fast';
 };
+
+on 'develop' => sub {
+	requires 'Devel::Cover';
+	requires 'Perl::Critic';
+	requires 'Test::Pod';
+	requires 'Test::Pod::Coverage';
+};
