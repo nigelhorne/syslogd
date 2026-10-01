@@ -1,26 +1,30 @@
-# NAME
+## Name
 
 App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
-# VERSION
+## Version
 
 Version 0.02
 
-# SYNOPSIS
+## Synopsis
 
-        use App::Syslogd;
+```perl
+    use App::Syslogd;
 
-        my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
-        $server->open_socket()->reopen_log();
-        print $server->i18n('listening', { address => '0.0.0.0', port => $server->port() }), "\n";
-        $server->run();         # returns after SIGTERM or SIGINT
+    my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
+    $server->open_socket()->reopen_log();
+    print $server->i18n('listening', { address => '0.0.0.0', port => $server->port() }), "\n";
+    $server->run();         # returns after SIGTERM or SIGINT
+```
 
-# DESCRIPTION
+## Description
 
 Receives RFC 3164 / RFC 5424 syslog datagrams over UDP, splits the PRI
 field into facility and severity, and appends one CSV row per datagram:
 
-        "Host","facility","severity","msg"
+```
+    "Host","facility","severity","msg"
+```
 
 - **SIGHUP** closes and reopens the log file, for use with logrotate.
 - **SIGTERM** and **SIGINT** make `run()` return cleanly.
@@ -37,12 +41,14 @@ it is logged by address.  IPv4 and IPv6 are both supported.
 through a symlink or a hard link, or to a file owned by another user.
 - Datagrams of up to 65535 bytes are accepted without truncation.
 
-# COMMAND LINE
+## Command Line
 
 The program `etc/syslogd` is a thin wrapper around this module:
 
-        /usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
-                [--no-resolve] [--language en]
+```
+    /usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+            [--no-resolve] [--language en]
+```
 
 - `--port` - UDP port to listen on, default 514 (which needs root).
 - `--address` - local address to bind, default `0.0.0.0`; use `::` for IPv6.
@@ -55,50 +61,60 @@ it is taken from the environment.
 
 Send **SIGHUP** to reopen the log file and **SIGTERM** or **SIGINT** to stop.
 
-## Log rotation
+### Log Rotation
 
 An example logrotate stanza:
 
-        /var/log/remote-syslog.csv {
-                weekly
-                rotate 8
-                postrotate
-                        pkill -HUP -f /usr/local/etc/syslogd
-                endscript
-        }
+```
+    /var/log/remote-syslog.csv {
+            weekly
+            rotate 8
+            postrotate
+                    pkill -HUP -f /usr/local/etc/syslogd
+            endscript
+    }
+```
 
-# INSTALLATION
+## Installation
 
 Install the module from CPAN:
 
-        cpanm App::Syslogd
+```
+    cpanm App::Syslogd
+```
 
 or, from a git checkout:
 
-        perl Makefile.PL && make && make test && sudo make install
+```
+    perl Makefile.PL && make && make test && sudo make install
+```
 
 Then install the program by hand.  It is deliberately not installed by
 `make install`: that would put it in a `bin` directory, where a program
 called `syslogd` could shadow the system's `/usr/sbin/syslogd` on `PATH`.
 
-        sudo cp etc/syslogd /usr/local/etc/
+```
+    sudo cp etc/syslogd /usr/local/etc/
+```
 
 To run from a checkout without installing the module, copy it alongside:
 
-        sudo cp -r lib/App /usr/local/lib/
+```
+    sudo cp -r lib/App /usr/local/lib/
+```
 
 The program looks for its modules in `../lib` relative to itself (which is
 `/usr/local/lib` once installed, or `lib/` in a git checkout) as well as
 on Perl's normal `@INC`.
 
-# DEPENDENCIES
+## Dependencies
 
 Perl 5.14 or later, plus [autodie](https://metacpan.org/pod/autodie) (with [IPC::System::Simple](https://metacpan.org/pod/IPC%3A%3ASystem%3A%3ASimple)), [CHI](https://metacpan.org/pod/CHI),
 [IO::Socket::IP](https://metacpan.org/pod/IO%3A%3ASocket%3A%3AIP), [Locale::Maketext](https://metacpan.org/pod/Locale%3A%3AMaketext), [Params::Get](https://metacpan.org/pod/Params%3A%3AGet),
 [Params::Validate::Strict](https://metacpan.org/pod/Params%3A%3AValidate%3A%3AStrict), [Readonly](https://metacpan.org/pod/Readonly), [Socket](https://metacpan.org/pod/Socket), [Sub::Private](https://metacpan.org/pod/Sub%3A%3APrivate),
 [Sub::Protected](https://metacpan.org/pod/Sub%3A%3AProtected) and [Text::CSV](https://metacpan.org/pod/Text%3A%3ACSV).  The exact versions are in `Makefile.PL`.
 
-# FILES
+## Files
 
 - `etc/syslogd` - the command-line program, installed as `/usr/local/etc/syslogd`.
 - `lib/App/Syslogd.pm` - this module.
@@ -107,9 +123,9 @@ Perl 5.14 or later, plus [autodie](https://metacpan.org/pod/autodie) (with [IPC:
 - `www/` - a VWF-based web viewer for the log (git checkout only; it is
 not part of the CPAN distribution).
 
-# METHODS
+## Methods
 
-## new
+### New
 
 Purpose: create a server object.  Nothing is bound or opened yet, so the
 object can be built and inspected without privileges.
@@ -135,63 +151,75 @@ Side Effects: none.
 
 Usage:
 
-        my $server = App::Syslogd->new({ port => 514, resolve => 0 });
+```perl
+    my $server = App::Syslogd->new({ port => 514, resolve => 0 });
+```
 
-### EXAMPLE
+#### Example
 
-        # Listen on an unprivileged port and log addresses, not names
-        my $server = App::Syslogd->new(port => 5514, resolve => 0);
+```perl
+    # Listen on an unprivileged port and log addresses, not names
+    my $server = App::Syslogd->new(port => 5514, resolve => 0);
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {
-                port => { type => 'integer', min => 0, max => 65535, optional => 1 },
-                address => { type => 'string', min => 1, optional => 1 },
-                file => { type => 'string', min => 1, optional => 1 },
-                resolve => { type => 'boolean', optional => 1 },
-                dns_ttl => { type => 'integer', min => 0, optional => 1 },
-                dns_cache_bytes => { type => 'integer', min => 1, optional => 1 },
-                language => { type => 'string', min => 1, optional => 1 },
-                cache => { type => 'object', can => ['compute'], optional => 1 },
-                socket => { type => 'object', can => ['recv'], optional => 1 },
-        }
+```perl
+    {
+            port => { type => 'integer', min => 0, max => 65535, optional => 1 },
+            address => { type => 'string', min => 1, optional => 1 },
+            file => { type => 'string', min => 1, optional => 1 },
+            resolve => { type => 'boolean', optional => 1 },
+            dns_ttl => { type => 'integer', min => 0, optional => 1 },
+            dns_cache_bytes => { type => 'integer', min => 1, optional => 1 },
+            language => { type => 'string', min => 1, optional => 1 },
+            cache => { type => 'object', can => ['compute'], optional => 1 },
+            socket => { type => 'object', can => ['recv'], optional => 1 },
+    }
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
-        +-------------------------------+------------------------+---------------------------+
-        | Message                       | Meaning                | Resolution                |
-        +-------------------------------+------------------------+---------------------------+
-        | validate_strict: Unknown      | Misspelt argument      | Check the argument list   |
-        |   parameter 'x'               |                        |   above                   |
-        | validate_strict: Parameter    | Out-of-range value     | Use a port in 0..65535    |
-        |   'port' ... must be ...      |                        |                           |
-        +-------------------------------+------------------------+---------------------------+
+```
+    +-------------------------------+------------------------+---------------------------+
+    | Message                       | Meaning                | Resolution                |
+    +-------------------------------+------------------------+---------------------------+
+    | validate_strict: Unknown      | Misspelt argument      | Check the argument list   |
+    |   parameter 'x'               |                        |   above                   |
+    | validate_strict: Parameter    | Out-of-range value     | Use a port in 0..65535    |
+    |   'port' ... must be ...      |                        |                           |
+    +-------------------------------+------------------------+---------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        [ADDRESS, PATH, LANGTAG]
-        PORT == 0 .. 65535
+```
+    [ADDRESS, PATH, LANGTAG]
+    PORT == 0 .. 65535
 
-        Server
-          port : PORT ; address : ADDRESS ; file : PATH ; resolve : 𝔹
-          count : ℕ ; listening, logging, running : 𝔹
+    Server
+      port : PORT ; address : ADDRESS ; file : PATH ; resolve : 𝔹
+      count : ℕ ; listening, logging, running : 𝔹
 
-        New
-          Server'
-          args? : NAME ⇸ VALUE
-          ─────────
-          dom args? ⊆ dom NEW_SCHEMA
-          port' = args?(port) if port ∈ dom args? else 514
-          file' = args?(file) if file ∈ dom args? else /tmp/syslog.log
-          count' = 0 ∧ ¬listening' ∧ ¬logging' ∧ ¬running'
+    New
+      Server'
+      args? : NAME ⇸ VALUE
+      ─────────
+      dom args? ⊆ dom NEW_SCHEMA
+      port' = args?(port) if port ∈ dom args? else 514
+      file' = args?(file) if file ∈ dom args? else /tmp/syslog.log
+      count' = 0 ∧ ¬listening' ∧ ¬logging' ∧ ¬running'
+```
 
-## open\_socket
+### Open\_Socket
 
 Purpose: bind the UDP socket.  Do this before dropping privileges if the port
 is below 1024.
@@ -204,41 +232,53 @@ Side Effects: binds a socket.  Does nothing if a socket was given to `new()`.
 
 Usage:
 
-        $server->open_socket();
+```
+    $server->open_socket();
+```
 
-### EXAMPLE
+#### Example
 
-        my $server = App::Syslogd->new(port => 0)->open_socket();
-        print 'Kernel chose port ', $server->port(), "\n";
+```perl
+    my $server = App::Syslogd->new(port => 0)->open_socket();
+    print 'Kernel chose port ', $server->port(), "\n";
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
-        +--------------------------------+-------------------------+----------------------------+
-        | Message                        | Meaning                 | Resolution                 |
-        +--------------------------------+-------------------------+----------------------------+
-        | Could not create a UDP socket  | bind() failed: port in  | Run as root for port 514,  |
-        |   on ADDR port N: ERROR        |   use, no permission or |   stop the other syslogd,  |
-        |                                |   bad address           |   or fix --address         |
-        +--------------------------------+-------------------------+----------------------------+
+```perl
+    +--------------------------------+-------------------------+----------------------------+
+    | Message                        | Meaning                 | Resolution                 |
+    +--------------------------------+-------------------------+----------------------------+
+    | Could not create a UDP socket  | bind() failed: port in  | Run as root for port 514,  |
+    |   on ADDR port N: ERROR        |   use, no permission or |   stop the other syslogd,  |
+    |                                |   bad address           |   or fix --address         |
+    +--------------------------------+-------------------------+----------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        OpenSocket
-          ΔServer
-          ─────────
-          listening' ∧ (port = 0 ⇒ port' ∈ 1 .. 65535) ∧ (port ≠ 0 ⇒ port' = port)
+```
+    OpenSocket
+      ΔServer
+      ─────────
+      listening' ∧ (port = 0 ⇒ port' ∈ 1 .. 65535) ∧ (port ≠ 0 ⇒ port' = port)
+```
 
-## port
+### Port
 
 Purpose: the UDP port actually in use.
 
@@ -251,35 +291,45 @@ Side Effects: none.
 
 Usage:
 
-        my $port = $server->port();
+```perl
+    my $port = $server->port();
+```
 
-### EXAMPLE
+#### Example
 
-        print App::Syslogd->new()->port(), "\n";        # 514
+```
+    print App::Syslogd->new()->port(), "\n";        # 514
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'integer', min => 0, max => 65535 }
+```perl
+    { type => 'integer', min => 0, max => 65535 }
+```
 
-### MESSAGES
+#### Messages
 
 None.
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Port
-          ΞServer
-          p! : PORT
-          ─────────
-          p! = port
+```
+    Port
+      ΞServer
+      p! : PORT
+      ─────────
+      p! = port
+```
 
-## address
+### Address
 
 Purpose: the local address the socket is bound to.
 
@@ -292,35 +342,45 @@ Side Effects: none.
 
 Usage:
 
-        my $address = $server->address();
+```perl
+    my $address = $server->address();
+```
 
-### EXAMPLE
+#### Example
 
-        print App::Syslogd->new(address => "::")->address(), "\n";      # ::
+```perl
+    print App::Syslogd->new(address => "::")->address(), "\n";      # ::
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => "string", min => 1 }
+```perl
+    { type => "string", min => 1 }
+```
 
-### MESSAGES
+#### Messages
 
 None.
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Address
-          ΞServer
-          a! : ADDRESS
-          ─────────
-          a! = address
+```
+    Address
+      ΞServer
+      a! : ADDRESS
+      ─────────
+      a! = address
+```
 
-## count
+### Count
 
 Purpose: the number of datagrams recorded so far.
 
@@ -332,36 +392,46 @@ Side Effects: none.
 
 Usage:
 
-        print $server->count(), " messages\n";
+```
+    print $server->count(), " messages\n";
+```
 
-### EXAMPLE
+#### Example
 
-        $server->process("<13>hello", $peer);
-        print $server->count(), "\n";   # 1
+```
+    $server->process("<13>hello", $peer);
+    print $server->count(), "\n";   # 1
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'integer', min => 0 }
+```perl
+    { type => 'integer', min => 0 }
+```
 
-### MESSAGES
+#### Messages
 
 None.
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Count
-          ΞServer
-          n! : ℕ
-          ─────────
-          n! = count
+```
+    Count
+      ΞServer
+      n! : ℕ
+      ─────────
+      n! = count
+```
 
-## reopen\_log
+### Reopen\_Log
 
 Purpose: (re)open the CSV log.  Called at start-up and on SIGHUP, so that
 after logrotate renames the file a fresh one is created.
@@ -376,45 +446,57 @@ file.
 
 Usage:
 
-        $server->reopen_log();
+```
+    $server->reopen_log();
+```
 
-### EXAMPLE
+#### Example
 
-        # logrotate postrotate script:  kill -HUP $(cat /run/syslogd.pid)
-        # ...which, inside run(), calls:
-        $server->reopen_log();
+```
+    # logrotate postrotate script:  kill -HUP $(cat /run/syslogd.pid)
+    # ...which, inside run(), calls:
+    $server->reopen_log();
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
-        +------------------------------+------------------------------+--------------------------------+
-        | Message                      | Meaning                      | Resolution                     |
-        +------------------------------+------------------------------+--------------------------------+
-        | Could not open log file F:   | open(2) failed; ERROR is $!  | Create the directory or fix    |
-        |   ERROR                      |   in the current locale      |   its permissions              |
-        | Refusing to log to F: it     | F is a symlink, a hard link, | Remove F and let the server    |
-        |   must be a regular file ... |   or owned by someone else   |   create it                    |
-        +------------------------------+------------------------------+--------------------------------+
+```
+    +------------------------------+------------------------------+--------------------------------+
+    | Message                      | Meaning                      | Resolution                     |
+    +------------------------------+------------------------------+--------------------------------+
+    | Could not open log file F:   | open(2) failed; ERROR is $!  | Create the directory or fix    |
+    |   ERROR                      |   in the current locale      |   its permissions              |
+    | Refusing to log to F: it     | F is a symlink, a hard link, | Remove F and let the server    |
+    |   must be a regular file ... |   or owned by someone else   |   create it                    |
+    +------------------------------+------------------------------+--------------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        ReopenLog
-          ΔServer
-          ─────────
-          logging'
-          owner(file) = euid ∧ links(file) = 1 ∧ mode(file) = 0600
-          size(file) = 0 ⇒ contents'(file) = ⟨HEADER⟩
+```
+    ReopenLog
+      ΔServer
+      ─────────
+      logging'
+      owner(file) = euid ∧ links(file) = 1 ∧ mode(file) = 0600
+      size(file) = 0 ⇒ contents'(file) = ⟨HEADER⟩
+```
 
-## parse\_message
+### Parse\_Message
 
 Purpose: split a raw datagram into facility, severity and message.  Pure: it
 touches no state, so it can be used and tested on its own.
@@ -424,7 +506,9 @@ Args: the raw datagram (a byte string).
 Returns: `undef` for datagrams too short to be a message, otherwise a
 hashref:
 
-        { facility => 0..23, severity => 0..7, message => '...', valid => 0|1 }
+```perl
+    { facility => 0..23, severity => 0..7, message => '...', valid => 0|1 }
+```
 
 `valid` is false when the PRI was missing or out of range; the record is
 then user.notice and `message` is the whole datagram.
@@ -433,65 +517,77 @@ Side Effects: none.
 
 Usage:
 
-        my $rec = App::Syslogd->parse_message('<34>su: root failed');
+```perl
+    my $rec = App::Syslogd->parse_message('<34>su: root failed');
+```
 
-### EXAMPLE
+#### Example
 
-        my $rec = App::Syslogd->parse_message("<34>su: 'su root' failed\n");
-        # { facility => 4, severity => 2, message => "su: 'su root' failed", valid => 1 }
+```perl
+    my $rec = App::Syslogd->parse_message("<34>su: 'su root' failed\n");
+    # { facility => 4, severity => 2, message => "su: 'su root' failed", valid => 1 }
 
-        $rec = App::Syslogd->parse_message("no pri\there");
-        # { facility => 1, severity => 5, message => 'no pri\x09here', valid => 0 }
+    $rec = App::Syslogd->parse_message("no pri\there");
+    # { facility => 1, severity => 5, message => 'no pri\x09here', valid => 0 }
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {
-                datagram => { type => 'string', position => 0 },
-        }
+```perl
+    {
+            datagram => { type => 'string', position => 0 },
+    }
+```
 
-#### OUTPUT
+##### Output
 
-        {
-                type => 'hashref',
-                optional => 1,
-                schema => {
-                        facility => { type => 'integer', min => 0, max => 23 },
-                        severity => { type => 'integer', min => 0, max => 7 },
-                        message => { type => 'string', matches => qr/\A[^\x00-\x1F\x7F]*\z/ },
-                        valid => { type => 'boolean' },
-                },
-        }
+```perl
+    {
+            type => 'hashref',
+            optional => 1,
+            schema => {
+                    facility => { type => 'integer', min => 0, max => 23 },
+                    severity => { type => 'integer', min => 0, max => 7 },
+                    message => { type => 'string', matches => qr/\A[^\x00-\x1F\x7F]*\z/ },
+                    valid => { type => 'boolean' },
+            },
+    }
+```
 
-### MESSAGES
+#### Messages
 
 None; malformed input is recorded, never rejected.
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        ParseMessage
-          d? : seq BYTE
-          r! : RECORD ∪ {⊥}
-          ─────────
-          let t == stripTrailing({CR, LF, NUL}, d?) •
-          #t < 2 ⇒ r! = ⊥
-          #t ≥ 2 ∧ t = ⟨'<'⟩ ⁀ digits(p) ⁀ ⟨'>'⟩ ⁀ b ∧ p ≤ 191 ⇒
-            r! = ⟨facility ↦ p div 8, severity ↦ p mod 8, message ↦ escape(b), valid ↦ true⟩
-          otherwise ⇒
-            r! = ⟨facility ↦ 1, severity ↦ 5, message ↦ escape(t), valid ↦ false⟩
+```
+    ParseMessage
+      d? : seq BYTE
+      r! : RECORD ∪ {⊥}
+      ─────────
+      let t == stripTrailing({CR, LF, NUL}, d?) •
+      #t < 2 ⇒ r! = ⊥
+      #t ≥ 2 ∧ t = ⟨'<'⟩ ⁀ digits(p) ⁀ ⟨'>'⟩ ⁀ b ∧ p ≤ 191 ⇒
+        r! = ⟨facility ↦ p div 8, severity ↦ p mod 8, message ↦ escape(b), valid ↦ true⟩
+      otherwise ⇒
+        r! = ⟨facility ↦ 1, severity ↦ 5, message ↦ escape(t), valid ↦ false⟩
+```
 
-### PSEUDOCODE
+#### Pseudocode
 
-        strip trailing CR, LF and NUL
-        if fewer than 2 characters remain: return undef
-        if text is "<" PRI ">" BODY with PRI a canonical integer <= 191:
-                valid = true
-        else:
-                PRI = 13, BODY = whole text, valid = false
-        return { PRI div 8, PRI mod 8, escape_controls(BODY), valid }
+```
+    strip trailing CR, LF and NUL
+    if fewer than 2 characters remain: return undef
+    if text is "<" PRI ">" BODY with PRI a canonical integer <= 191:
+            valid = true
+    else:
+            PRI = 13, BODY = whole text, valid = false
+    return { PRI div 8, PRI mod 8, escape_controls(BODY), valid }
+```
 
-## process
+### Process
 
 Purpose: record one received datagram.
 
@@ -506,52 +602,64 @@ the datagram is dropped, so a full disk does not kill the daemon.
 
 Usage:
 
-        my $peer = $socket->recv(my $data, 65535);
-        $server->process($data, $peer);
+```perl
+    my $peer = $socket->recv(my $data, 65535);
+    $server->process($data, $peer);
+```
 
-### EXAMPLE
+#### Example
 
-        use Socket qw(pack_sockaddr_in inet_aton);
-        my $peer = pack_sockaddr_in(514, inet_aton('192.0.2.1'));
-        $server->reopen_log()->process('<13>hello', $peer);
+```perl
+    use Socket qw(pack_sockaddr_in inet_aton);
+    my $peer = pack_sockaddr_in(514, inet_aton('192.0.2.1'));
+    $server->reopen_log()->process('<13>hello', $peer);
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {
-                datagram => { type => 'string', position => 0 },
-                peer => { type => 'string', min => 1, position => 1 },
-        }
+```perl
+    {
+            datagram => { type => 'string', position => 0 },
+            peer => { type => 'string', min => 1, position => 1 },
+    }
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
-        +-----------------------------+----------------------------+----------------------------+
-        | Message                     | Meaning                    | Resolution                 |
-        +-----------------------------+----------------------------+----------------------------+
-        | process() was called before | No log file is open        | Call reopen_log() first    |
-        |   reopen_log() succeeded    |   (croak)                  |                            |
-        | Could not write to log file | write(2) failed, e.g. disk | Free space; the datagram   |
-        |   F: ERROR                  |   full (carp)              |   was lost                 |
-        +-----------------------------+----------------------------+----------------------------+
+```
+    +-----------------------------+----------------------------+----------------------------+
+    | Message                     | Meaning                    | Resolution                 |
+    +-----------------------------+----------------------------+----------------------------+
+    | process() was called before | No log file is open        | Call reopen_log() first    |
+    |   reopen_log() succeeded    |   (croak)                  |                            |
+    | Could not write to log file | write(2) failed, e.g. disk | Free space; the datagram   |
+    |   F: ERROR                  |   full (carp)              |   was lost                 |
+    +-----------------------------+----------------------------+----------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Process
-          ΔServer
-          d? : seq BYTE ; peer? : SOCKADDR
-          ─────────
-          logging
-          ParseMessage(d?) = ⊥ ⇒ count' = count ∧ contents' = contents
-          ParseMessage(d?) = r ≠ ⊥ ⇒
-            count' = count + 1 ∧
-            contents'(file) = contents(file) ⁀ ⟨csv(host(peer?), r)⟩
+```
+    Process
+      ΔServer
+      d? : seq BYTE ; peer? : SOCKADDR
+      ─────────
+      logging
+      ParseMessage(d?) = ⊥ ⇒ count' = count ∧ contents' = contents
+      ParseMessage(d?) = r ≠ ⊥ ⇒
+        count' = count + 1 ∧
+        contents'(file) = contents(file) ⁀ ⟨csv(host(peer?), r)⟩
+```
 
-## run
+### Run
 
 Purpose: the receive loop.
 
@@ -566,57 +674,71 @@ log on return.
 
 Usage:
 
-        $server->run();
+```
+    $server->run();
+```
 
-### EXAMPLE
+#### Example
 
-        my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
-        $server->run();
-        print $server->i18n('shutdown', { count => $server->count() }), "\n";
+```perl
+    my $server = App::Syslogd->new(port => 5514, file => '/var/log/remote.csv');
+    $server->run();
+    print $server->i18n('shutdown', { count => $server->count() }), "\n";
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
-        +-------------------------------+----------------------------+-------------------------+
-        | Message                       | Meaning                    | Resolution              |
-        +-------------------------------+----------------------------+-------------------------+
-        | Error receiving a datagram:   | recv(2) failed for a       | Usually transient;      |
-        |   ERROR                       |   reason other than EINTR  |   logged and retried    |
-        |                               |   (carp)                   |                         |
-        | (any open_socket() or reopen_log() | Start-up or SIGHUP reopen  | See those methods       |
-        |   message)                    |   failed (croak)           |                         |
-        +-------------------------------+----------------------------+-------------------------+
+```
+    +-------------------------------+----------------------------+-------------------------+
+    | Message                       | Meaning                    | Resolution              |
+    +-------------------------------+----------------------------+-------------------------+
+    | Error receiving a datagram:   | recv(2) failed for a       | Usually transient;      |
+    |   ERROR                       |   reason other than EINTR  |   logged and retried    |
+    |                               |   (carp)                   |                         |
+    | (any open_socket() or reopen_log() | Start-up or SIGHUP reopen  | See those methods       |
+    |   message)                    |   failed (croak)           |                         |
+    +-------------------------------+----------------------------+-------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Run ≙ (OpenSocket ⨾ ReopenLog) ⨾ Loop
-        Loop ≙ μ L • (¬running ∧ Close) □
-                     (running ∧ hup ∧ ReopenLog ⨾ L) □
-                     (running ∧ ¬hup ∧ Receive ⨾ Process ⨾ L)
+```
+    Run ≙ (OpenSocket ⨾ ReopenLog) ⨾ Loop
+    Loop ≙ μ L • (¬running ∧ Close) □
+                 (running ∧ hup ∧ ReopenLog ⨾ L) □
+                 (running ∧ ¬hup ∧ Receive ⨾ Process ⨾ L)
+```
 
-### PSEUDOCODE
+#### Pseudocode
 
-        listen and open the log if not already done
-        install HUP -> "reopen requested", TERM/INT -> "stop"
-        while running:
-                if reopen requested: reopen the log
-                wait for a datagram
-                if interrupted by a signal: loop again (to act on the flag)
-                if any other error: warn and loop again
-                process the datagram
-        close socket and log
-        restore previous signal handlers
+```
+    listen and open the log if not already done
+    install HUP -> "reopen requested", TERM/INT -> "stop"
+    while running:
+            if reopen requested: reopen the log
+            wait for a datagram
+            if interrupted by a signal: loop again (to act on the flag)
+            if any other error: warn and loop again
+            process the datagram
+    close socket and log
+    restore previous signal handlers
+```
 
-## stop
+### Stop
 
 Purpose: ask `run()` to return after the current datagram.
 
@@ -628,36 +750,46 @@ Side Effects: clears the running flag.
 
 Usage:
 
-        $server->stop();
+```
+    $server->stop();
+```
 
-### EXAMPLE
+#### Example
 
-        local $SIG{ALRM} = sub { $server->stop() };
-        alarm 60;       # run for a minute
-        $server->run();
+```perl
+    local $SIG{ALRM} = sub { $server->stop() };
+    alarm 60;       # run for a minute
+    $server->run();
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {}
+```
+    {}
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'object', isa => 'App::Syslogd' }
+```perl
+    { type => 'object', isa => 'App::Syslogd' }
+```
 
-### MESSAGES
+#### Messages
 
 None.
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        Stop
-          ΔServer
-          ─────────
-          ¬running'
+```
+    Stop
+      ΔServer
+      ─────────
+      ¬running'
+```
 
-## i18n
+### i18n
 
 Purpose: render a user-facing message in the server's language.
 
@@ -671,51 +803,63 @@ Side Effects: none.
 
 Usage:
 
-        croak $self->i18n('open_failed', { file => $file, error => "$!" });
+```perl
+    croak $self->i18n('open_failed', { file => $file, error => "$!" });
+```
 
-### EXAMPLE
+#### Example
 
-        print App::Syslogd->i18n('shutdown', { count => 3 }), "\n";
-        # Syslog server shutting down after recording 3 messages
+```perl
+    print App::Syslogd->i18n('shutdown', { count => 3 }), "\n";
+    # Syslog server shutting down after recording 3 messages
+```
 
-### API SPECIFICATION
+#### Api Specification
 
-#### INPUT
+##### Input
 
-        {
-                key => { type => 'string', min => 1, position => 0 },
-                args => { type => 'hashref', optional => 1, position => 1 },
-        }
+```perl
+    {
+            key => { type => 'string', min => 1, position => 0 },
+            args => { type => 'hashref', optional => 1, position => 1 },
+    }
+```
 
-#### OUTPUT
+##### Output
 
-        { type => 'string' }
+```perl
+    { type => 'string' }
+```
 
-### MESSAGES
+#### Messages
 
-        +----------------+------------------------------------------------+
-        | Key            | English text                                   |
-        +----------------+------------------------------------------------+
-        | usage          | Usage: PROGRAM [--port ...] ...                |
-        | listening      | Syslog server listening on ADDR UDP port N     |
-        | shutdown       | ... shutting down after recording N message(s) |
-        | socket_failed  | Could not create a UDP socket on ADDR port N   |
-        | open_failed    | Could not open log file F: ERROR               |
-        | unsafe_file    | Refusing to log to F: ...                      |
-        | write_failed   | Could not write to log file F: ERROR           |
-        | recv_failed    | Error receiving a datagram: ERROR              |
-        | not_listening  | run() was called before open_socket() ...       |
-        | no_log_open    | process() was called before reopen_log() ...   |
-        +----------------+------------------------------------------------+
+```
+    +----------------+------------------------------------------------+
+    | Key            | English text                                   |
+    +----------------+------------------------------------------------+
+    | usage          | Usage: PROGRAM [--port ...] ...                |
+    | listening      | Syslog server listening on ADDR UDP port N     |
+    | shutdown       | ... shutting down after recording N message(s) |
+    | socket_failed  | Could not create a UDP socket on ADDR port N   |
+    | open_failed    | Could not open log file F: ERROR               |
+    | unsafe_file    | Refusing to log to F: ...                      |
+    | write_failed   | Could not write to log file F: ERROR           |
+    | recv_failed    | Error receiving a datagram: ERROR              |
+    | not_listening  | run() was called before open_socket() ...       |
+    | no_log_open    | process() was called before reopen_log() ...   |
+    +----------------+------------------------------------------------+
+```
 
-### FORMAL SPECIFICATION
+#### Formal Specification
 
-        I18n
-          key? : KEY ; args? : NAME ⇸ VALUE ; out! : STRING
-          ─────────
-          out! = Text(handle(language), key?, args?)
+```
+    I18n
+      key? : KEY ; args? : NAME ⇸ VALUE ; out! : STRING
+      ─────────
+      out! = Text(handle(language), key?, args?)
+```
 
-# LIMITATIONS
+## Limitations
 
 - **The default log file is in /tmp.**  It is kept for compatibility with
 earlier versions.  The server refuses symlinks, hard links and files owned
@@ -752,11 +896,11 @@ Object::Configure uses, but `configure()` is not called: it brings in a
 global Log::Abstraction logger, which may log through syslog, and a
 syslog server logging to itself can loop.
 
-# AUTHOR
+## Author
 
 Nigel Horne, `<njh at nigelhorne.com>`
 
-# LICENSE AND COPYRIGHT
+## License and Copyright
 
 Copyright 2026 Nigel Horne.
 
