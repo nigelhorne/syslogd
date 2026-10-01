@@ -22,8 +22,12 @@ Revision history for App-Syslogd
 	- process() with an undef sender records the message with an empty
 	  Host column instead of dying inside Socket::getnameinfo
 	- Windows: no longer dies because Fcntl does not define O_NOFOLLOW
-	  there; the tests skip what Windows cannot do (permission bits,
+	  there, or because Perl has no fchmod there (an existing log's
+	  permissions are left alone); the tests skip what Windows cannot do (permission bits,
 	  symlinks, signals) and the real-UDP test no longer relies on
 	  alarm() interrupting recv()
+	- run() no longer leaves the object marked as running when it dies
+	  (e.g. a failed reopen after SIGHUP)
+	- t/function.t: white-box tests of every function
 	- Documentation rewritten in plain English, with ENCODING, COMMON
 	  PITFALLS, FORMAL SPECIFICATION and STATE DIAGRAM sections

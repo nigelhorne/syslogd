@@ -11,6 +11,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
+use Config;
 use Errno qw(EINTR);
 use Fcntl ();
 use File::Temp qw(tempdir);
@@ -26,7 +27,10 @@ $Sub::Private::BYPASS = $Sub::Protected::BYPASS = 1;
 # Windows has no Unix permission bits, no O_NOFOLLOW, no SIGHUP from
 # outside, and does not let a signal interrupt a blocking recv()
 my $WINDOWS = ($^O eq 'MSWin32');
-my $HAVE_NOFOLLOW = eval { Fcntl::O_NOFOLLOW(); 1 };
+# Use the value: where O_NOFOLLOW exists Perl inlines it as a constant,
+# and a constant in void context draws a "Useless use" warning.  Where it
+# does not exist the call dies, and eval gives undef.
+my $HAVE_NOFOLLOW = defined(eval { Fcntl::O_NOFOLLOW() });
 
 my $dir = tempdir(CLEANUP => 1);
 my $serial = 0;
@@ -152,6 +156,9 @@ subtest 'reopen_log() creates a private file with one header' => sub {
 
 	SKIP: {
 		skip('no Unix permission bits on Windows', 1) if($WINDOWS);
+		# Same test as the code: without fchmod an open file cannot be
+		# changed, so the server leaves it alone
+		skip('this Perl has no fchmod', 1) unless($Config{d_fchmod});
 		chmod(0644, $file);
 		$s->reopen_log();
 		is((stat $file)[2] & 07777, 0600, 'loose permissions on an existing file are tightened');

@@ -47,8 +47,13 @@ WriteMakefile(
 		'Errno'        => 0,
 		'File::Temp'   => 0,
 		'POSIX'        => 0,
+		'Readonly'     => 0,
+		'Scalar::Util' => 0,
+		'Test::Memory::Cycle' => 0,
+		'Test::Mockingbird' => 0.14,	# mock_scoped multi-method form
 		'Test::Most'   => 0,
 		'Test::Needs'  => 0,
+		'Test::Returns' => 0.04,
 		'Test::Warn'   => 0,
 	},
 	LICENSE => 'gpl_2',

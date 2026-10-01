@@ -25,8 +25,13 @@ on 'test' => sub {
 	requires 'Errno';
 	requires 'File::Temp';
 	requires 'POSIX';
+	requires 'Readonly';
+	requires 'Scalar::Util';
+	requires 'Test::Memory::Cycle';
+	requires 'Test::Mockingbird', '0.14';   # mock_scoped multi-method form
 	requires 'Test::Most';
 	requires 'Test::Needs';
+	requires 'Test::Returns', '0.04';
 	requires 'Test::Warn';
 	recommends 'CGI::ACL';
 	recommends 'IP::Country::Fast';

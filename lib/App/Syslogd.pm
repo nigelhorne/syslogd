@@ -11,6 +11,7 @@ use Sub::Private;
 use Sub::Protected;
 
 use Carp qw(carp croak);
+use Config;
 use CHI;
 use Fcntl qw(O_WRONLY O_APPEND O_CREAT);
 use IO::Handle;
@@ -60,6 +61,13 @@ Readonly my $LOG_MODE => 0600;
 # there; see LIMITATIONS.
 Readonly my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
 
+# chmod() on a filehandle needs fchmod(), which Windows Perl does not have
+# ("The fchmod function is unimplemented").  Windows does not use Unix
+# permission bits anyway, so there is nothing to tighten; see LIMITATIONS.
+# chmod() by name is not a substitute: the name may no longer be the file
+# we checked.
+Readonly my $HAVE_FCHMOD => $Config{d_fchmod} ? 1 : 0;
+
 # Column headings written to a brand-new log file.  VWF::Data::syslog_log
 # reads these as its column names, so do not change them lightly.
 Readonly my @CSV_HEADER => qw(Host facility severity msg);
@@ -76,8 +84,6 @@ Readonly my %NEW_SCHEMA => (
 	cache => { type => 'object', can => ['compute'], optional => 1 },
 	socket => { type => 'object', can => ['recv'], optional => 1 },
 );
-
-=encoding utf8
 
 =head1 NAME
 
@@ -403,7 +409,8 @@ cannot be opened (for example, the directory was removed), C<run()> dies
 with the error.  The socket stays open and the log stays closed.
 
 =item * B<An existing log file is made private.>  C<reopen_log()> changes the
-file's permissions to 0600 without asking.
+file's permissions to 0600 without asking (except on Windows; see
+L</LIMITATIONS>).
 
 =item * B<A short datagram is ignored silently.>  After removing line endings
 at the end, a datagram must have at least 2 characters.  C<parse_message()>
@@ -792,7 +799,7 @@ Side Effects:
 
 =item * Writes the column names if the file is empty.
 
-=item * Changes an existing file's permissions to 0600.
+=item * Changes an existing file's permissions to 0600 (not on Windows).
 
 =item * Dies, leaving no log open, if the file cannot be used safely.
 
@@ -1137,7 +1144,9 @@ sub run
 	local $SIG{HUP} = sub { $self->{reopen_requested} = 1 };
 	local $SIG{TERM} = local $SIG{INT} = sub { $self->{running} = 0 };
 
-	$self->{running} = 1;
+	# local, so the flag is cleared however run() ends: normally, or by
+	# dying when a reopen after SIGHUP fails
+	local $self->{running} = 1;
 	while($self->{running}) {
 		# Perl does not use SA_RESTART, so a signal interrupts recv()
 		# and we get here promptly to act on it
@@ -1342,7 +1351,7 @@ sub _open_log :Private
 	}
 
 	# Tighten an existing file too: previous versions created it 0644
-	chmod($LOG_MODE, $fh);
+	chmod($LOG_MODE, $fh) if($HAVE_FCHMOD);
 	binmode($fh);
 	$fh->autoflush(1);
 
@@ -1519,8 +1528,10 @@ link as the log file.  (Creating a symbolic link on Windows normally needs
 administrator rights, which makes this attack rare.)
 
 =item * Mode 0600 does not make the file private: Windows uses access control
-lists, which this module does not change.  Put the log in a folder that only
-the right users can read.
+lists, which this module does not change.  An existing file's permissions
+are not changed either, because Windows Perl cannot change the permissions
+of an open file.  Put the log in a folder that only the right users can
+read.
 
 =item * There is no C<kill -HUP> from outside the process, so log rotation by
 signal is not available.  Stop and restart the server instead.
@@ -1541,12 +1552,7 @@ itself can loop.
 
 Nigel Horne, C<< <njh at nigelhorne.com> >>
 
-=head1 LICENSE AND COPYRIGHT
-
-Copyright 2026 Nigel Horne.
-
-This program is released under the GNU General Public License, version 2
-(see the F<LICENSE> file).  If you use it, please let me know.
+=encoding utf8
 
 =head1 FORMAL SPECIFICATION
 
@@ -1838,6 +1844,14 @@ Failures (the method dies and the object changes as shown):
 C<port()>, C<address()>, C<count()>, C<parse_message()> and C<i18n()> never
 change the state.  C<stop()> outside C<run()> changes nothing that matters,
 because C<run()> sets the "running" flag again when it starts.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright 2026 Nigel Horne.
+
+Usage is subject to the GPL2 licence terms.
+If you use it,
+please let me know.
 
 =cut
 
