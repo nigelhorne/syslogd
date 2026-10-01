@@ -13,7 +13,7 @@ use Sub::Protected;
 use Carp qw(carp croak);
 use Config;
 use CHI;
-use Fcntl qw(O_WRONLY O_APPEND O_CREAT);
+use Fcntl qw(O_WRONLY O_APPEND O_CREAT SEEK_END);
 use IO::Handle;
 use IO::Socket::IP;
 use Params::Get;
@@ -436,6 +436,10 @@ useful to return give back the object, so you can chain calls:
 
 	App::Syslogd->new(port => 5514)->open_socket()->reopen_log()->run();
 
+No method changes the caller's C<$_>, C<$!> or C<$@>, or an C<alarm()>
+that is counting down.  (A method that dies sets C<$@>, as C<die> always
+does.)
+
 The mathematical description of each method is in
 L</FORMAL SPECIFICATION>, and the life cycle of an object is in
 L</STATE DIAGRAM>, both at the end of this document.
@@ -548,6 +552,12 @@ sub new
 {
 	my $class = shift;
 
+	# Keep the caller's $! and $@: system calls and modules used below
+	# (CHI, Params::Validate::Strict, sockets, files) change them.  A
+	# croak still reaches the caller: since Perl 5.14 die sets $@ after
+	# locals are restored.
+	local ($!, $@);
+
 	# Accept a hash, a hashref or nothing at all
 	my $args = Params::Validate::Strict::validate_strict({
 		schema => \%NEW_SCHEMA,
@@ -630,6 +640,9 @@ sub open_socket
 {
 	my $self = shift;
 
+	# Keep the caller's $! and $@ (see new())
+	local ($!, $@);
+
 	# IO::Socket::IP handles both families; IO::Socket::INET is IPv4-only
 	$self->{socket} ||= IO::Socket::IP->new(
 		LocalHost => $self->{address},
@@ -652,7 +665,9 @@ Args: none.
 
 Returns: a whole number from 0 to 65535.  Before C<open_socket()> it is the
 port you asked for.  After it, it is the port really in use, so
-C<< port => 0 >> becomes the number the system chose.
+C<< port => 0 >> becomes the number the system chose.  If the socket was
+given to C<new()> and has no C<sockport()> method (a simple test double, for
+example), it is the port you asked for.
 
 Side Effects: none.
 
@@ -698,6 +713,8 @@ Args: none.
 
 Returns: a string, such as C<0.0.0.0> or C<::1>.  Before C<open_socket()> it
 is the address you asked for.  After it, it is the address the system reports.
+If the socket was given to C<new()> and has no C<sockhost()> method, it is
+the address you asked for.
 
 Side Effects: none.
 
@@ -848,6 +865,9 @@ sub reopen_log
 {
 	my $self = shift;
 
+	# Keep the caller's $! and $@ (see new())
+	local ($!, $@);
+
 	# Closing first means a failed reopen leaves no stale handle that
 	# would silently keep writing to the rotated file
 	$self->_close_log();
@@ -995,6 +1015,8 @@ datagram is too short, in which case nothing happens.
 
 =item * If the line cannot be written (for example, the disk is full), it
 warns and continues.  That message is lost, but the server keeps working.
+If only part of the line fitted, the part is removed again, so the file
+never holds a half line and the next message starts on a line of its own.
 
 =back
 
@@ -1040,6 +1062,9 @@ Usage:
 sub process
 {
 	my ($self, $datagram, $peer) = @_;
+
+	# Keep the caller's $! and $@ (see new())
+	local ($!, $@);
 
 	croak($self->i18n('no_log_open')) unless($self->{fh});
 
@@ -1135,6 +1160,9 @@ Usage:
 sub run
 {
 	my $self = shift;
+
+	# Keep the caller's $! and $@ (see new())
+	local ($!, $@);
 
 	$self->open_socket() unless($self->{socket});
 	$self->reopen_log() unless($self->{fh});
@@ -1325,7 +1353,8 @@ sub _receive :Private
 # _open_log
 # Purpose:	open $self->{file} for appending, safely.
 # Entry:	$self->{file} set.
-# Exit:		an autoflushed filehandle; croaks on failure.
+# Exit:		an open filehandle (written with syswrite, unbuffered);
+#		croaks on failure.
 # Side Effects:	may create the file (mode 0600) and write the header row;
 #		chmods an existing file to 0600.
 sub _open_log :Private
@@ -1353,7 +1382,6 @@ sub _open_log :Private
 	# Tighten an existing file too: previous versions created it 0644
 	chmod($LOG_MODE, $fh) if($HAVE_FCHMOD);
 	binmode($fh);
-	$fh->autoflush(1);
 
 	# Header only on an empty file, so a reopened file is not given a
 	# second header row half way down
@@ -1373,10 +1401,45 @@ sub _write_header :Private
 	my ($self, $fh) = @_;
 
 	$self->{csv}->combine(@CSV_HEADER);
-	print { $fh } $self->{csv}->string()
-		or croak($self->i18n('write_failed', { file => $self->{file}, error => "$!" }));
+	my $error = $self->_append_line($fh, $self->{csv}->string());
+	croak($self->i18n('write_failed', { file => $self->{file}, error => $error })) if(defined($error));
 
 	return $self;
+}
+
+# _append_line
+# Purpose:	add one complete line to the end of the log, or nothing.
+# Entry:	$fh open for appending; $line ends with a newline.
+# Exit:		undef on success, or the system's error text.
+# Side Effects:	writes to the file.  If only part of the line could be
+#		written (e.g. the disk filled up mid-line), the part is cut off
+#		again, so the next line does not join a half-written one.
+# syswrite rather than print: print leaves a failed line in Perl's
+# buffer, where it makes the next close() fail (fatal under autodie) and
+# makes Perl add an "unable to close filehandle properly" warning.
+sub _append_line :Private
+{
+	my ($self, $fh, $line) = @_;
+
+	no autodie qw(sysseek syswrite truncate);
+
+	# Where the line starts, so a partial line can be removed
+	my $start = sysseek($fh, 0, SEEK_END);
+
+	# syswrite may write less than asked; keep going until done or error
+	my $done = 0;
+	while($done < length($line)) {
+		my $written = syswrite($fh, $line, length($line) - $done, $done);
+		last unless($written);
+		$done += $written;
+	}
+	return undef if($done == length($line));
+
+	# Remember the error before truncate can change $!
+	my $error = "$!";
+	truncate($fh, $start) if($done && defined($start));
+
+	return $error;
 }
 
 # _close_log
@@ -1422,13 +1485,12 @@ sub _write_row :Private
 {
 	my ($self, $row) = @_;
 
-	# combine() then a plain print, rather than Text::CSV's print(): the
+	# combine() then our own write, rather than Text::CSV's print(): the
 	# XS print emits a spurious "uninitialized" warning when write() fails
 	my $csv = $self->{csv};
 	$csv->combine(@{$row});
-	unless(print { $self->{fh} } $csv->string()) {
-		carp($self->i18n('write_failed', { file => $self->{file}, error => "$!" }));
-	}
+	my $error = $self->_append_line($self->{fh}, $csv->string());
+	carp($self->i18n('write_failed', { file => $self->{file}, error => $error })) if(defined($error));
 
 	return $self;
 }

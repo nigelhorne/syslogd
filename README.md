@@ -316,6 +316,10 @@ useful to return give back the object, so you can chain calls:
     App::Syslogd->new(port => 5514)->open_socket()->reopen_log()->run();
 ```
 
+No method changes the caller's `$_`, `$!` or `$@`, or an `alarm()`
+that is counting down.  (A method that dies sets `$@`, as `die` always
+does.)
+
 The mathematical description of each method is in
 ["FORMAL SPECIFICATION"](#formal-specification), and the life cycle of an object is in
 ["STATE DIAGRAM"](#state-diagram), both at the end of this document.
@@ -483,7 +487,9 @@ Args: none.
 
 Returns: a whole number from 0 to 65535.  Before `open_socket()` it is the
 port you asked for.  After it, it is the port really in use, so
-`port => 0` becomes the number the system chose.
+`port => 0` becomes the number the system chose.  If the socket was
+given to `new()` and has no `sockport()` method (a simple test double, for
+example), it is the port you asked for.
 
 Side Effects: none.
 
@@ -525,6 +531,8 @@ Args: none.
 
 Returns: a string, such as `0.0.0.0` or `::1`.  Before `open_socket()` it
 is the address you asked for.  After it, it is the address the system reports.
+If the socket was given to `new()` and has no `sockhost()` method, it is
+the address you asked for.
 
 Side Effects: none.
 
@@ -773,6 +781,8 @@ Side Effects:
 datagram is too short, in which case nothing happens.
 - If the line cannot be written (for example, the disk is full), it
 warns and continues.  That message is lost, but the server keeps working.
+If only part of the line fitted, the part is removed again, so the file
+never holds a half line and the next message starts on a line of its own.
 
 Usage:
 

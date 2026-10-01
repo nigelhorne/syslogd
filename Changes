@@ -28,6 +28,13 @@ Revision history for App-Syslogd
 	  alarm() interrupting recv()
 	- run() no longer leaves the object marked as running when it dies
 	  (e.g. a failed reopen after SIGHUP)
+	- new(), open_socket(), reopen_log(), process() and run() no longer
+	  change the caller's $! or $@
+	- Log lines are written with syswrite: a failed write no longer
+	  leaves data in Perl's buffer (which made the next close() die and
+	  added an "unable to close filehandle" warning), and a line that
+	  only partly fitted is removed, so the CSV never holds a half line
 	- t/function.t: white-box tests of every function
+	- t/unit.t: black-box tests of every documented message and state
 	- Documentation rewritten in plain English, with ENCODING, COMMON
 	  PITFALLS, FORMAL SPECIFICATION and STATE DIAGRAM sections

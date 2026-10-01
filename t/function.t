@@ -29,7 +29,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
-use Errno qw(EINTR EBADF ENOENT);
+use Errno qw(EINTR EBADF ENOENT ENOSPC);
 use File::Temp qw(tempdir);
 use Readonly;
 use Scalar::Util qw(weaken);
@@ -159,6 +159,16 @@ sub freed_ok {
 	undef $object;
 	ok(!defined($weak), "$name is freed when the last reference goes");
 	return;
+}
+
+# /dev/full fails every write with ENOSPC, exactly like a full disk, and
+# without the extra warnings Perl adds for misused handles.  Linux and
+# some BSDs have it; tests that need it skip elsewhere.
+Readonly my $FULL_DEVICE => '/dev/full';
+sub open_full {
+	return unless(-c $FULL_DEVICE && -w _);
+	open(my $fh, '>>', $FULL_DEVICE) or return;
+	return $fh;
 }
 
 # A socket double: hands out queued datagrams, records what it was asked
@@ -651,7 +661,7 @@ subtest 'App::Syslogd::_receive - interruptions and errors' => sub {
 };
 
 subtest 'App::Syslogd::_open_log' => sub {
-	# Purpose: creates a private, append-mode, autoflushed file and asks
+	# Purpose: creates a private, append-mode file and asks
 	# for the header only when the file is empty.  Strategy: real files
 	# (open and stat are builtins) with _write_header mocked.
 	my @headers;
@@ -664,7 +674,6 @@ subtest 'App::Syslogd::_open_log' => sub {
 	ok(-f $file, 'file created');
 	is(scalar(@headers), 1, 'header requested for a new, empty file');
 	is($headers[0], $fh, '...on the new handle');
-	ok($fh->autoflush(), 'autoflush is on, so rows reach the disk at once');
 	SKIP: {
 		skip('no Unix permission bits on Windows', 1) if($^O eq 'MSWin32');
 		is((stat $file)[2] & 07777, $CONFIG{log_mode}, 'mode 0600');
@@ -701,16 +710,69 @@ subtest 'App::Syslogd::_open_log - failures' => sub {
 
 subtest 'App::Syslogd::_write_header' => sub {
 	# Purpose: writes exactly one header line; a failed write croaks,
-	# because a log that cannot take its first line is useless
-	my $server = App::Syslogd->new(file => 'F');
-	open(my $fh, '>', \my $buffer) or die;
+	# because a log that cannot take its first line is useless.
+	# Strategy: real files, since the helper writes with syswrite, which
+	# in-memory handles do not support; a read-only handle forces failure.
+	my $file = new_log();
+	my $server = App::Syslogd->new(file => $file);
+	open(my $fh, '>>', $file) or die;
 	returns_ok(keeps_globals(sub { $server->_write_header($fh) }, '_write_header()'), $SCHEMA{server}, 'returns $self');
-	is($buffer, "$CONFIG{header}\n", 'exactly the header line');
+	close($fh);
+	is_deeply(lines_of($file), [$CONFIG{header}], 'exactly the header line');
 
-	open(my $read_only, '<', \'') or die;
-	local $SIG{__WARN__} = sub { };	# Perl's own "opened only for input" warning
-	throws_ok { $server->_write_header($read_only) }
-		exact('Could not write to log file F: ' . errno_text(EBADF)), 'failed write: exact error';
+	SKIP: {
+		my $full = open_full() or skip("$FULL_DEVICE is not available", 2);
+		warnings_are {
+			throws_ok { $server->_write_header($full) }
+				exact("Could not write to log file $file: " . errno_text(ENOSPC)), 'failed write: exact error';
+		} [], 'and no other warnings';
+	}
+};
+
+subtest 'App::Syslogd::_append_line' => sub {
+	# Purpose: a whole line is appended and undef returned; on failure
+	# the system's error text is returned and nothing is half-written.
+	# (A partial write, which needs a full disk, is tested in t/unit.t.)
+	my $file = new_log();
+	my $server = App::Syslogd->new(file => $file);
+	open(my $fh, '>>', $file) or die;
+	is(keeps_globals(sub { $server->_append_line($fh, "one\n") }, '_append_line()'), undef, 'success: undef');
+	$server->_append_line($fh, "two\n");
+	close($fh);
+	is_deeply(lines_of($file), ['one', 'two'], 'lines appended in order');
+
+	SKIP: {
+		my $full = open_full() or skip("$FULL_DEVICE is not available", 2);
+		my $error;
+		warnings_are { $error = $server->_append_line($full, "three\n") } [], 'failure is silent: the caller reports it';
+		is($error, errno_text(ENOSPC), "failure: the system's error text");
+	}
+};
+
+subtest 'App::Syslogd::_write_row' => sub {
+	# Purpose: one quoted CSV line per row; a failed write warns and
+	# returns, because a full disk must not stop the daemon
+	my $file = new_log();
+	my $server = App::Syslogd->new(file => $file);
+	open(my $fh, '>>', $file) or die;
+	$server->{fh} = $fh;
+
+	returns_ok(keeps_globals(sub { $server->_write_row(['h', 1, 5, 'say "hi", bye']) }, '_write_row()'),
+		$SCHEMA{server}, 'returns $self');
+	is_deeply(lines_of($file), ['"h","1","5","say ""hi"", bye"'], 'quoted, quotes doubled, one line');
+
+	SKIP: {
+		my $full = open_full() or skip("$FULL_DEVICE is not available", 3);
+		$server->{fh} = $full;
+		my @warnings;
+		{
+			local $SIG{__WARN__} = sub { push @warnings, $_[0] };
+			lives_ok { $server->_write_row(['h']) } 'a failed write does not die';
+		}
+		verbose_diag(explain(\@warnings));
+		is(scalar(@warnings), 1, 'exactly one warning');
+		like($warnings[0], exact("Could not write to log file $file: " . errno_text(ENOSPC)), '...with the exact text');
+	}
 };
 
 subtest 'App::Syslogd::_close_log' => sub {
@@ -740,30 +802,6 @@ subtest 'App::Syslogd::_shutdown' => sub {
 
 	lives_ok { $server->_shutdown() } 'a second call does nothing';
 	is($socket->{closed}, 1, '...and does not close the socket again');
-};
-
-subtest 'App::Syslogd::_write_row' => sub {
-	# Purpose: one quoted CSV line per row; a failed write warns and
-	# returns, because a full disk must not stop the daemon
-	my $server = App::Syslogd->new(file => 'F');
-	open(my $fh, '>', \my $buffer) or die;
-	$server->{fh} = $fh;
-
-	returns_ok(keeps_globals(sub { $server->_write_row(['h', 1, 5, 'say "hi", bye']) }, '_write_row()'),
-		$SCHEMA{server}, 'returns $self');
-	is($buffer, qq{"h","1","5","say ""hi"", bye"\n}, 'quoted, quotes doubled, one line');
-
-	open(my $read_only, '<', \'') or die;
-	$server->{fh} = $read_only;
-	my @warnings;
-	{
-		local $SIG{__WARN__} = sub { push @warnings, $_[0] };
-		lives_ok { $server->_write_row(['h']) } 'a failed write does not die';
-	}
-	verbose_diag(explain(\@warnings));
-	my @ours = grep { /Could not write/ } @warnings;
-	is(scalar(@ours), 1, 'one warning of its own');
-	like($ours[0], exact('Could not write to log file F: ' . errno_text(EBADF)), '...with the exact text');
 };
 
 subtest 'App::Syslogd::_peer_name' => sub {
