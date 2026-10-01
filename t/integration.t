@@ -123,6 +123,29 @@ sub run_perl {
 	return ($? >> 8, $stdout, $stderr);
 }
 
+# Write Perl code to a script file for a child process.  Code is never
+# passed with -e: on Windows the arguments are joined into one command
+# line, and quotes and newlines inside them are mangled.
+sub script_file {
+	my $code = shift;
+	my $path = File::Spec->catfile($dir, 'child' . ++$serial . '.pl');
+	open(my $fh, '>', $path) or die "$path: $!";
+	print {$fh} "$code\n";
+	close($fh) or die "$path: $!";
+	return $path;
+}
+
+# Write datagrams to a file, one per line in hex, so that any bytes
+# (quotes, newlines, UTF-8) reach the child unchanged on every platform
+sub datagram_file {
+	my @datagrams = @_;
+	my $path = File::Spec->catfile($dir, 'datagrams' . ++$serial . '.hex');
+	open(my $fh, '>', $path) or die "$path: $!";
+	print {$fh} map { unpack('H*', $_) . "\n" } @datagrams;
+	close($fh) or die "$path: $!";
+	return $path;
+}
+
 # Send datagrams to a port on the loopback interface
 sub send_datagrams {
 	my ($port, @datagrams) = @_;
@@ -416,7 +439,7 @@ subtest 'loading at compile time and at run time' => sub {
 	foreach my $how (sort keys %loaders) {
 		local $ENV{HARNESS_ACTIVE};	# the harness bypass would hide enforcement
 		delete $ENV{HARNESS_ACTIVE};
-		my ($exit, $stdout, $stderr) = run_perl("-I$CONFIG{lib}", '-e', "$loaders{$how}\n$check");
+		my ($exit, $stdout, $stderr) = run_perl("-I$CONFIG{lib}", script_file("$loaders{$how}\n$check"));
 		is($exit, 0, "$how: exits cleanly");
 		is($stderr, '', "$how: no warnings");
 		is($stdout, "private: blocked\nfunction: blocked\nok\n", "$how: works, helpers protected");
@@ -433,10 +456,12 @@ subtest 'optional Text::CSV backends, in every combination' => sub {
 	my $script = join("\n",
 		'use App::Syslogd;',
 		'my $s = App::Syslogd->new(file => $ARGV[0], resolve => 0)->reopen_log();',
-		'$s->process($_, undef) foreach(@ARGV[1 .. $#ARGV]);',
+		'open(my $in, "<", $ARGV[1]) or die "$ARGV[1]: $!";',
+		'while(my $hex = <$in>) { chomp($hex); $s->process(pack("H*", $hex), undef) }',
 		'print Text::CSV->backend(), "\n";',
 	);
-	my @datagrams = map { $_->[0] } @CORPUS;
+	my $script_path = script_file($script);
+	my $datagram_path = datagram_file(map { $_->[0] } @CORPUS);
 	my @backends = @{$CONFIG{csv_backends}};	# in Text::CSV's order of preference
 	my %installed = map { $_ => (eval "require $_; 1" ? 1 : 0) } @backends;
 	note('installed backends: ', join(', ', grep { $installed{$_} } @backends) || 'none');
@@ -449,7 +474,7 @@ subtest 'optional Text::CSV backends, in every combination' => sub {
 		my $name = @hidden ? 'without ' . join(' and ', @hidden) : 'with every backend';
 		my $file = new_path('csv');
 		my ($exit, $stdout, $stderr) = run_perl("-I$CONFIG{lib}", (map { "-MTest::Without::Module=$_" } @hidden),
-			'-e', $script, $file, @datagrams);
+			$script_path, $file, $datagram_path);
 
 		if(!@usable) {
 			isnt($exit, 0, "$name: loading fails (no backend left)");
