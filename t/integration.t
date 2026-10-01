@@ -428,6 +428,8 @@ subtest 'optional Text::CSV backends, in every combination' => sub {
 	# Text::CSV_PP.  The log must be byte-for-byte the same with either
 	# backend; with neither, loading must fail loudly, not silently.
 	# Strategy: Test::Without::Module in a child, for each combination.
+	# What to expect depends on which backends are really installed:
+	# Text::CSV_XS is optional and is often missing (as on CI runners).
 	my $script = join("\n",
 		'use App::Syslogd;',
 		'my $s = App::Syslogd->new(file => $ARGV[0], resolve => 0)->reopen_log();',
@@ -435,28 +437,38 @@ subtest 'optional Text::CSV backends, in every combination' => sub {
 		'print Text::CSV->backend(), "\n";',
 	);
 	my @datagrams = map { $_->[0] } @CORPUS;
+	my @backends = @{$CONFIG{csv_backends}};	# in Text::CSV's order of preference
+	my %installed = map { $_ => (eval "require $_; 1" ? 1 : 0) } @backends;
+	note('installed backends: ', join(', ', grep { $installed{$_} } @backends) || 'none');
+
 	my %reference;
-	my @backends = @{$CONFIG{csv_backends}};
 	foreach my $mask (0 .. (2 ** @backends) - 1) {
 		my @hidden = map { $backends[$_] } grep { $mask & (1 << $_) } 0 .. $#backends;
-		my @available = grep { my $b = $_; !grep { $_ eq $b } @hidden } @backends;
+		my %is_hidden = map { $_ => 1 } @hidden;
+		my @usable = grep { $installed{$_} && !$is_hidden{$_} } @backends;
 		my $name = @hidden ? 'without ' . join(' and ', @hidden) : 'with every backend';
 		my $file = new_path('csv');
 		my ($exit, $stdout, $stderr) = run_perl("-I$CONFIG{lib}", (map { "-MTest::Without::Module=$_" } @hidden),
 			'-e', $script, $file, @datagrams);
-		if(!@available) {
-			isnt($exit, 0, "$name: loading fails");
+
+		if(!@usable) {
+			isnt($exit, 0, "$name: loading fails (no backend left)");
 			like($stderr, qr/Can't locate Text\/CSV_PP\.pm/, "$name: and says what is missing");
 			next;
 		}
 		is($exit, 0, "$name: works");
 		is($stderr, '', "$name: no warnings");
 		chomp(my $backend = $stdout);
-		is($backend, $available[0], "$name: uses $available[0]");
-		my $content = do { local $/; open(my $fh, '<:raw', $file) or die; <$fh> };
-		$reference{content} //= $content;
-		is($content, $reference{content}, "$name: the log is identical");
+		is($backend, $usable[0], "$name: uses $usable[0]");
+
+		# Compare the logs; a child that failed has already been reported
+		next unless(-s $file);
+		my $content = do { local $/; open(my $fh, '<:raw', $file) or die "$file: $!"; <$fh> };
+		$reference{$backend} //= $content;
+		my ($first) = sort keys %reference;
+		is($content, $reference{$first}, "$name: the log is identical to the $first one");
 	}
+	note('only one backend is installed, so only that one was compared') if(keys(%reference) < 2);
 };
 
 subtest 'the etc/syslogd program' => sub {
