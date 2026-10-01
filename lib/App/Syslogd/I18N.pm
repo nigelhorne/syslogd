@@ -252,11 +252,14 @@ C locale, whatever C<LC_ALL> says.
 
 =head1 AUTHOR
 
-Nigel Horne
+Nigel Horne, C<< <njh at nigelhorne.com> >>
 
-=head1 LICENCE
+=head1 LICENSE AND COPYRIGHT
 
-GPL2
+Copyright 2026 Nigel Horne.
+
+This program is released under the GNU General Public License, version 2
+(see the F<LICENSE> file).  If you use it, please let me know.
 
 =cut
 

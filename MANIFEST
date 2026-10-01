@@ -1,0 +1,15 @@
+Changes
+cpanfile
+etc/syslogd
+lib/App/Syslogd.pm
+lib/App/Syslogd/I18N.pm
+lib/App/Syslogd/I18N/en.pm
+LICENSE
+Makefile.PL
+MANIFEST			This list of files
+MANIFEST.SKIP
+README.md
+t/00-load.t
+t/i18n.t
+t/locales.t
+t/server.t

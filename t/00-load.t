@@ -13,6 +13,11 @@ use Test::Most;
 BEGIN {
 	use_ok('App::Syslogd::I18N');
 	use_ok('App::Syslogd');
+}
+
+# The web viewer is only in the git checkout, not the CPAN distribution
+SKIP: {
+	skip('www/ is not part of the CPAN distribution', 1) unless(-d "$Bin/../www/lib");
 	use_ok('VWF::Blacklist');
 }
 

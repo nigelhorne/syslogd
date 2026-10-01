@@ -161,20 +161,34 @@ An example logrotate stanza:
 
 =head1 INSTALLATION
 
-	cpanm --installdeps .
+Install the module from CPAN:
+
+	cpanm App::Syslogd
+
+or, from a git checkout:
+
+	perl Makefile.PL && make && make test && sudo make install
+
+Then install the program by hand.  It is deliberately not installed by
+C<make install>: that would put it in a F<bin> directory, where a program
+called F<syslogd> could shadow the system's F</usr/sbin/syslogd> on C<PATH>.
+
 	sudo cp etc/syslogd /usr/local/etc/
+
+To run from a checkout without installing the module, copy it alongside:
+
 	sudo cp -r lib/App /usr/local/lib/
 
-The program looks for its modules in F<../lib> relative to itself, which is
-F</usr/local/lib> once installed, or F<lib/> in a git checkout.  Modules
-installed anywhere on Perl's normal C<@INC> are also found.
+The program looks for its modules in F<../lib> relative to itself (which is
+F</usr/local/lib> once installed, or F<lib/> in a git checkout) as well as
+on Perl's normal C<@INC>.
 
 =head1 DEPENDENCIES
 
 Perl 5.14 or later, plus L<autodie> (with L<IPC::System::Simple>), L<CHI>,
 L<IO::Socket::IP>, L<Locale::Maketext>, L<Params::Get>,
 L<Params::Validate::Strict>, L<Readonly>, L<Socket>, L<Sub::Private>,
-L<Sub::Protected> and L<Text::CSV>.  The exact versions are in F<cpanfile>.
+L<Sub::Protected> and L<Text::CSV>.  The exact versions are in F<Makefile.PL>.
 
 =head1 FILES
 
@@ -188,7 +202,8 @@ L<Sub::Protected> and L<Text::CSV>.  The exact versions are in F<cpanfile>.
 
 =item F<t/> - the tests; run them with C<prove -l t/>.
 
-=item F<www/> - a VWF-based web viewer for the log.
+=item F<www/> - a VWF-based web viewer for the log (git checkout only; it is
+not part of the CPAN distribution).
 
 =back
 
@@ -1240,11 +1255,14 @@ syslog server logging to itself can loop.
 
 =head1 AUTHOR
 
-Nigel Horne
+Nigel Horne, C<< <njh at nigelhorne.com> >>
 
-=head1 LICENCE
+=head1 LICENSE AND COPYRIGHT
 
-GPL2
+Copyright 2026 Nigel Horne.
+
+This program is released under the GNU General Public License, version 2
+(see the F<LICENSE> file).  If you use it, please let me know.
 
 =cut
 

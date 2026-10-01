@@ -69,20 +69,34 @@ An example logrotate stanza:
 
 # INSTALLATION
 
-        cpanm --installdeps .
+Install the module from CPAN:
+
+        cpanm App::Syslogd
+
+or, from a git checkout:
+
+        perl Makefile.PL && make && make test && sudo make install
+
+Then install the program by hand.  It is deliberately not installed by
+`make install`: that would put it in a `bin` directory, where a program
+called `syslogd` could shadow the system's `/usr/sbin/syslogd` on `PATH`.
+
         sudo cp etc/syslogd /usr/local/etc/
+
+To run from a checkout without installing the module, copy it alongside:
+
         sudo cp -r lib/App /usr/local/lib/
 
-The program looks for its modules in `../lib` relative to itself, which is
-`/usr/local/lib` once installed, or `lib/` in a git checkout.  Modules
-installed anywhere on Perl's normal `@INC` are also found.
+The program looks for its modules in `../lib` relative to itself (which is
+`/usr/local/lib` once installed, or `lib/` in a git checkout) as well as
+on Perl's normal `@INC`.
 
 # DEPENDENCIES
 
 Perl 5.14 or later, plus [autodie](https://metacpan.org/pod/autodie) (with [IPC::System::Simple](https://metacpan.org/pod/IPC%3A%3ASystem%3A%3ASimple)), [CHI](https://metacpan.org/pod/CHI),
 [IO::Socket::IP](https://metacpan.org/pod/IO%3A%3ASocket%3A%3AIP), [Locale::Maketext](https://metacpan.org/pod/Locale%3A%3AMaketext), [Params::Get](https://metacpan.org/pod/Params%3A%3AGet),
 [Params::Validate::Strict](https://metacpan.org/pod/Params%3A%3AValidate%3A%3AStrict), [Readonly](https://metacpan.org/pod/Readonly), [Socket](https://metacpan.org/pod/Socket), [Sub::Private](https://metacpan.org/pod/Sub%3A%3APrivate),
-[Sub::Protected](https://metacpan.org/pod/Sub%3A%3AProtected) and [Text::CSV](https://metacpan.org/pod/Text%3A%3ACSV).  The exact versions are in `cpanfile`.
+[Sub::Protected](https://metacpan.org/pod/Sub%3A%3AProtected) and [Text::CSV](https://metacpan.org/pod/Text%3A%3ACSV).  The exact versions are in `Makefile.PL`.
 
 # FILES
 
@@ -90,7 +104,8 @@ Perl 5.14 or later, plus [autodie](https://metacpan.org/pod/autodie) (with [IPC:
 - `lib/App/Syslogd.pm` - this module.
 - `lib/App/Syslogd/I18N.pm`, `lib/App/Syslogd/I18N/en.pm` - the message catalogue.
 - `t/` - the tests; run them with `prove -l t/`.
-- `www/` - a VWF-based web viewer for the log.
+- `www/` - a VWF-based web viewer for the log (git checkout only; it is
+not part of the CPAN distribution).
 
 # METHODS
 
@@ -739,8 +754,11 @@ syslog server logging to itself can loop.
 
 # AUTHOR
 
-Nigel Horne
+Nigel Horne, `<njh at nigelhorne.com>`
 
-# LICENCE
+# LICENSE AND COPYRIGHT
 
-GPL2
+Copyright 2026 Nigel Horne.
+
+This program is released under the GNU General Public License, version 2
+(see the `LICENSE` file).  If you use it, please let me know.

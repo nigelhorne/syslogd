@@ -189,7 +189,11 @@ subtest 'host name resolution and its cache' => sub {
 	$s->process('<13>a', $localhost)->process('<13>b', $localhost)->process('<13>c', $PEER);
 
 	my $lines = lines_of($file);
-	unlike($lines->[1], qr/\A"127\.0\.0\.1"/, '127.0.0.1 resolved to a name');
+	# Not every test machine can reverse-resolve 127.0.0.1, so ask the
+	# resolver what the right answer is rather than assuming "localhost"
+	my ($error, $name) = Socket::getnameinfo($localhost, Socket::NI_NAMEREQD(), Socket::NIx_NOSERV());
+	my $expected = $error ? '127.0.0.1' : $name;
+	like($lines->[1], qr/\A"\Q$expected\E"/, "127.0.0.1 logged as $expected");
 	like($lines->[3], qr/\A"192\.0\.2\.1"/, 'unresolvable address logged numerically');
 	is($cache->{calls}{'127.0.0.1'}, 2, 'cache consulted per datagram');
 

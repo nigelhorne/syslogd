@@ -1,0 +1,19 @@
+Revision history for App-Syslogd
+
+0.02	Thu Oct  1 2026
+	First CPAN release, as App::Syslogd (the backend of
+	https://github.com/nigelhorne/syslogd).
+	- Logic moved out of etc/syslogd into App::Syslogd, which
+	  etc/syslogd now wraps
+	- SIGHUP closes and reopens the log file, for logrotate;
+	  SIGTERM/SIGINT stop cleanly
+	- Security: the log file is opened with O_NOFOLLOW and mode 0600;
+	  symlinks, hard links and files owned by other users are refused
+	- Proper CSV via Text::CSV; control characters (including
+	  newlines) written as \xNN so each record is one line
+	- A message without a valid PRI (0-191) is recorded as user.notice,
+	  as RFC 3164 4.3.3 requires, rather than as a hex dump
+	- Host names via getnameinfo (honours /etc/hosts), cached with CHI;
+	  --no-resolve to log addresses; IPv6 and --address supported
+	- Datagrams up to 65535 bytes accepted without truncation
+	- Messages localisable through Locale::Maketext (English shipped)
