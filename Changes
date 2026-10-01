@@ -74,6 +74,18 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- Security: an existing log file must be empty or start with the
+	  column-names line; any other file is refused and left untouched
+	  (before, as root, a wrong setting could append to and chmod any
+	  root-owned file, /etc/passwd included).  The log is now opened
+	  read-write so that its first line can be checked.
+	- Security: etc/syslogd refuses to run from a web server (as a CGI
+	  program a query without "=" became its command line, so a visitor
+	  could start a daemon writing where they chose)
+	- etc/syslogd works under perl -T: it no longer builds its library
+	  path from $0 there (the module must be installed or given with -I)
+	- etc/syslogd exits 0, 1 (could not start or failed) or 2 (started
+	  wrongly), instead of whatever $! held when it died; it now has POD
 	- Security: NUL bytes are refused in address, file and language; a
 	  NUL made the server bind to a different address than it reported
 	- POD: a SECURITY section (the attack surface and its protections)

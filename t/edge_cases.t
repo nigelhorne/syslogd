@@ -511,11 +511,13 @@ subtest 'filesystem (regression): a FIFO does not hang the server' => sub {
 	if($pid == 0) {
 		alarm($CONFIG{fifo_timeout});
 		my $ok = eval { App::Syslogd->new(file => $fifo)->reopen_log(); 1 };
-		exit($ok ? 1 : ($@ =~ /\A\QCould not open log file $fifo: \E/ ? 0 : 2));
+		# Either refusal is fine: the open itself (no reader), or the
+		# check that the log is a regular file (systems where it opens)
+		exit($ok ? 1 : ($@ =~ /\A(?:\QCould not open log file $fifo: \E|\QRefusing to log to $fifo: \E)/ ? 0 : 2));
 	}
 	waitpid($pid, 0);
 	isnt($? & 127, 14, 'did not hang (no alarm)');
-	is($? >> 8, 0, 'refused with "Could not open log file"');
+	is($? >> 8, 0, 'refused with a documented message');
 };
 
 subtest 'filesystem: permissions' => sub {
@@ -540,18 +542,36 @@ subtest 'filesystem: permissions' => sub {
 };
 
 subtest 'filesystem: odd existing files' => sub {
-	# Purpose: the header is written only when the file is empty (POD);
-	# existing content, however odd, is kept and appended to
-	my %contents = ('an empty file' => '', 'a single newline' => "\n", 'a single CRLF' => "\r\n");
+	# Purpose: an empty file gets the header; a file with content must
+	# already start with the header, or it is refused and left exactly as
+	# it was (it is not ours to append to)
+	my $header = qq{"Host","facility","severity","msg"};
+	my %contents = (
+		'an empty file' => ['', 1],
+		'our header, LF' => ["$header\n", 1],
+		'our header, CRLF (written on Windows)' => ["$header\r\n", 1],
+		'a single newline' => ["\n", 0],
+		'a single CRLF' => ["\r\n", 0],
+		'the header without a line end' => [$header, 0],
+		'the header, but not first' => ["\n$header\n", 0],
+		'someone else\'s file' => ["root:x:0:0:root:/root:/bin/sh\n", 0],
+	);
 	foreach my $case (sort keys %contents) {
+		my ($content, $ours) = @{$contents{$case}};
 		my $file = new_path();
 		open(my $fh, '>:raw', $file) or die;
-		print {$fh} $contents{$case};
+		print {$fh} $content;
 		close($fh);
-		my ($server) = new_server(file => $file);
-		$server->process('<13>x', $PEER);
-		my $expected = ($contents{$case} eq '') ? qq{"Host","facility","severity","msg"\n} : $contents{$case};
-		is(slurp_raw($file), $expected . qq{"$CONFIG{peer_ip}","1","5","x"\n}, "$case: kept, header only if empty");
+		if($ours) {
+			my ($server) = new_server(file => $file);
+			$server->process('<13>x', $PEER);
+			my $expected = ($content eq '') ? "$header\n" : $content;
+			is(slurp_raw($file), $expected . qq{"$CONFIG{peer_ip}","1","5","x"\n}, "$case: accepted, appended to");
+		} else {
+			throws_ok { new_server(file => $file) }
+				exact("Refusing to log to $file: it is not empty and does not start with the syslog header line"), "$case: refused";
+			is(slurp_raw($file), $content, "$case: left exactly as it was");
+		}
 	}
 };
 

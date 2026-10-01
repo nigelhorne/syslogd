@@ -399,18 +399,28 @@ subtest 'M3: safe = regular && owned && one link - all eight rows, and De Morgan
 	}
 };
 
-subtest '_open_log: header if(-z)' => sub {
-	# Both rows: an empty file gets the header, a non-empty one does not
+subtest '_open_log: empty || starts with the header' => sub {
+	# The OR's three reachable rows (an empty file is never checked for a
+	# header): empty -> header written; content starting with the header
+	# -> accepted, nothing added; other content -> refused, untouched
 	my $empty = new_path();
 	App::Syslogd->new(file => $empty)->reopen_log();
 	is(slurp($empty), "$CONFIG{header}\n", 'empty: header written');
 
-	my $full = new_path();
-	open(my $fh, '>', $full) or die;
+	my $ours = new_path();
+	open(my $fh, '>', $ours) or die;
+	print {$fh} "$CONFIG{header}\nold row\n";
+	close($fh);
+	App::Syslogd->new(file => $ours)->reopen_log();
+	is(slurp($ours), "$CONFIG{header}\nold row\n", 'starts with the header: accepted, no second header');
+
+	my $foreign = new_path();
+	open($fh, '>', $foreign) or die;
 	print {$fh} "existing\n";
 	close($fh);
-	App::Syslogd->new(file => $full)->reopen_log();
-	is(slurp($full), "existing\n", 'not empty: no header');
+	throws_ok { App::Syslogd->new(file => $foreign)->reopen_log() }
+		exact("Refusing to log to $foreign: it is not empty and does not start with the syslog header line"), 'other content: refused';
+	is(slurp($foreign), "existing\n", '...and untouched');
 };
 
 subtest '_write_header: csv error // append error' => sub {

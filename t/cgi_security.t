@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
-# Simulated penetration tests for lib/App/Syslogd.pm.
+# Simulated penetration tests for lib/App/Syslogd.pm and the program that
+# wraps it, etc/syslogd (installed as /usr/local/etc/syslogd).
 #
 # App::Syslogd is not a CGI program: it reads no HTTP request and writes
 # CSV, not HTML.  Its real attack surface is (see SECURITY in the POD):
@@ -62,8 +63,15 @@ Readonly my %CONFIG => (
 	peer_ip => '192.0.2.1',
 	sentinel => File::Spec->catfile($dir, 'PWNED'),
 	lib => File::Spec->catdir($Bin, File::Spec->updir(), 'lib'),
+	program => File::Spec->catfile($Bin, File::Spec->updir(), 'etc', 'syslogd'),
 	header => [qw(Host facility severity msg)],
 	default_port => 514,
+	loopback => '127.0.0.1',
+	any_port => 0,
+	exit_failure => 1,			# etc/syslogd: could not start
+	exit_usage => 2,			# etc/syslogd: started wrongly
+	read_timeout => 10,			# seconds to wait for the program to talk
+	not_cgi => 'This program is a server, not a CGI program: it will not run from a web server',
 );
 
 # Shell payloads: each would create the sentinel file if a shell ever ran it
@@ -227,19 +235,22 @@ subtest 'command injection through settings' => sub {
 
 subtest 'path traversal through the file setting' => sub {
 	# Exploit: point the log at a system file, by argument or through the
-	# environment, so the server appends to it.  As an ordinary user it
-	# must be refused (the file is not ours, or not writable).
-	plan(skip_all => 'as root every file is "ours"; see SECURITY in the POD') if($> == 0);
+	# environment, so the server appends to it (and makes it 0600).  As
+	# an ordinary user the file is not ours or not writable; as root it is
+	# "ours", and the header check refuses it.  Either way: refused, and
+	# neither the content nor the permissions change.
 	local %ENV = (%ENV, %HOSTILE_CGI);
 	foreach my $target ('/etc/passwd', '../../../../../../../../etc/passwd', '/etc/shadow') {
 		next unless(-e $target);
-		my $before = slurp($target) if(-r $target);
+		my $before = -r $target ? slurp($target) : undef;
+		my $mode = (stat $target)[2];
 		throws_ok { App::Syslogd->new(file => $target)->reopen_log() } qr/\A(?:Could not open log file|Refusing to log to) /, "file => '$target': refused";
 		{
 			local $ENV{App__Syslogd__file} = $target;
 			throws_ok { App::Syslogd->new()->reopen_log() } qr/\A(?:Could not open log file|Refusing to log to) /, "App__Syslogd__file='$target': refused";
 		}
-		is(slurp($target), $before, "$target is unchanged") if(defined($before));
+		is(slurp($target), $before, "$target: content unchanged") if(defined($before));
+		is((stat $target)[2], $mode, "$target: permissions unchanged");
 	}
 };
 
@@ -364,6 +375,196 @@ subtest 'static check: no way to run a program' => sub {
 		if($line =~ /\A=(\w+)/) { $in_pod = ($1 ne 'cut'); next }
 		next if($in_pod || $line =~ /\A\s*#/);
 		push @hits, "$.: $line" if($line =~ /\b(?:system|exec)\s*\(|\bqx\b|`|\bopen\s*\(.*['"]\s*[-|]|\|\s*['"]\s*\)|\beval\s*["']/);
+	}
+	is_deeply(\@hits, [], 'no system, exec, backticks, piped open or string eval');
+};
+
+# ===========================================================================
+# The program: etc/syslogd
+# ===========================================================================
+
+# Run etc/syslogd in a child perl with @args, the current %ENV, and $stdin
+# as its standard input; return (exit status, stdout, stderr).  Output goes
+# to files (no pipe deadlock); line endings are made "\n".
+sub run_program {
+	my ($perl_flags, $args, $stdin) = @_;
+	my ($in_path, $out, $err) = map { new_path("program$serial.$_") } qw(in out err);
+	$serial++;
+	open(my $i, '>', $in_path) or die;
+	print {$i} $stdin // '';
+	close($i);
+	open(my $input, '<', $in_path) or die;
+	open(my $o, '>', $out) or die;
+	open(my $e, '>', $err) or die;
+	my $pid = open3('<&' . fileno($input), '>&' . fileno($o), '>&' . fileno($e), $^X, @{$perl_flags}, $CONFIG{program}, @{$args});
+	waitpid($pid, 0);
+	my $exit = $? >> 8;
+	close($_) foreach($input, $o, $e);
+	return ($exit, map { (my $t = slurp($_)) =~ s/\r\n/\n/g; $t } ($out, $err));
+}
+
+subtest 'program (regression): refuses to run from a web server' => sub {
+	# Exploit: etc/syslogd dropped into cgi-bin.  A query without "="
+	# becomes the command line (RFC 3875 4.4, ISINDEX), so a visitor
+	# requesting ?--port+0+--file+/somewhere could start a listening
+	# daemon writing where they chose.  It used to start; it must refuse
+	# before reading the command line, write nothing to the client, and
+	# create no file.
+	my %servers = (
+		'GATEWAY_INTERFACE only' => { GATEWAY_INTERFACE => 'CGI/1.1' },
+		'REQUEST_METHOD only' => { REQUEST_METHOD => 'GET' },
+		'a full hostile request' => { %HOSTILE_CGI },
+	);
+	foreach my $case (sort keys %servers) {
+		local %ENV = (%ENV, %{$servers{$case}});
+		my $file = new_path();
+		my ($exit, $stdout, $stderr) = run_program([], ['--port', $CONFIG{any_port}, '--address', $CONFIG{loopback}, '--file', $file], $POST_BODY);
+		is($exit, $CONFIG{exit_usage}, "$case: exits with the usage status");
+		is($stderr, "$CONFIG{not_cgi}\n", "$case: the documented refusal");
+		is($stdout, '', "$case: nothing sent to the client");
+		ok(!-e $file, "$case: no log file created");
+	}
+	nothing_executed('started by a web server');
+};
+
+subtest 'program: command injection through options' => sub {
+	# Exploit: shell metacharacters in option values, hoping the program
+	# passes them to a shell.  Each option ends in a documented refusal
+	# (or is used literally), and nothing runs.
+	local %ENV = (%ENV);
+	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+	foreach my $payload (@SHELL_PAYLOADS) {
+		my ($exit, $stdout, $stderr) = run_program([], ['--port', "514 $payload"]);
+		is($exit, $CONFIG{exit_usage}, "--port '...$payload': refused");
+		like($stderr, qr/^Usage: /m, '...with the usage message');
+
+		($exit, $stdout, $stderr) = run_program([], ['--port', $CONFIG{any_port}, '--address', $payload, '--language', $payload]);
+		is($exit, $CONFIG{exit_failure}, "--address '$payload': refused");
+		like($stderr, qr/\ACould not create a UDP socket on \Q$payload\E port 0: /, '...as an address, nothing more');
+		is($stdout, '', '...and nothing was printed');
+	}
+	ok(!-e $CONFIG{sentinel}, 'no injected command took effect');
+};
+
+subtest 'program: path traversal through --file' => sub {
+	# Exploit: point --file at a system file.  As an ordinary user or as
+	# root (where the header check refuses it) the program must refuse it
+	# and leave the file alone.  (A NUL byte cannot be tested here: the
+	# operating system cannot put one in argv or the environment;
+	# App::Syslogd refuses it when given one directly.)
+	local %ENV = (%ENV);
+	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+	foreach my $target ('/etc/passwd', '../../../../../../../../etc/passwd') {
+		next unless(-e $target);
+		my $before = -r $target ? slurp($target) : undef;
+		my $mode = (stat $target)[2];
+		my ($exit, $stdout, $stderr) = run_program([], ['--port', $CONFIG{any_port}, '--address', $CONFIG{loopback}, '--file', $target]);
+		is($exit, $CONFIG{exit_failure}, "--file $target: refused");
+		like($stderr, qr/\A(?:Could not open log file|Refusing to log to) \Q$target\E/, '...with the documented message');
+		unlike($stdout, qr/shutting down/, '...and never started serving');
+		is(slurp($target), $before, "$target: content unchanged") if(defined($before));
+		is((stat $target)[2], $mode, "$target: permissions unchanged");
+	}
+};
+
+subtest 'program: output is status text only; hostile text is not echoed to it' => sub {
+	# Exploit: get markup or forged header lines into the program's
+	# standard output (which a web server would send to a browser).  The
+	# program prints only its own status lines; option names and values
+	# never reach standard output.
+	local %ENV = (%ENV);
+	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+	my @hostile = ('--<script>alert(1)</script>', "--x\r\nContent-Type: text/html\r\n\r\n<script>alert(1)</script>");
+	foreach my $option (@hostile) {
+		(my $shown = $option) =~ s/\r\n/\\r\\n/g;
+		my ($exit, $stdout, $stderr) = run_program([], [$option]);
+		is($exit, $CONFIG{exit_usage}, "'$shown': refused");
+		is($stdout, '', '...nothing on standard output, so nothing could reach a browser');
+		unlike($stdout, qr/Content-Type/i, '...in particular no header');
+	}
+};
+
+subtest 'program: a hostile environment and STDIN are ignored while serving' => sub {
+	# Exploit: CGI variables (without the gateway marker) and a POST body
+	# on STDIN try to change the log file; a datagram carries a shell
+	# payload.  The program must use only its command line, record the
+	# payload as text, and print only its status lines.  Real signals, so
+	# not on Windows.
+	plan(skip_all => 'needs SIGTERM') if($^O eq 'MSWin32');
+	my %cgi = %HOSTILE_CGI;
+	delete @cgi{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+	local %ENV = (%ENV, %cgi);
+	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+	my $file = new_path();
+
+	my $body = $POST_BODY;
+	my $pid = open3(my $in, my $out, undef, $^X, $CONFIG{program},
+		'--port', $CONFIG{any_port}, '--address', $CONFIG{loopback}, '--file', $file, '--no-resolve');
+	print {$in} $body;
+	close($in);
+	my $read = sub {
+		local $SIG{ALRM} = sub { die "timeout\n" };
+		alarm($CONFIG{read_timeout});
+		my $line = eval { scalar(<$out>) } // '';
+		alarm(0);
+		return $line;
+	};
+	my $listening = $read->();
+	my ($port) = $listening =~ /UDP port (\d+)/;
+	ok($port, 'the server started') or do { kill('KILL', $pid); waitpid($pid, 0); return };
+
+	my $payload = "<13>$SHELL_PAYLOADS[0] <script>x</script>";
+	require IO::Socket::IP;
+	IO::Socket::IP->new(PeerHost => $CONFIG{loopback}, PeerPort => $port, Proto => 'udp')->send($payload);
+	my $deadline = time() + $CONFIG{read_timeout};
+	select(undef, undef, undef, 0.05) until((-s $file && @{read_csv($file)} > 1) || time() > $deadline);
+	kill('TERM', $pid);
+	my $shutdown = $read->();
+	waitpid($pid, 0);
+
+	is($? >> 8, 0, 'a clean exit');
+	like($listening, qr/\ASyslog server listening on \Q$CONFIG{loopback}\E UDP port \d+\n\z/, 'status line 1');
+	is($shutdown, "Syslog server shutting down after recording 1 message\n", 'status line 2');
+	is(read_csv($file)->[1][3], substr($payload, 4), 'the payload is recorded as text');
+	nothing_executed('serving');
+};
+
+subtest 'program: taint mode' => sub {
+	# Exploit: with -T, a library path built from $0 (FindBin) would let
+	# whoever chooses $0 choose the code that is loaded, and tainted option
+	# values that slip past a naive untainting pattern would reach open().
+	# The program must not use the $0-based path, and every tainted
+	# --file must be refused.
+	local %ENV = (%ENV);
+	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
+
+	my ($exit, $stdout, $stderr) = run_program(['-T'], ['--bogus']);
+	unlike($stderr, qr/Insecure dependency in require/, 'the $0-based library path is not used under -T');
+
+	($exit, $stdout, $stderr) = run_program(['-T', "-I$CONFIG{lib}"], ['--bogus']);
+	is($exit, $CONFIG{exit_usage}, 'with -I: runs, and refuses a bad option');
+	like($stderr, qr/^Usage: /m, '...with the usage message');
+
+	my $file = new_path();
+	foreach my $hostile ($file, "$file\n../../../etc/passwd") {
+		(my $shown = $hostile) =~ s/\n/\\n/g;
+		($exit, $stdout, $stderr) = run_program(['-T', "-I$CONFIG{lib}"],
+			['--port', $CONFIG{any_port}, '--address', $CONFIG{loopback}, '--file', $hostile]);
+		is($exit, $CONFIG{exit_failure}, "tainted --file '$shown': refused");
+		like($stderr, qr/Insecure dependency/, '...by taint mode, not untainted');
+	}
+	ok(!-e $file, 'no tainted file was created');
+};
+
+subtest 'program: static check: no way to run a program' => sub {
+	# As for the module: the program's code must contain no call that
+	# starts another program
+	open(my $fh, '<', $CONFIG{program}) or die;
+	my @hits;
+	while(my $line = <$fh>) {
+		last if($line =~ /\A__END__/);
+		next if($line =~ /\A\s*#/);
+		push @hits, "$.: $line" if($line =~ /\b(?:system|exec)\s*\(|\bqx\b|`|\bopen\s*\(.*['"]\s*[-|]|\beval\s*["']/);
 	}
 	is_deeply(\@hits, [], 'no system, exec, backticks, piped open or string eval');
 };

@@ -331,7 +331,8 @@ subtest '_receive: every path' => sub {
 #	P2 opened but unsafe -> handle discarded, dies
 #	P3 empty file, header written
 #	P4 empty file, header fails -> handle discarded, dies
-#	P5 not empty -> no header
+#	P5 not empty, starts with the header -> no second header
+#	P6 not empty, does not start with the header -> discarded, dies
 #	(chmod runs where fchmod exists; the other side is the Windows path)
 subtest '_open_log: every path' => sub {
 	throws_ok { App::Syslogd->new(file => File::Spec->catfile($dir, 'no', 'x'))->_open_log() } qr/\ACould not open log file /, 'P1: sysopen fails';
@@ -358,6 +359,41 @@ subtest '_open_log: every path' => sub {
 
 	App::Syslogd->new(file => $p3)->_open_log();
 	is(slurp($p3), "$CONFIG{header}\n", 'P5: not empty, no second header');
+
+	$discards = 0;
+	my $p6 = new_path();
+	open(my $out, '>', $p6) or die;
+	print {$out} "someone else's file\n";
+	close($out);
+	throws_ok { App::Syslogd->new(file => $p6)->_open_log() }
+		exact("Refusing to log to $p6: it is not empty and does not start with the syslog header line"), 'P6: not one of our logs';
+	is($discards, 1, 'P6: handle discarded');
+};
+
+# _starts_with_header:
+#	P1 the header, LF; P2 the header, CRLF; P3 something else
+#	P4 the seek fails (nothing read -> no match)
+#	P5 the header line cannot be built (no match)
+subtest '_starts_with_header: every path' => sub {
+	my $server = App::Syslogd->new();
+	my $with = sub {
+		my $content = shift;
+		my $file = new_path();
+		open(my $out, '>:raw', $file) or die;
+		print {$out} $content;
+		close($out);
+		open(my $in, '<', $file) or die;
+		return $in;
+	};
+	is($server->_starts_with_header($with->("$CONFIG{header}\nrow\n")), 1, 'P1: LF');
+	is($server->_starts_with_header($with->("$CONFIG{header}\r\n")), 1, 'P2: CRLF');
+	is($server->_starts_with_header($with->("other\n")), 0, 'P3: something else');
+	{
+		local $SYSSEEK_FAILS = 1;
+		is($server->_starts_with_header($with->("$CONFIG{header}\n")), 0, 'P4: the seek fails');
+	}
+	my $g = mock_scoped('Text::CSV::combine' => sub { 0 });
+	is($server->_starts_with_header($with->("$CONFIG{header}\n")), 0, 'P5: no header line to compare');
 };
 
 # _discard: P1 close succeeds; P2 close fails (ignored)

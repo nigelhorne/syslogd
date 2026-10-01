@@ -142,9 +142,12 @@ server starts a new file.
 - Signals **SIGTERM** and **SIGINT** stop the server cleanly.
 - The log file is created so that only its owner can read it (mode
 0600).  The server will not write through a symbolic link or a hard link, or
-into a file that another user owns.  This protects against attacks that trick
-a root process into overwriting a file.  (Windows is weaker here: see
-["LIMITATIONS"](#limitations).)
+into a file that another user owns.  An existing file that is not empty
+must start with the column-names line, so the server only ever adds to its
+own logs: even as root, a wrong setting cannot make it append to (or change
+the permissions of) some other file, such as `/etc/passwd`.  This protects
+against attacks that trick a root process into overwriting a file.  (Windows
+is weaker here: see ["LIMITATIONS"](#limitations).)
 - Datagrams up to 65535 bytes (the largest UDP size) are read
 completely.  Datagrams shorter than 2 characters are ignored.
 
@@ -303,6 +306,11 @@ with the error.  The socket stays open and the log stays closed.
 - **An existing log file is made private.**  `reopen_log()` changes the
 file's permissions to 0600 without asking (except on Windows; see
 ["LIMITATIONS"](#limitations)).
+- **Only an empty file or one of its own logs is accepted.**  A file
+with content must start with the line `"Host","facility","severity","msg"`
+(with a Unix or Windows line end), or `reopen_log()` refuses it and leaves
+it untouched.  Logs from older versions start with that line too.  To reuse
+a file that does not, empty it or remove it first.
 - **A short datagram is ignored silently.**  After removing line endings
 at the end, a datagram must have at least 2 characters.  `parse_message()`
 then returns `undef`, and `process()` writes nothing and does not count it.
@@ -424,8 +432,10 @@ Domains (equivalence partitions and boundaries; t/domain.t tests each):
     |                 | host name: any non-empty       | accepted by new()     | machine does not have (fails  |
     |                 | string here                    |                       | in open_socket())             |
     | file            | any non-empty string of bytes; | 1 byte; the system's  | ""; references.  A name over  |
-    |                 | non-ASCII names as encoded     | name limit (usually   | the system limit fails in     |
-    |                 | (UTF-8) bytes                  | 255 bytes)            | reopen_log()                  |
+    |                 | non-ASCII names as encoded     | name limit (usually   | the system limit, or an       |
+    |                 | (UTF-8) bytes                  | 255 bytes)            | existing file with content    |
+    |                 |                                |                       | that does not start with the  |
+    |                 |                                |                       | header, fails in reopen_log() |
     | resolve         | true: 1 true TRUE yes on;      | -                     | any other spelling: "", 2,    |
     |                 | false: 0 false FALSE no off    |                       | "Yes", "On", " 1", "t"        |
     | dns_ttl         | whole seconds, 0 or more (0:   | -1 no, 0 yes; no      | fractions, text, references   |
@@ -694,7 +704,10 @@ Side Effects:
 - Closes the log file if it is open.
 - Creates the file if it does not exist, readable only by its owner.
 - Writes the column names if the file is empty.
-- Changes an existing file's permissions to 0600 (not on Windows).
+- Refuses (and does not change) a file with content that does not
+start with the column names: only the server's own logs are reused.
+- Changes an existing file's permissions to 0600 (not on Windows),
+after the checks above.
 - Dies, leaving no log open, if the file cannot be used safely.
 
 Usage:
@@ -740,6 +753,10 @@ Usage:
     |   be a regular file, owned by |   user's file                  |   create it again             |
     |   this user, with exactly one |                                |                               |
     |   link                        |                                |                               |
+    | Refusing to log to F: it is   | F has content but is not one   | Check the file setting; empty |
+    |   not empty and does not      |   of the server's logs (it     |   or remove F if it really is |
+    |   start with the syslog       |   does not start with the      |   meant to be the log         |
+    |   header line                 |   column names)                |                               |
     | Could not write to log file   | The column names could not be  | Free some disk space          |
     |   F: ERROR                    |   written to a new file        |                               |
     +-------------------------------+--------------------------------+-------------------------------+
@@ -1172,6 +1189,10 @@ The keys, the values each one uses, and the English text:
     |               |                        |   type given was TYPE)                           |
     | no_progress   | (none)                 | the system accepted no data (the ERROR part of   |
     |               |                        |   write_failed when a write makes no progress)   |
+    | not_cgi       | (none)                 | This program is a server, not a CGI program: it  |
+    |               |                        |   will not run from a web server                 |
+    | not_a_log     | file                   | Refusing to log to FILE: it is not empty and     |
+    |               |                        |   does not start with the syslog header line     |
     +---------------+------------------------+--------------------------------------------------+
 ```
 
@@ -1202,7 +1223,11 @@ inputs, and what protects against each, are:
 
 It never runs another program (no `system`, `exec`, backticks or piped
 `open`), so shell metacharacters in any input are only ever text.  File
-names are passed to the system directly, never to a shell.  Markup such as
+names are passed to the system directly, never to a shell.  An existing
+file is only reused if it is empty or already one of the server's logs, so
+even as root a mistaken or hostile `file` setting cannot make the server
+append to, or change the permissions of, a file such as `/etc/passwd`.
+Markup such as
 `<script>` in a message is stored unchanged: a program that shows the
 log in a web page (for example the viewer in `www/`) must HTML-encode it.
 
@@ -1368,6 +1393,7 @@ things in words.
       logging' ∧ bound' = bound ∧ count' = count
       isRegular(file) ∧ ¬ isSymlink(file)
       owner(file) = euid ∧ links(file) = 1 ∧ mode'(file) = 0600
+      contents(file) = ⟨⟩ ∨ csv(HEADER) ⊑ contents(file)
       contents(file) = ⟨⟩ ⇒ contents'(file) = ⟨csv(HEADER)⟩
       contents(file) ≠ ⟨⟩ ⇒ contents'(file) = contents(file)
 
@@ -1376,6 +1402,7 @@ things in words.
       error! : STRING
       ─────────
       ¬logging' ∧ bound' = bound ∧ count' = count
+      contents'(file) = contents(file) ∧ mode'(file) = mode(file)
 
     ReopenLog ≙ ReopenLogOk ∨ ReopenLogFail
 ```

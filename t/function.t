@@ -80,6 +80,8 @@ Readonly my %ARGUMENT_ORDER => (
 	missing_key => [],
 	bad_values => [qw(type)],
 	no_progress => [],
+	not_cgi => [],
+	not_a_log => [qw(file)],
 );
 
 # Output schemas copied from the POD's API SPECIFICATION sections
@@ -682,13 +684,14 @@ subtest 'App::Syslogd::_open_log' => sub {
 		is((stat $file)[2] & 07777, $CONFIG{log_mode}, 'mode 0600');
 	}
 
-	# Append mode: earlier content survives
-	print {$fh} "existing\n";
+	# Append mode: earlier content survives (the file starts with the
+	# header, as every log does; anything else is refused, tested below)
+	print {$fh} join(',', map { qq{"$_"} } qw(Host facility severity msg)) . "\nexisting\n";
 	close($fh);
 	my $again = $server->_open_log();
 	print {$again} "appended\n";
 	close($again);
-	is_deeply(lines_of($file), ['existing', 'appended'], 'appends rather than truncating');
+	is_deeply([@{lines_of($file)}[1, 2]], ['existing', 'appended'], 'appends rather than truncating');
 	is(scalar(@headers), 1, 'no header requested for a file that has content');
 };
 
@@ -708,6 +711,25 @@ subtest 'App::Syslogd::_open_log - failures' => sub {
 		throws_ok { App::Syslogd->new(file => $hard)->_open_log() }
 			exact("Refusing to log to $hard: it must be a regular file, owned by this user, with exactly one link"),
 			'hard link: exact error';
+	}
+};
+
+subtest 'App::Syslogd::_starts_with_header' => sub {
+	# Purpose: recognises one of our logs by its first line (LF or CRLF)
+	# and nothing else
+	my $server = App::Syslogd->new();
+	my $header = join(',', map { qq{"$_"} } qw(Host facility severity msg));
+	my %cases = ("$header\n" => 1, "$header\r\nrow\n" => 1, "$header" => 0, "x$header\n" => 0, "\n" => 0);
+	foreach my $content (sort keys %cases) {
+		my $file = new_log();
+		open(my $out, '>:raw', $file) or die;
+		print {$out} $content;
+		close($out);
+		open(my $in, '<', $file) or die;
+		(my $shown = $content) =~ s/\r/\\r/g;
+		$shown =~ s/\n/\\n/g;
+		is(keeps_globals(sub { $server->_starts_with_header($in) }, '_starts_with_header()'), $cases{$content}, "'$shown'");
+		close($in);
 	}
 };
 

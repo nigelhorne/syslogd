@@ -28,6 +28,8 @@ our %Lexicon = (
 	missing_key => 'A message key is needed',
 	bad_values => 'Message values must be a hash reference (the type given was [_1])',
 	no_progress => 'the system accepted no data',
+	not_a_log => 'Refusing to log to [_1]: it is not empty and does not start with the syslog header line',
+	not_cgi => 'This program is a server, not a CGI program: it will not run from a web server',
 );
 
 =head1 NAME

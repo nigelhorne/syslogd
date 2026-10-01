@@ -28,7 +28,7 @@ BEGIN {
 use Carp qw(carp croak);
 use Config;
 use CHI;
-use Fcntl qw(O_WRONLY O_APPEND O_CREAT SEEK_END);
+use Fcntl qw(O_RDWR O_APPEND O_CREAT SEEK_SET SEEK_END);
 use IO::Handle;
 use IO::Socket::IP;
 use Object::Configure;
@@ -263,9 +263,12 @@ server starts a new file.
 
 =item * The log file is created so that only its owner can read it (mode
 0600).  The server will not write through a symbolic link or a hard link, or
-into a file that another user owns.  This protects against attacks that trick
-a root process into overwriting a file.  (Windows is weaker here: see
-L</LIMITATIONS>.)
+into a file that another user owns.  An existing file that is not empty
+must start with the column-names line, so the server only ever adds to its
+own logs: even as root, a wrong setting cannot make it append to (or change
+the permissions of) some other file, such as F</etc/passwd>.  This protects
+against attacks that trick a root process into overwriting a file.  (Windows
+is weaker here: see L</LIMITATIONS>.)
 
 =item * Datagrams up to 65535 bytes (the largest UDP size) are read
 completely.  Datagrams shorter than 2 characters are ignored.
@@ -452,6 +455,12 @@ with the error.  The socket stays open and the log stays closed.
 file's permissions to 0600 without asking (except on Windows; see
 L</LIMITATIONS>).
 
+=item * B<Only an empty file or one of its own logs is accepted.>  A file
+with content must start with the line C<"Host","facility","severity","msg">
+(with a Unix or Windows line end), or C<reopen_log()> refuses it and leaves
+it untouched.  Logs from older versions start with that line too.  To reuse
+a file that does not, empty it or remove it first.
+
 =item * B<A short datagram is ignored silently.>  After removing line endings
 at the end, a datagram must have at least 2 characters.  C<parse_message()>
 then returns C<undef>, and C<process()> writes nothing and does not count it.
@@ -581,8 +590,10 @@ Domains (equivalence partitions and boundaries; t/domain.t tests each):
 	|                 | host name: any non-empty       | accepted by new()     | machine does not have (fails  |
 	|                 | string here                    |                       | in open_socket())             |
 	| file            | any non-empty string of bytes; | 1 byte; the system's  | ""; references.  A name over  |
-	|                 | non-ASCII names as encoded     | name limit (usually   | the system limit fails in     |
-	|                 | (UTF-8) bytes                  | 255 bytes)            | reopen_log()                  |
+	|                 | non-ASCII names as encoded     | name limit (usually   | the system limit, or an       |
+	|                 | (UTF-8) bytes                  | 255 bytes)            | existing file with content    |
+	|                 |                                |                       | that does not start with the  |
+	|                 |                                |                       | header, fails in reopen_log() |
 	| resolve         | true: 1 true TRUE yes on;      | -                     | any other spelling: "", 2,    |
 	|                 | false: 0 false FALSE no off    |                       | "Yes", "On", " 1", "t"        |
 	| dns_ttl         | whole seconds, 0 or more (0:   | -1 no, 0 yes; no      | fractions, text, references   |
@@ -936,7 +947,11 @@ Side Effects:
 
 =item * Writes the column names if the file is empty.
 
-=item * Changes an existing file's permissions to 0600 (not on Windows).
+=item * Refuses (and does not change) a file with content that does not
+start with the column names: only the server's own logs are reused.
+
+=item * Changes an existing file's permissions to 0600 (not on Windows),
+after the checks above.
 
 =item * Dies, leaving no log open, if the file cannot be used safely.
 
@@ -976,6 +991,10 @@ Usage:
 	|   be a regular file, owned by |   user's file                  |   create it again             |
 	|   this user, with exactly one |                                |                               |
 	|   link                        |                                |                               |
+	| Refusing to log to F: it is   | F has content but is not one   | Check the file setting; empty |
+	|   not empty and does not      |   of the server's logs (it     |   or remove F if it really is |
+	|   start with the syslog       |   does not start with the      |   meant to be the log         |
+	|   header line                 |   column names)                |                               |
 	| Could not write to log file   | The column names could not be  | Free some disk space          |
 	|   F: ERROR                    |   written to a new file        |                               |
 	+-------------------------------+--------------------------------+-------------------------------+
@@ -1512,6 +1531,10 @@ The keys, the values each one uses, and the English text:
 	|               |                        |   type given was TYPE)                           |
 	| no_progress   | (none)                 | the system accepted no data (the ERROR part of   |
 	|               |                        |   write_failed when a write makes no progress)   |
+	| not_cgi       | (none)                 | This program is a server, not a CGI program: it  |
+	|               |                        |   will not run from a web server                 |
+	| not_a_log     | file                   | Refusing to log to FILE: it is not empty and     |
+	|               |                        |   does not start with the syslog header line     |
 	+---------------+------------------------+--------------------------------------------------+
 
 =cut
@@ -1570,11 +1593,13 @@ sub _open_log
 
 	# O_NOFOLLOW: the default lives in /tmp, where anyone could plant a
 	# symlink to /etc/shadow before root starts us.  O_APPEND: rows from
-	# one write() are never interleaved with another writer's.
+	# one write() are never interleaved with another writer's, and always
+	# go to the end.  O_RDWR (not O_WRONLY) so the first line can be read
+	# to check the file is one of our logs.
 	my $fh;
 	{
 		no autodie qw(sysopen);
-		sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW | $O_NONBLOCK, $LOG_MODE)
+		sysopen($fh, $file, O_RDWR | O_APPEND | O_CREAT | $O_NOFOLLOW | $O_NONBLOCK, $LOG_MODE)
 			or croak($self->i18n('open_failed', { file => $file, error => "$!" }));
 	}
 
@@ -1586,6 +1611,16 @@ sub _open_log
 	unless(-f _ && ($st[4] == $>) && ($st[3] == 1)) {
 		_discard($fh);
 		croak($self->i18n('unsafe_file', { file => $file }));
+	}
+
+	# A file that already has content must be one of our logs: it must
+	# start with the header line.  Without this a mistaken setting (as
+	# root, every root-owned file is "ours") would append to, and chmod,
+	# any file at all, /etc/passwd included.  Checked before the chmod, so
+	# a file that is not ours to change is never changed.
+	unless(-z _ || $self->_starts_with_header($fh)) {
+		_discard($fh);
+		croak($self->i18n('not_a_log', { file => $file }));
 	}
 
 	# Tighten an existing file too: previous versions created it 0644
@@ -1604,6 +1639,31 @@ sub _open_log
 	}
 
 	return $fh;
+}
+
+# _starts_with_header
+# Purpose:	is this file one of our logs?
+# Entry:	$fh open for reading on a non-empty file.
+# Exit:		1 if the first line is the header row (ending in "\n", or
+#		"\r\n" for a file once written on Windows), else 0.
+# Side Effects:	moves the read position; writes are unaffected, because
+#		O_APPEND always writes at the end.
+sub _starts_with_header
+{
+	my ($self, $fh) = @_;
+
+	no autodie qw(sysseek sysread);
+
+	# The header exactly as _write_header writes it, without its newline
+	my ($line) = $self->_csv_line([@CSV_HEADER]);
+	(my $header = $line // '') =~ s/\n\z//;
+
+	# Read the header and up to two line-end bytes; a failed seek or read
+	# leaves $start empty, which does not match
+	my $start = '';
+	sysread($fh, $start, length($header) + 2) if(defined(sysseek($fh, 0, SEEK_SET)));
+
+	return (length($header) && $start =~ /\A\Q$header\E\r?\n/) ? 1 : 0;
 }
 
 # _discard
@@ -1827,6 +1887,7 @@ sub _escape_controls
 		'Sub::Private' => [qw(
 			_receive _open_log _write_header _append_line _close_log
 			_shutdown _write_row _csv_line _escape_controls _discard
+			_starts_with_header
 		)],
 		# Protected, not private: a subclass may override it (see SYNOPSIS)
 		'Sub::Protected' => [qw(_peer_name)],
@@ -1873,7 +1934,11 @@ inputs, and what protects against each, are:
 
 It never runs another program (no C<system>, C<exec>, backticks or piped
 C<open>), so shell metacharacters in any input are only ever text.  File
-names are passed to the system directly, never to a shell.  Markup such as
+names are passed to the system directly, never to a shell.  An existing
+file is only reused if it is empty or already one of the server's logs, so
+even as root a mistaken or hostile C<file> setting cannot make the server
+append to, or change the permissions of, a file such as F</etc/passwd>.
+Markup such as
 C<< <script> >> in a message is stored unchanged: a program that shows the
 log in a web page (for example the viewer in F<www/>) must HTML-encode it.
 
@@ -2050,6 +2115,7 @@ things in words.
 	  logging' ∧ bound' = bound ∧ count' = count
 	  isRegular(file) ∧ ¬ isSymlink(file)
 	  owner(file) = euid ∧ links(file) = 1 ∧ mode'(file) = 0600
+	  contents(file) = ⟨⟩ ∨ csv(HEADER) ⊑ contents(file)
 	  contents(file) = ⟨⟩ ⇒ contents'(file) = ⟨csv(HEADER)⟩
 	  contents(file) ≠ ⟨⟩ ⇒ contents'(file) = contents(file)
 
@@ -2058,6 +2124,7 @@ things in words.
 	  error! : STRING
 	  ─────────
 	  ¬logging' ∧ bound' = bound ∧ count' = count
+	  contents'(file) = contents(file) ∧ mode'(file) = mode(file)
 
 	ReopenLog ≙ ReopenLogOk ∨ ReopenLogFail
 
