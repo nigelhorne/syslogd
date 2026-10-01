@@ -26,26 +26,26 @@ https://pjcj.net
 <table>
 <tr><th>line</th><th>stmt</th><th>bran</th><th>cond</th><th>sub</th><th>time</th><th>code</th></tr>
 <tr><td class="h">1</td><td></td><td></td><td></td><td></td><td></td><td class="s">package App::Syslogd;</td></tr>
-<tr><td class="h">2</td><td colspan="6"></td></tr><tr><td class="h">3</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L3">5</a></div></td><td><div>254316</div><div>2</div><div>48</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">4</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L4">5</a></div></td><td><div>6</div><div>4</div><div>74</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">5</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L5">5</a></div></td><td><div>416</div><div>13121</div><div>7</div></td><td class="s">use autodie qw(:all);</td></tr>
+<tr><td class="h">2</td><td colspan="6"></td></tr><tr><td class="h">3</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L3">6</a></div></td><td><div>451243</div><div>3</div><div>88</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">4</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L4">6</a></div></td><td><div>9</div><div>6</div><div>160</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">5</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L5">6</a></div></td><td><div>564</div><div>17649</div><div>14</div></td><td class="s">use autodie qw(:all);</td></tr>
 <tr><td class="h">6</td><td colspan="6"></td></tr><tr><td class="h">7</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Sub::Private&#39;s enforce mode must be chosen before the module is loaded,</td></tr>
 <tr><td class="h">8</td><td></td><td></td><td></td><td></td><td></td><td class="s"># otherwise :Private subs are removed from the stash and $self-&gt;_x() breaks</td></tr>
-<tr><td class="h">9</td><td><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L9">5</a></div></td><td><div>18772</div></td><td class="s">BEGIN { $Sub::Private::config{mode} = &#39;enforce&#39; }</td></tr>
-<tr><td class="h">10</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L10">5</a></div></td><td><div>856</div><div>104129</div><div>7</div></td><td class="s">use Sub::Private;</td></tr>
-<tr><td class="h">11</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L11">5</a></div></td><td><div>1192</div><div>13392</div><div>10</div></td><td class="s">use Sub::Protected;</td></tr>
-<tr><td class="h">12</td><td colspan="6"></td></tr><tr><td class="h">13</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L13">5</a></div></td><td><div>331</div><div>3</div><div>80</div></td><td class="s">use Carp qw(carp croak);</td></tr>
-<tr><td class="h">14</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L14">5</a></div></td><td><div>7</div><div>3</div><div>51</div></td><td class="s">use Config;</td></tr>
-<tr><td class="h">15</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L15">5</a></div></td><td><div>1122</div><div>114053</div><div>57</div></td><td class="s">use CHI;</td></tr>
-<tr><td class="h">16</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L16">5</a></div></td><td><div>11</div><div>3</div><div>96</div></td><td class="s">use Fcntl qw(O_WRONLY O_APPEND O_CREAT);</td></tr>
-<tr><td class="h">17</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L17">5</a></div></td><td><div>378</div><div>3743</div><div>68</div></td><td class="s">use IO::Handle;</td></tr>
-<tr><td class="h">18</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L18">5</a></div></td><td><div>847</div><div>25056</div><div>11</div></td><td class="s">use IO::Socket::IP;</td></tr>
-<tr><td class="h">19</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L19">5</a></div></td><td><div>816</div><div>2</div><div>68</div></td><td class="s">use Params::Get;</td></tr>
-<tr><td class="h">20</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L20">5</a></div></td><td><div>9</div><div>1</div><div>50</div></td><td class="s">use Params::Validate::Strict;</td></tr>
-<tr><td class="h">21</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L21">5</a></div></td><td><div>6</div><div>9</div><div>69</div></td><td class="s">use Readonly;</td></tr>
-<tr><td class="h">22</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L22">5</a></div></td><td><div>5</div><div>3</div><div>75</div></td><td class="s">use Socket qw(getnameinfo NI_NAMEREQD NI_NUMERICHOST NIx_NOSERV);</td></tr>
-<tr><td class="h">23</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L23">5</a></div></td><td><div>1454</div><div>42478</div><div>84</div></td><td class="s">use Text::CSV;</td></tr>
-<tr><td class="h">24</td><td colspan="6"></td></tr><tr><td class="h">25</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L25">5</a></div></td><td><div>675</div><div>4</div><div>2630</div></td><td class="s">use App::Syslogd::I18N;</td></tr>
+<tr><td class="h">9</td><td><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L9">6</a></div></td><td><div>27382</div></td><td class="s">BEGIN { $Sub::Private::config{mode} = &#39;enforce&#39; }</td></tr>
+<tr><td class="h">10</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L10">6</a></div></td><td><div>1189</div><div>159090</div><div>16</div></td><td class="s">use Sub::Private;</td></tr>
+<tr><td class="h">11</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L11">6</a></div></td><td><div>1774</div><div>22018</div><div>15</div></td><td class="s">use Sub::Protected;</td></tr>
+<tr><td class="h">12</td><td colspan="6"></td></tr><tr><td class="h">13</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L13">6</a></div></td><td><div>535</div><div>5</div><div>149</div></td><td class="s">use Carp qw(carp croak);</td></tr>
+<tr><td class="h">14</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L14">6</a></div></td><td><div>12</div><div>7</div><div>96</div></td><td class="s">use Config;</td></tr>
+<tr><td class="h">15</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L15">6</a></div></td><td><div>1529</div><div>184420</div><div>107</div></td><td class="s">use CHI;</td></tr>
+<tr><td class="h">16</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L16">6</a></div></td><td><div>19</div><div>10</div><div>187</div></td><td class="s">use Fcntl qw(O_WRONLY O_APPEND O_CREAT SEEK_END);</td></tr>
+<tr><td class="h">17</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L17">6</a></div></td><td><div>472</div><div>5049</div><div>110</div></td><td class="s">use IO::Handle;</td></tr>
+<tr><td class="h">18</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L18">6</a></div></td><td><div>1260</div><div>40368</div><div>18</div></td><td class="s">use IO::Socket::IP;</td></tr>
+<tr><td class="h">19</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L19">6</a></div></td><td><div>1254</div><div>5</div><div>110</div></td><td class="s">use Params::Get;</td></tr>
+<tr><td class="h">20</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L20">6</a></div></td><td><div>15</div><div>7</div><div>128</div></td><td class="s">use Params::Validate::Strict;</td></tr>
+<tr><td class="h">21</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L21">6</a></div></td><td><div>14</div><div>3</div><div>157</div></td><td class="s">use Readonly;</td></tr>
+<tr><td class="h">22</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L22">6</a></div></td><td><div>9</div><div>12</div><div>136</div></td><td class="s">use Socket qw(getnameinfo NI_NAMEREQD NI_NUMERICHOST NIx_NOSERV);</td></tr>
+<tr><td class="h">23</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L23">6</a></div></td><td><div>1995</div><div>69387</div><div>144</div></td><td class="s">use Text::CSV;</td></tr>
+<tr><td class="h">24</td><td colspan="6"></td></tr><tr><td class="h">25</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L25">6</a></div></td><td><div>1052</div><div>7</div><div>4421</div></td><td class="s">use App::Syslogd::I18N;</td></tr>
 <tr><td class="h">26</td><td colspan="6"></td></tr><tr><td class="h">27</td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.02&#39;;</td></tr>
 <tr><td class="h">28</td><td colspan="6"></td></tr><tr><td class="h">29</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Every tunable lives here, so it can be overridden from new() and so</td></tr>
 <tr><td class="h">30</td><td></td><td></td><td></td><td></td><td></td><td class="s"># nothing in the code below is a magic number</td></tr>
@@ -96,7 +96,7 @@ https://pjcj.net
 <tr><td class="h">84</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cache =&gt; { type =&gt; &#39;object&#39;, can =&gt; [&#39;compute&#39;], optional =&gt; 1 },</td></tr>
 <tr><td class="h">85</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;socket =&gt; { type =&gt; &#39;object&#39;, can =&gt; [&#39;recv&#39;], optional =&gt; 1 },</td></tr>
 <tr><td class="h">86</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
-<tr><td class="h">87</td><td colspan="6"></td></tr><tr><td class="h">88 - 545</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
+<tr><td class="h">87</td><td colspan="6"></td></tr><tr><td class="h">88 - 549</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
 
 App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
@@ -447,6 +447,10 @@ useful to return give back the object, so you can chain calls:
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;App::Syslogd-&gt;new(port =&gt; 5514)-&gt;open_socket()-&gt;reopen_log()-&gt;run();
 
+No method changes the caller&#39;s C&lt;$_&gt;, C&lt;$!&gt; or C&lt;$@&gt;, or an C&lt;alarm()&gt;
+that is counting down.&nbsp;&nbsp;(A method that dies sets C&lt;$@&gt;, as C&lt;die&gt; always
+does.)
+
 The mathematical description of each method is in
 L&lt;/FORMAL SPECIFICATION&gt;, and the life cycle of an object is in
 L&lt;/STATE DIAGRAM&gt;, both at the end of this document.
@@ -554,36 +558,41 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the object
 
 =cut</pre></td></tr>
-<tr><td class="h">546</td><td colspan="6"></td></tr><tr><td class="h">547</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub new</td></tr>
-<tr><td class="h">548</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">549</td><td><div class="c3">93</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L549">93</a></div></td><td><div>218334</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $class = shift;</td></tr>
-<tr><td class="h">550</td><td colspan="6"></td></tr><tr><td class="h">551</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Accept a hash, a hashref or nothing at all</td></tr>
-<tr><td class="h">552</td><td><div class="c3">93</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L552">100</a></div></td><td></td><td><div>180</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $args = Params::Validate::Strict::validate_strict({</td></tr>
-<tr><td class="h">553</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schema =&gt; \%NEW_SCHEMA,</td></tr>
-<tr><td class="h">554</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input =&gt; Params::Get::get_params(undef, \@_) || {},</td></tr>
-<tr><td class="h">555</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});</td></tr>
-<tr><td class="h">556</td><td colspan="6"></td></tr><tr><td class="h">557</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# An undef value means &quot;use the default&quot;: without this,</td></tr>
-<tr><td class="h">558</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# new(file =&gt; undef) replaced the default with undef and failed later,</td></tr>
-<tr><td class="h">559</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# far from the mistake</td></tr>
-<tr><td class="h">560</td><td><div class="c3">80</div><div class="c3">80</div><div class="c3">101</div><div class="c3">80</div></td><td></td><td></td><td></td><td><div>26447</div><div>38</div><div>74</div><div>60</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete @{$args}{grep { !defined($args-&gt;{$_}) } keys %{$args}};</td></tr>
-<tr><td class="h">561</td><td colspan="6"></td></tr><tr><td class="h">562</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Caller&#39;s values win over defaults (a one-level merge: nothing nested)</td></tr>
-<tr><td class="h">563</td><td><div class="c3">80</div><div class="c3">80</div></td><td></td><td></td><td></td><td><div>85</div><div>655</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = bless { %DEFAULTS, %{$args}, count =&gt; 0 }, $class;</td></tr>
-<tr><td class="h">564</td><td colspan="6"></td></tr><tr><td class="h">565</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# One handle per object: two servers in one process may speak</td></tr>
-<tr><td class="h">566</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# different languages</td></tr>
-<tr><td class="h">567</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td><div>882</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{lh} = App::Syslogd::I18N-&gt;handle($self-&gt;{language});</td></tr>
-<tr><td class="h">568</td><td colspan="6"></td></tr><tr><td class="h">569</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Reverse DNS is synchronous; without a cache one slow resolver would</td></tr>
-<tr><td class="h">570</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# stall the receive loop for every packet from that host</td></tr>
-<tr><td class="h">571</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{cache} ||= CHI-&gt;new(</td></tr>
-<tr><td class="h">572</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;driver =&gt; &#39;Memory&#39;,</td></tr>
-<tr><td class="h">573</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;datastore =&gt; {},</td></tr>
-<tr><td class="h">574</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max_size =&gt; $self-&gt;{dns_cache_bytes},</td></tr>
-<tr><td class="h">575</td><td><div class="c3">80</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-pm--condition.html#L575">67</a></div></td><td></td><td><div>8692</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</td></tr>
-<tr><td class="h">576</td><td colspan="6"></td></tr><tr><td class="h">577</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# binary =&gt; 1 permits non-ASCII bytes; always_quote matches the</td></tr>
-<tr><td class="h">578</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# header row style the original script wrote</td></tr>
-<tr><td class="h">579</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td><div>156923</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{csv} = Text::CSV-&gt;new({ binary =&gt; 1, eol =&gt; &quot;\n&quot;, always_quote =&gt; 1 });</td></tr>
-<tr><td class="h">580</td><td colspan="6"></td></tr><tr><td class="h">581</td><td><div class="c3">80</div></td><td></td><td></td><td></td><td><div>4794</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">582</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">583</td><td colspan="6"></td></tr><tr><td class="h">584 - 627</td><td colspan="5"></td><td class="s"><pre>=head2 open_socket
+<tr><td class="h">550</td><td colspan="6"></td></tr><tr><td class="h">551</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub new</td></tr>
+<tr><td class="h">552</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">553</td><td><div class="c3">129</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L553">129</a></div></td><td><div>920866</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $class = shift;</td></tr>
+<tr><td class="h">554</td><td colspan="6"></td></tr><tr><td class="h">555</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Keep the caller&#39;s $! and $@: system calls and modules used below</td></tr>
+<tr><td class="h">556</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# (CHI, Params::Validate::Strict, sockets, files) change them.&nbsp;&nbsp;A</td></tr>
+<tr><td class="h">557</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# croak still reaches the caller: since Perl 5.14 die sets $@ after</td></tr>
+<tr><td class="h">558</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# locals are restored.</td></tr>
+<tr><td class="h">559</td><td><div class="c3">129</div></td><td></td><td></td><td></td><td><div>298</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ($!, $@);</td></tr>
+<tr><td class="h">560</td><td colspan="6"></td></tr><tr><td class="h">561</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Accept a hash, a hashref or nothing at all</td></tr>
+<tr><td class="h">562</td><td><div class="c3">129</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L562">100</a></div></td><td></td><td><div>290</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $args = Params::Validate::Strict::validate_strict({</td></tr>
+<tr><td class="h">563</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;schema =&gt; \%NEW_SCHEMA,</td></tr>
+<tr><td class="h">564</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;input =&gt; Params::Get::get_params(undef, \@_) || {},</td></tr>
+<tr><td class="h">565</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});</td></tr>
+<tr><td class="h">566</td><td colspan="6"></td></tr><tr><td class="h">567</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# An undef value means &quot;use the default&quot;: without this,</td></tr>
+<tr><td class="h">568</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# new(file =&gt; undef) replaced the default with undef and failed later,</td></tr>
+<tr><td class="h">569</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# far from the mistake</td></tr>
+<tr><td class="h">570</td><td><div class="c3">111</div><div class="c3">111</div><div class="c3">150</div><div class="c3">111</div></td><td></td><td></td><td></td><td><div>49510</div><div>89</div><div>163</div><div>120</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete @{$args}{grep { !defined($args-&gt;{$_}) } keys %{$args}};</td></tr>
+<tr><td class="h">571</td><td colspan="6"></td></tr><tr><td class="h">572</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Caller&#39;s values win over defaults (a one-level merge: nothing nested)</td></tr>
+<tr><td class="h">573</td><td><div class="c3">111</div><div class="c3">111</div></td><td></td><td></td><td></td><td><div>157</div><div>1215</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = bless { %DEFAULTS, %{$args}, count =&gt; 0 }, $class;</td></tr>
+<tr><td class="h">574</td><td colspan="6"></td></tr><tr><td class="h">575</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# One handle per object: two servers in one process may speak</td></tr>
+<tr><td class="h">576</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# different languages</td></tr>
+<tr><td class="h">577</td><td><div class="c3">111</div></td><td></td><td></td><td></td><td><div>1721</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{lh} = App::Syslogd::I18N-&gt;handle($self-&gt;{language});</td></tr>
+<tr><td class="h">578</td><td colspan="6"></td></tr><tr><td class="h">579</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Reverse DNS is synchronous; without a cache one slow resolver would</td></tr>
+<tr><td class="h">580</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# stall the receive loop for every packet from that host</td></tr>
+<tr><td class="h">581</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{cache} ||= CHI-&gt;new(</td></tr>
+<tr><td class="h">582</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;driver =&gt; &#39;Memory&#39;,</td></tr>
+<tr><td class="h">583</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;datastore =&gt; {},</td></tr>
+<tr><td class="h">584</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max_size =&gt; $self-&gt;{dns_cache_bytes},</td></tr>
+<tr><td class="h">585</td><td><div class="c3">111</div></td><td></td><td><div class="c0"><a href="lib-App-Syslogd-pm--condition.html#L585">67</a></div></td><td></td><td><div>17003</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</td></tr>
+<tr><td class="h">586</td><td colspan="6"></td></tr><tr><td class="h">587</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# binary =&gt; 1 permits non-ASCII bytes; always_quote matches the</td></tr>
+<tr><td class="h">588</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# header row style the original script wrote</td></tr>
+<tr><td class="h">589</td><td><div class="c3">111</div></td><td></td><td></td><td></td><td><div>279032</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{csv} = Text::CSV-&gt;new({ binary =&gt; 1, eol =&gt; &quot;\n&quot;, always_quote =&gt; 1 });</td></tr>
+<tr><td class="h">590</td><td colspan="6"></td></tr><tr><td class="h">591</td><td><div class="c3">111</div></td><td></td><td></td><td></td><td><div>9955</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">592</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">593</td><td colspan="6"></td></tr><tr><td class="h">594 - 637</td><td colspan="5"></td><td class="s"><pre>=head2 open_socket
 
 Purpose: start listening for UDP datagrams on the configured address and
 port.&nbsp;&nbsp;If the port is below 1024, do this before your program gives up root.
@@ -627,22 +636,24 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+---------------------------------+---------------------------+------------------------------+
 
 =cut</pre></td></tr>
-<tr><td class="h">628</td><td colspan="6"></td></tr><tr><td class="h">629</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub open_socket</td></tr>
-<tr><td class="h">630</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">631</td><td><div class="c3">14</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L631">14</a></div></td><td><div>1236</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">632</td><td colspan="6"></td></tr><tr><td class="h">633</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# IO::Socket::IP handles both families; IO::Socket::INET is IPv4-only</td></tr>
-<tr><td class="h">634</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{socket} ||= IO::Socket::IP-&gt;new(</td></tr>
-<tr><td class="h">635</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LocalHost =&gt; $self-&gt;{address},</td></tr>
-<tr><td class="h">636</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LocalPort =&gt; $self-&gt;{port},</td></tr>
-<tr><td class="h">637</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Proto =&gt; &#39;udp&#39;,</td></tr>
-<tr><td class="h">638</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) || croak($self-&gt;i18n(&#39;socket_failed&#39;, {</td></tr>
-<tr><td class="h">639</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address =&gt; $self-&gt;{address},</td></tr>
-<tr><td class="h">640</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port =&gt; $self-&gt;{port},</td></tr>
-<tr><td class="h">641</td><td><div class="c3">14</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L641">100</a></div></td><td></td><td><div>42</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error =&gt; $IO::Socket::errstr || &quot;$!&quot;,</td></tr>
-<tr><td class="h">642</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}));</td></tr>
-<tr><td class="h">643</td><td colspan="6"></td></tr><tr><td class="h">644</td><td><div class="c3">8</div></td><td></td><td></td><td></td><td><div>1520</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">645</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">646</td><td colspan="6"></td></tr><tr><td class="h">647 - 681</td><td colspan="5"></td><td class="s"><pre>=head2 port
+<tr><td class="h">638</td><td colspan="6"></td></tr><tr><td class="h">639</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub open_socket</td></tr>
+<tr><td class="h">640</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">641</td><td><div class="c3">20</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L641">20</a></div></td><td><div>3933</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">642</td><td colspan="6"></td></tr><tr><td class="h">643</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Keep the caller&#39;s $! and $@ (see new())</td></tr>
+<tr><td class="h">644</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td><div>70</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ($!, $@);</td></tr>
+<tr><td class="h">645</td><td colspan="6"></td></tr><tr><td class="h">646</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# IO::Socket::IP handles both families; IO::Socket::INET is IPv4-only</td></tr>
+<tr><td class="h">647</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{socket} ||= IO::Socket::IP-&gt;new(</td></tr>
+<tr><td class="h">648</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LocalHost =&gt; $self-&gt;{address},</td></tr>
+<tr><td class="h">649</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LocalPort =&gt; $self-&gt;{port},</td></tr>
+<tr><td class="h">650</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Proto =&gt; &#39;udp&#39;,</td></tr>
+<tr><td class="h">651</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) || croak($self-&gt;i18n(&#39;socket_failed&#39;, {</td></tr>
+<tr><td class="h">652</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;address =&gt; $self-&gt;{address},</td></tr>
+<tr><td class="h">653</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;port =&gt; $self-&gt;{port},</td></tr>
+<tr><td class="h">654</td><td><div class="c3">20</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L654">100</a></div></td><td></td><td><div>86</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;error =&gt; $IO::Socket::errstr || &quot;$!&quot;,</td></tr>
+<tr><td class="h">655</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}));</td></tr>
+<tr><td class="h">656</td><td colspan="6"></td></tr><tr><td class="h">657</td><td><div class="c3">12</div></td><td></td><td></td><td></td><td><div>1948</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">658</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">659</td><td colspan="6"></td></tr><tr><td class="h">660 - 696</td><td colspan="5"></td><td class="s"><pre>=head2 port
 
 Purpose: tell you the UDP port number.
 
@@ -650,7 +661,9 @@ Args: none.
 
 Returns: a whole number from 0 to 65535.&nbsp;&nbsp;Before C&lt;open_socket()&gt; it is the
 port you asked for.&nbsp;&nbsp;After it, it is the port really in use, so
-C&lt;&lt; port =&gt; 0 &gt;&gt; becomes the number the system chose.
+C&lt;&lt; port =&gt; 0 &gt;&gt; becomes the number the system chose.&nbsp;&nbsp;If the socket was
+given to C&lt;new()&gt; and has no C&lt;sockport()&gt; method (a simple test double, for
+example), it is the port you asked for.
 
 Side Effects: none.
 
@@ -677,14 +690,14 @@ Usage:
 None.
 
 =cut</pre></td></tr>
-<tr><td class="h">682</td><td colspan="6"></td></tr><tr><td class="h">683</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub port</td></tr>
-<tr><td class="h">684</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">685</td><td><div class="c3">13</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L685">13</a></div></td><td><div>962</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">686</td><td colspan="6"></td></tr><tr><td class="h">687</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# An injected test socket may not know its port, so ask only real ones</td></tr>
-<tr><td class="h">688</td><td><div class="c3">13</div></td><td></td><td></td><td></td><td><div>11</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $socket = $self-&gt;{socket};</td></tr>
-<tr><td class="h">689</td><td colspan="6"></td></tr><tr><td class="h">690</td><td><div class="c3">13</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L690">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L690">100</a></div></td><td></td><td><div>45</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ($socket &amp;&amp; $socket-&gt;can(&#39;sockport&#39;)) ? $socket-&gt;sockport() : $self-&gt;{port};</td></tr>
-<tr><td class="h">691</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">692</td><td colspan="6"></td></tr><tr><td class="h">693 - 726</td><td colspan="5"></td><td class="s"><pre>=head2 address
+<tr><td class="h">697</td><td colspan="6"></td></tr><tr><td class="h">698</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub port</td></tr>
+<tr><td class="h">699</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">700</td><td><div class="c3">20</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L700">20</a></div></td><td><div>3970</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">701</td><td colspan="6"></td></tr><tr><td class="h">702</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# An injected test socket may not know its port, so ask only real ones</td></tr>
+<tr><td class="h">703</td><td><div class="c3">20</div></td><td></td><td></td><td></td><td><div>24</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $socket = $self-&gt;{socket};</td></tr>
+<tr><td class="h">704</td><td colspan="6"></td></tr><tr><td class="h">705</td><td><div class="c3">20</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L705">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L705">100</a></div></td><td></td><td><div>96</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ($socket &amp;&amp; $socket-&gt;can(&#39;sockport&#39;)) ? $socket-&gt;sockport() : $self-&gt;{port};</td></tr>
+<tr><td class="h">706</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">707</td><td colspan="6"></td></tr><tr><td class="h">708 - 743</td><td colspan="5"></td><td class="s"><pre>=head2 address
 
 Purpose: tell you the local address the server listens on.
 
@@ -692,6 +705,8 @@ Args: none.
 
 Returns: a string, such as C&lt;0.0.0.0&gt; or C&lt;::1&gt;.&nbsp;&nbsp;Before C&lt;open_socket()&gt; it
 is the address you asked for.&nbsp;&nbsp;After it, it is the address the system reports.
+If the socket was given to C&lt;new()&gt; and has no C&lt;sockhost()&gt; method, it is
+the address you asked for.
 
 Side Effects: none.
 
@@ -718,14 +733,14 @@ Usage:
 None.
 
 =cut</pre></td></tr>
-<tr><td class="h">727</td><td colspan="6"></td></tr><tr><td class="h">728</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub address</td></tr>
-<tr><td class="h">729</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">730</td><td><div class="c3">7</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L730">7</a></div></td><td><div>896</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">731</td><td colspan="6"></td></tr><tr><td class="h">732</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Mirrors port(): injected test sockets need not know their address</td></tr>
-<tr><td class="h">733</td><td><div class="c3">7</div></td><td></td><td></td><td></td><td><div>11</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $socket = $self-&gt;{socket};</td></tr>
-<tr><td class="h">734</td><td colspan="6"></td></tr><tr><td class="h">735</td><td><div class="c3">7</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L735">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L735">100</a></div></td><td></td><td><div>23</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ($socket &amp;&amp; $socket-&gt;can(&quot;sockhost&quot;)) ? $socket-&gt;sockhost() : $self-&gt;{address};</td></tr>
-<tr><td class="h">736</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">737</td><td colspan="6"></td></tr><tr><td class="h">738 - 773</td><td colspan="5"></td><td class="s"><pre>=head2 count
+<tr><td class="h">744</td><td colspan="6"></td></tr><tr><td class="h">745</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub address</td></tr>
+<tr><td class="h">746</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">747</td><td><div class="c3">13</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L747">13</a></div></td><td><div>2116</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">748</td><td colspan="6"></td></tr><tr><td class="h">749</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Mirrors port(): injected test sockets need not know their address</td></tr>
+<tr><td class="h">750</td><td><div class="c3">13</div></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $socket = $self-&gt;{socket};</td></tr>
+<tr><td class="h">751</td><td colspan="6"></td></tr><tr><td class="h">752</td><td><div class="c3">13</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L752">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L752">100</a></div></td><td></td><td><div>65</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return ($socket &amp;&amp; $socket-&gt;can(&quot;sockhost&quot;)) ? $socket-&gt;sockhost() : $self-&gt;{address};</td></tr>
+<tr><td class="h">753</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">754</td><td colspan="6"></td></tr><tr><td class="h">755 - 790</td><td colspan="5"></td><td class="s"><pre>=head2 count
 
 Purpose: tell you how many datagrams have been written to the log.
 
@@ -761,12 +776,12 @@ Usage:
 None.
 
 =cut</pre></td></tr>
-<tr><td class="h">774</td><td colspan="6"></td></tr><tr><td class="h">775</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub count</td></tr>
-<tr><td class="h">776</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">777</td><td><div class="c3">10</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L777">10</a></div></td><td><div>2167</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">778</td><td colspan="6"></td></tr><tr><td class="h">779</td><td><div class="c3">10</div></td><td></td><td></td><td></td><td><div>12</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;{count};</td></tr>
-<tr><td class="h">780</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">781</td><td colspan="6"></td></tr><tr><td class="h">782 - 845</td><td colspan="5"></td><td class="s"><pre>=head2 reopen_log
+<tr><td class="h">791</td><td colspan="6"></td></tr><tr><td class="h">792</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub count</td></tr>
+<tr><td class="h">793</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">794</td><td><div class="c3">16</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L794">16</a></div></td><td><div>3686</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">795</td><td colspan="6"></td></tr><tr><td class="h">796</td><td><div class="c3">16</div></td><td></td><td></td><td></td><td><div>39</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;{count};</td></tr>
+<tr><td class="h">797</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">798</td><td colspan="6"></td></tr><tr><td class="h">799 - 862</td><td colspan="5"></td><td class="s"><pre>=head2 reopen_log
 
 Purpose: open the CSV log file, closing it first if it is already open.&nbsp;&nbsp;Use
 it once at the start.&nbsp;&nbsp;C&lt;run()&gt; also calls it when SIGHUP arrives, so that
@@ -830,16 +845,18 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-------------------------------+--------------------------------+-------------------------------+
 
 =cut</pre></td></tr>
-<tr><td class="h">846</td><td colspan="6"></td></tr><tr><td class="h">847</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub reopen_log</td></tr>
-<tr><td class="h">848</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">849</td><td><div class="c3">24</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L849">24</a></div></td><td><div>626</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">850</td><td colspan="6"></td></tr><tr><td class="h">851</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Closing first means a failed reopen leaves no stale handle that</td></tr>
-<tr><td class="h">852</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# would silently keep writing to the rotated file</td></tr>
-<tr><td class="h">853</td><td><div class="c3">24</div></td><td></td><td></td><td></td><td><div>33</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_close_log();</td></tr>
-<tr><td class="h">854</td><td><div class="c3">24</div></td><td></td><td></td><td></td><td><div>27</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{fh} = $self-&gt;_open_log();</td></tr>
-<tr><td class="h">855</td><td colspan="6"></td></tr><tr><td class="h">856</td><td><div class="c3">16</div></td><td></td><td></td><td></td><td><div>17</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">857</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">858</td><td colspan="6"></td></tr><tr><td class="h">859 - 944</td><td colspan="5"></td><td class="s"><pre>=head2 parse_message
+<tr><td class="h">863</td><td colspan="6"></td></tr><tr><td class="h">864</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub reopen_log</td></tr>
+<tr><td class="h">865</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">866</td><td><div class="c3">41</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L866">41</a></div></td><td><div>3436</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">867</td><td colspan="6"></td></tr><tr><td class="h">868</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Keep the caller&#39;s $! and $@ (see new())</td></tr>
+<tr><td class="h">869</td><td><div class="c3">41</div></td><td></td><td></td><td></td><td><div>125</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ($!, $@);</td></tr>
+<tr><td class="h">870</td><td colspan="6"></td></tr><tr><td class="h">871</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Closing first means a failed reopen leaves no stale handle that</td></tr>
+<tr><td class="h">872</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# would silently keep writing to the rotated file</td></tr>
+<tr><td class="h">873</td><td><div class="c3">41</div></td><td></td><td></td><td></td><td><div>79</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_close_log();</td></tr>
+<tr><td class="h">874</td><td><div class="c3">41</div></td><td></td><td></td><td></td><td><div>58</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{fh} = $self-&gt;_open_log();</td></tr>
+<tr><td class="h">875</td><td colspan="6"></td></tr><tr><td class="h">876</td><td><div class="c3">31</div></td><td></td><td></td><td></td><td><div>60</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">877</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">878</td><td colspan="6"></td></tr><tr><td class="h">879 - 964</td><td colspan="5"></td><td class="s"><pre>=head2 parse_message
 
 Purpose: split one datagram into its facility, severity and message text.
 It uses no state and writes nothing, so you can call it on the class and use
@@ -925,25 +942,25 @@ None.&nbsp;&nbsp;A malformed datagram is recorded, never rejected.
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
 
 =cut</pre></td></tr>
-<tr><td class="h">945</td><td colspan="6"></td></tr><tr><td class="h">946</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub parse_message</td></tr>
-<tr><td class="h">947</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">948</td><td><div class="c3">68</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L948">68</a></div></td><td><div>24604</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $datagram) = @_;</td></tr>
-<tr><td class="h">949</td><td colspan="6"></td></tr><tr><td class="h">950</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Senders disagree about terminators: &quot;\n&quot;, &quot;\r\n&quot; and &quot;\0&quot; are all seen</td></tr>
-<tr><td class="h">951</td><td><div class="c3">68</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L951">100</a></div></td><td></td><td><div>89</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(my $text = $datagram // &#39;&#39;) =~ s/[\r\n\0]+\z//;</td></tr>
-<tr><td class="h">952</td><td colspan="6"></td></tr><tr><td class="h">953</td><td><div class="c3">68</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L953">100</a></div></td><td></td><td></td><td><div>72</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return undef if(length($text) &lt; $MIN_MESSAGE_LENGTH);</td></tr>
-<tr><td class="h">954</td><td colspan="6"></td></tr><tr><td class="h">955</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 1-3 digits, no leading zeros except &quot;&lt;0&gt;&quot; itself (RFC 5424 6.2.1)</td></tr>
-<tr><td class="h">956</td><td><div class="c3">54</div></td><td></td><td></td><td></td><td><div>183</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($pri, $body) = $text =~ /\A&lt;(0|[1-9][0-9]{0,2})&gt;(.*)\z/s;</td></tr>
-<tr><td class="h">957</td><td><div class="c3">54</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L957">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L957">100</a></div></td><td></td><td><div>62</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $valid = (defined($pri) &amp;&amp; ($pri &lt;= $MAX_PRI)) ? 1 : 0;</td></tr>
-<tr><td class="h">958</td><td colspan="6"></td></tr><tr><td class="h">959</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# RFC 3164 4.3.3: keep the whole datagram rather than discarding it</td></tr>
-<tr><td class="h">960</td><td><div class="c3">54</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L960">100</a></div></td><td></td><td></td><td><div>109</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;($pri, $body) = ($DEFAULT_PRI, $text) unless($valid);</td></tr>
-<tr><td class="h">961</td><td colspan="6"></td></tr><tr><td class="h">962</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return {</td></tr>
-<tr><td class="h">963</td><td><div class="c3">54</div></td><td></td><td></td><td></td><td><div>71</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;facility =&gt; int($pri / $SEVERITIES_PER_FACILITY),</td></tr>
-<tr><td class="h">964</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;severity =&gt; $pri % $SEVERITIES_PER_FACILITY,</td></tr>
-<tr><td class="h">965</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message =&gt; _escape_controls($body),</td></tr>
-<tr><td class="h">966</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valid =&gt; $valid,</td></tr>
-<tr><td class="h">967</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</td></tr>
-<tr><td class="h">968</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">969</td><td colspan="6"></td></tr><tr><td class="h">970 - 1038</td><td colspan="5"></td><td class="s"><pre>=head2 process
+<tr><td class="h">965</td><td colspan="6"></td></tr><tr><td class="h">966</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub parse_message</td></tr>
+<tr><td class="h">967</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">968</td><td><div class="c3">94</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L968">94</a></div></td><td><div>527976</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $datagram) = @_;</td></tr>
+<tr><td class="h">969</td><td colspan="6"></td></tr><tr><td class="h">970</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Senders disagree about terminators: &quot;\n&quot;, &quot;\r\n&quot; and &quot;\0&quot; are all seen</td></tr>
+<tr><td class="h">971</td><td><div class="c3">94</div></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L971">100</a></div></td><td></td><td><div>200</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(my $text = $datagram // &#39;&#39;) =~ s/[\r\n\0]+\z//;</td></tr>
+<tr><td class="h">972</td><td colspan="6"></td></tr><tr><td class="h">973</td><td><div class="c3">94</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L973">100</a></div></td><td></td><td></td><td><div>159</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return undef if(length($text) &lt; $MIN_MESSAGE_LENGTH);</td></tr>
+<tr><td class="h">974</td><td colspan="6"></td></tr><tr><td class="h">975</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 1-3 digits, no leading zeros except &quot;&lt;0&gt;&quot; itself (RFC 5424 6.2.1)</td></tr>
+<tr><td class="h">976</td><td><div class="c3">74</div></td><td></td><td></td><td></td><td><div>323</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($pri, $body) = $text =~ /\A&lt;(0|[1-9][0-9]{0,2})&gt;(.*)\z/s;</td></tr>
+<tr><td class="h">977</td><td><div class="c3">74</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L977">100</a></div></td><td><div class="c3"><a href="lib-App-Syslogd-pm--condition.html#L977">100</a></div></td><td></td><td><div>120</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $valid = (defined($pri) &amp;&amp; ($pri &lt;= $MAX_PRI)) ? 1 : 0;</td></tr>
+<tr><td class="h">978</td><td colspan="6"></td></tr><tr><td class="h">979</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# RFC 3164 4.3.3: keep the whole datagram rather than discarding it</td></tr>
+<tr><td class="h">980</td><td><div class="c3">74</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L980">100</a></div></td><td></td><td></td><td><div>228</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;($pri, $body) = ($DEFAULT_PRI, $text) unless($valid);</td></tr>
+<tr><td class="h">981</td><td colspan="6"></td></tr><tr><td class="h">982</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return {</td></tr>
+<tr><td class="h">983</td><td><div class="c3">74</div></td><td></td><td></td><td></td><td><div>110</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;facility =&gt; int($pri / $SEVERITIES_PER_FACILITY),</td></tr>
+<tr><td class="h">984</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;severity =&gt; $pri % $SEVERITIES_PER_FACILITY,</td></tr>
+<tr><td class="h">985</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;message =&gt; _escape_controls($body),</td></tr>
+<tr><td class="h">986</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;valid =&gt; $valid,</td></tr>
+<tr><td class="h">987</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};</td></tr>
+<tr><td class="h">988</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">989</td><td colspan="6"></td></tr><tr><td class="h">990 - 1060</td><td colspan="5"></td><td class="s"><pre>=head2 process
 
 Purpose: write one received datagram to the log.
 
@@ -971,6 +988,8 @@ datagram is too short, in which case nothing happens.
 
 =item * If the line cannot be written (for example, the disk is full), it
 warns and continues.&nbsp;&nbsp;That message is lost, but the server keeps working.
+If only part of the line fitted, the part is removed again, so the file
+never holds a half line and the next message starts on a line of its own.
 
 =back
 
@@ -1012,19 +1031,21 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+-----------------------------------+------------------------------+-------------------------------+
 
 =cut</pre></td></tr>
-<tr><td class="h">1039</td><td colspan="6"></td></tr><tr><td class="h">1040</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub process</td></tr>
-<tr><td class="h">1041</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1042</td><td><div class="c3">24</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1042">24</a></div></td><td><div>289</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $datagram, $peer) = @_;</td></tr>
-<tr><td class="h">1043</td><td colspan="6"></td></tr><tr><td class="h">1044</td><td><div class="c3">24</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1044">100</a></div></td><td></td><td></td><td><div>25</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;no_log_open&#39;)) unless($self-&gt;{fh});</td></tr>
-<tr><td class="h">1045</td><td colspan="6"></td></tr><tr><td class="h">1046</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Too-short datagrams are dropped quietly, as the original script did</td></tr>
-<tr><td class="h">1047</td><td><div class="c3">22</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1047">100</a></div></td><td></td><td></td><td><div>18</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $record = $self-&gt;parse_message($datagram)) {</td></tr>
-<tr><td class="h">1048</td><td><div class="c3">19</div></td><td></td><td></td><td></td><td><div>22</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $host = $self-&gt;_peer_name($peer);</td></tr>
-<tr><td class="h">1049</td><td><div class="c3">19</div><div class="c3">19</div></td><td></td><td></td><td></td><td><div>1982</div><div>39</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_write_row([$host, @{$record}{qw(facility severity message)}]);</td></tr>
-<tr><td class="h">1050</td><td><div class="c3">19</div></td><td></td><td></td><td></td><td><div>20</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{count}++;</td></tr>
-<tr><td class="h">1051</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1052</td><td colspan="6"></td></tr><tr><td class="h">1053</td><td><div class="c3">22</div></td><td></td><td></td><td></td><td><div>32</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1054</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">1055</td><td colspan="6"></td></tr><tr><td class="h">1056 - 1133</td><td colspan="5"></td><td class="s"><pre>=head2 run
+<tr><td class="h">1061</td><td colspan="6"></td></tr><tr><td class="h">1062</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub process</td></tr>
+<tr><td class="h">1063</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1064</td><td><div class="c3">39</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1064">39</a></div></td><td><div>6248</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $datagram, $peer) = @_;</td></tr>
+<tr><td class="h">1065</td><td colspan="6"></td></tr><tr><td class="h">1066</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Keep the caller&#39;s $! and $@ (see new())</td></tr>
+<tr><td class="h">1067</td><td><div class="c3">39</div></td><td></td><td></td><td></td><td><div>95</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ($!, $@);</td></tr>
+<tr><td class="h">1068</td><td colspan="6"></td></tr><tr><td class="h">1069</td><td><div class="c3">39</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1069">100</a></div></td><td></td><td></td><td><div>95</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;no_log_open&#39;)) unless($self-&gt;{fh});</td></tr>
+<tr><td class="h">1070</td><td colspan="6"></td></tr><tr><td class="h">1071</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Too-short datagrams are dropped quietly, as the original script did</td></tr>
+<tr><td class="h">1072</td><td><div class="c3">34</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1072">100</a></div></td><td></td><td></td><td><div>39</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $record = $self-&gt;parse_message($datagram)) {</td></tr>
+<tr><td class="h">1073</td><td><div class="c3">30</div></td><td></td><td></td><td></td><td><div>48</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $host = $self-&gt;_peer_name($peer);</td></tr>
+<tr><td class="h">1074</td><td><div class="c3">30</div><div class="c3">30</div></td><td></td><td></td><td></td><td><div>3926</div><div>64</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_write_row([$host, @{$record}{qw(facility severity message)}]);</td></tr>
+<tr><td class="h">1075</td><td><div class="c3">30</div></td><td></td><td></td><td></td><td><div>33</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{count}++;</td></tr>
+<tr><td class="h">1076</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1077</td><td colspan="6"></td></tr><tr><td class="h">1078</td><td><div class="c3">34</div></td><td></td><td></td><td></td><td><div>81</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1079</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">1080</td><td colspan="6"></td></tr><tr><td class="h">1081 - 1158</td><td colspan="5"></td><td class="s"><pre>=head2 run
 
 Purpose: the main loop.&nbsp;&nbsp;Wait for datagrams and write each one to the log,
 until told to stop.
@@ -1102,32 +1123,34 @@ Usage:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return the object
 
 =cut</pre></td></tr>
-<tr><td class="h">1134</td><td colspan="6"></td></tr><tr><td class="h">1135</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub run</td></tr>
-<tr><td class="h">1136</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1137</td><td><div class="c3">10</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1137">10</a></div></td><td><div>1687</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">1138</td><td colspan="6"></td></tr><tr><td class="h">1139</td><td><div class="c3">10</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1139">100</a></div></td><td></td><td></td><td><div>18</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;open_socket() unless($self-&gt;{socket});</td></tr>
-<tr><td class="h">1140</td><td><div class="c3">10</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1140">100</a></div></td><td></td><td></td><td><div>13</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;reopen_log() unless($self-&gt;{fh});</td></tr>
-<tr><td class="h">1141</td><td colspan="6"></td></tr><tr><td class="h">1142</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Handlers only set flags: Perl&#39;s deferred signals make that safe, and</td></tr>
-<tr><td class="h">1143</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# the real work then happens at a known point in the loop below</td></tr>
-<tr><td class="h">1144</td><td><div class="c3">10</div><div class="c3">4</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1144">4</a></div></td><td><div>67</div><div>50</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $SIG{HUP} = sub { $self-&gt;{reopen_requested} = 1 };</td></tr>
-<tr><td class="h">1145</td><td><div class="c3">10</div><div class="c3">3</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1145">3</a></div></td><td><div>58</div><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $SIG{TERM} = local $SIG{INT} = sub { $self-&gt;{running} = 0 };</td></tr>
-<tr><td class="h">1146</td><td colspan="6"></td></tr><tr><td class="h">1147</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# local, so the flag is cleared however run() ends: normally, or by</td></tr>
-<tr><td class="h">1148</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# dying when a reopen after SIGHUP fails</td></tr>
-<tr><td class="h">1149</td><td><div class="c3">10</div></td><td></td><td></td><td></td><td><div>11</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $self-&gt;{running} = 1;</td></tr>
-<tr><td class="h">1150</td><td><div class="c3">10</div></td><td></td><td></td><td></td><td><div>10</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while($self-&gt;{running}) {</td></tr>
-<tr><td class="h">1151</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Perl does not use SA_RESTART, so a signal interrupts recv()</td></tr>
-<tr><td class="h">1152</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# and we get here promptly to act on it</td></tr>
-<tr><td class="h">1153</td><td><div class="c3">25</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1153">100</a></div></td><td></td><td></td><td><div>17</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($self-&gt;{reopen_requested}) {</td></tr>
-<tr><td class="h">1154</td><td><div class="c3">4</div></td><td></td><td></td><td></td><td><div>3</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{reopen_requested} = 0;</td></tr>
-<tr><td class="h">1155</td><td><div class="c3">4</div></td><td></td><td></td><td></td><td><div>4</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;reopen_log();</td></tr>
-<tr><td class="h">1156</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1157</td><td colspan="6"></td></tr><tr><td class="h">1158</td><td><div class="c3">24</div></td><td></td><td></td><td></td><td><div>25</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $peer = $self-&gt;_receive(\my $datagram);</td></tr>
-<tr><td class="h">1159</td><td><div class="c3">24</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1159">100</a></div></td><td></td><td></td><td><div>55</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;process($datagram, $peer) if($peer);</td></tr>
-<tr><td class="h">1160</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1161</td><td colspan="6"></td></tr><tr><td class="h">1162</td><td><div class="c3">9</div></td><td></td><td></td><td></td><td><div>9</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_shutdown();</td></tr>
-<tr><td class="h">1163</td><td colspan="6"></td></tr><tr><td class="h">1164</td><td><div class="c3">9</div></td><td></td><td></td><td></td><td><div>72</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1165</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">1166</td><td colspan="6"></td></tr><tr><td class="h">1167 - 1204</td><td colspan="5"></td><td class="s"><pre>=head2 stop
+<tr><td class="h">1159</td><td colspan="6"></td></tr><tr><td class="h">1160</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub run</td></tr>
+<tr><td class="h">1161</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1162</td><td><div class="c3">17</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1162">17</a></div></td><td><div>4405</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">1163</td><td colspan="6"></td></tr><tr><td class="h">1164</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Keep the caller&#39;s $! and $@ (see new())</td></tr>
+<tr><td class="h">1165</td><td><div class="c3">17</div></td><td></td><td></td><td></td><td><div>41</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local ($!, $@);</td></tr>
+<tr><td class="h">1166</td><td colspan="6"></td></tr><tr><td class="h">1167</td><td><div class="c3">17</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1167">100</a></div></td><td></td><td></td><td><div>77</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;open_socket() unless($self-&gt;{socket});</td></tr>
+<tr><td class="h">1168</td><td><div class="c3">16</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1168">100</a></div></td><td></td><td></td><td><div>37</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;reopen_log() unless($self-&gt;{fh});</td></tr>
+<tr><td class="h">1169</td><td colspan="6"></td></tr><tr><td class="h">1170</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Handlers only set flags: Perl&#39;s deferred signals make that safe, and</td></tr>
+<tr><td class="h">1171</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# the real work then happens at a known point in the loop below</td></tr>
+<tr><td class="h">1172</td><td><div class="c3">16</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1172">6</a></div></td><td><div>105</div><div>142</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $SIG{HUP} = sub { $self-&gt;{reopen_requested} = 1 };</td></tr>
+<tr><td class="h">1173</td><td><div class="c3">16</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1173">5</a></div></td><td><div>105</div><div>45</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $SIG{TERM} = local $SIG{INT} = sub { $self-&gt;{running} = 0 };</td></tr>
+<tr><td class="h">1174</td><td colspan="6"></td></tr><tr><td class="h">1175</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# local, so the flag is cleared however run() ends: normally, or by</td></tr>
+<tr><td class="h">1176</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# dying when a reopen after SIGHUP fails</td></tr>
+<tr><td class="h">1177</td><td><div class="c3">16</div></td><td></td><td></td><td></td><td><div>23</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;local $self-&gt;{running} = 1;</td></tr>
+<tr><td class="h">1178</td><td><div class="c3">16</div></td><td></td><td></td><td></td><td><div>20</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while($self-&gt;{running}) {</td></tr>
+<tr><td class="h">1179</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Perl does not use SA_RESTART, so a signal interrupts recv()</td></tr>
+<tr><td class="h">1180</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# and we get here promptly to act on it</td></tr>
+<tr><td class="h">1181</td><td><div class="c3">41</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1181">100</a></div></td><td></td><td></td><td><div>40</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($self-&gt;{reopen_requested}) {</td></tr>
+<tr><td class="h">1182</td><td><div class="c3">6</div></td><td></td><td></td><td></td><td><div>5</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{reopen_requested} = 0;</td></tr>
+<tr><td class="h">1183</td><td><div class="c3">6</div></td><td></td><td></td><td></td><td><div>10</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;reopen_log();</td></tr>
+<tr><td class="h">1184</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1185</td><td colspan="6"></td></tr><tr><td class="h">1186</td><td><div class="c3">40</div></td><td></td><td></td><td></td><td><div>58</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $peer = $self-&gt;_receive(\my $datagram);</td></tr>
+<tr><td class="h">1187</td><td><div class="c3">40</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1187">100</a></div></td><td></td><td></td><td><div>93</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;process($datagram, $peer) if($peer);</td></tr>
+<tr><td class="h">1188</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1189</td><td colspan="6"></td></tr><tr><td class="h">1190</td><td><div class="c3">15</div></td><td></td><td></td><td></td><td><div>24</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_shutdown();</td></tr>
+<tr><td class="h">1191</td><td colspan="6"></td></tr><tr><td class="h">1192</td><td><div class="c3">15</div></td><td></td><td></td><td></td><td><div>132</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1193</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">1194</td><td colspan="6"></td></tr><tr><td class="h">1195 - 1232</td><td colspan="5"></td><td class="s"><pre>=head2 stop
 
 Purpose: ask C&lt;run()&gt; to finish.&nbsp;&nbsp;C&lt;run()&gt; returns after the datagram it is
 handling, or at once if it is waiting.
@@ -1165,13 +1188,13 @@ Usage:
 None.
 
 =cut</pre></td></tr>
-<tr><td class="h">1205</td><td colspan="6"></td></tr><tr><td class="h">1206</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub stop</td></tr>
-<tr><td class="h">1207</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1208</td><td><div class="c3">7</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1208">7</a></div></td><td><div>43</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">1209</td><td colspan="6"></td></tr><tr><td class="h">1210</td><td><div class="c3">7</div></td><td></td><td></td><td></td><td><div>4</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{running} = 0;</td></tr>
-<tr><td class="h">1211</td><td colspan="6"></td></tr><tr><td class="h">1212</td><td><div class="c3">7</div></td><td></td><td></td><td></td><td><div>20</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1213</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">1214</td><td colspan="6"></td></tr><tr><td class="h">1215 - 1288</td><td colspan="5"></td><td class="s"><pre>=head2 i18n
+<tr><td class="h">1233</td><td colspan="6"></td></tr><tr><td class="h">1234</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub stop</td></tr>
+<tr><td class="h">1235</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1236</td><td><div class="c3">12</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1236">12</a></div></td><td><div>120</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">1237</td><td colspan="6"></td></tr><tr><td class="h">1238</td><td><div class="c3">12</div></td><td></td><td></td><td></td><td><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{running} = 0;</td></tr>
+<tr><td class="h">1239</td><td colspan="6"></td></tr><tr><td class="h">1240</td><td><div class="c3">12</div></td><td></td><td></td><td></td><td><div>13</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1241</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">1242</td><td colspan="6"></td></tr><tr><td class="h">1243 - 1316</td><td colspan="5"></td><td class="s"><pre>=head2 i18n
 
 Purpose: make a message for people to read, in the server&#39;s language.&nbsp;&nbsp;All
 of this module&#39;s own messages are made with it, so they can be translated.
@@ -1245,163 +1268,191 @@ The keys, the values each one uses, and the English text:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+---------------+------------------------+--------------------------------------------------+
 
 =cut</pre></td></tr>
-<tr><td class="h">1289</td><td colspan="6"></td></tr><tr><td class="h">1290</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub i18n</td></tr>
-<tr><td class="h">1291</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1292</td><td><div class="c3">32</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1292">32</a></div></td><td><div>6442</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $key, $args) = @_;</td></tr>
-<tr><td class="h">1293</td><td colspan="6"></td></tr><tr><td class="h">1294</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Class-method calls have no object and so no stored handle</td></tr>
-<tr><td class="h">1295</td><td><div class="c3">32</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1295">100</a></div></td><td></td><td></td><td><div>34</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = ref($self) ? $self-&gt;{lh} : App::Syslogd::I18N-&gt;handle();</td></tr>
-<tr><td class="h">1296</td><td colspan="6"></td></tr><tr><td class="h">1297</td><td><div class="c3">32</div></td><td></td><td></td><td></td><td><div>181</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $lh-&gt;text($key, $args);</td></tr>
-<tr><td class="h">1298</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
-<tr><td class="h">1299</td><td colspan="6"></td></tr><tr><td class="h">1300</td><td></td><td></td><td></td><td></td><td></td><td class="s"># ---------------------------------------------------------------------------</td></tr>
-<tr><td class="h">1301</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Private and protected helpers</td></tr>
-<tr><td class="h">1302</td><td></td><td></td><td></td><td></td><td></td><td class="s"># ---------------------------------------------------------------------------</td></tr>
-<tr><td class="h">1303</td><td colspan="6"></td></tr><tr><td class="h">1304</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _receive</td></tr>
-<tr><td class="h">1305</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait for one datagram.</td></tr>
-<tr><td class="h">1306</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{socket} set; $buffer_ref a scalar ref to fill.</td></tr>
-<tr><td class="h">1307</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the sender&#39;s sockaddr, or undef if interrupted or on error.</td></tr>
-<tr><td class="h">1308</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: carps on errors other than EINTR.</td></tr>
-<tr><td class="h">1309</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _receive :Private</td></tr>
-<tr><td class="h">1310</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1311</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $buffer_ref) = @_;</td></tr>
-<tr><td class="h">1312</td><td colspan="6"></td></tr><tr><td class="h">1313</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;not_listening&#39;)) unless($self-&gt;{socket});</td></tr>
-<tr><td class="h">1314</td><td colspan="6"></td></tr><tr><td class="h">1315</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $peer = $self-&gt;{socket}-&gt;recv(${$buffer_ref}, $RECV_BUFFER);</td></tr>
-<tr><td class="h">1316</td><td colspan="6"></td></tr><tr><td class="h">1317</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# EINTR is how a signal wakes us; it is expected, not an error</td></tr>
-<tr><td class="h">1318</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($peer) &amp;&amp; !$!{EINTR}) {</td></tr>
-<tr><td class="h">1319</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carp($self-&gt;i18n(&#39;recv_failed&#39;, { error =&gt; &quot;$!&quot; }));</td></tr>
-<tr><td class="h">1320</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1321</td><td colspan="6"></td></tr><tr><td class="h">1322</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $peer;</td></tr>
-<tr><td class="h">1323</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1323">5</a></div></td><td><div>11</div><div>3</div><div>82</div></td><td class="s">}</td></tr>
-<tr><td class="h">1324</td><td colspan="6"></td></tr><tr><td class="h">1325</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _open_log</td></tr>
-<tr><td class="h">1326</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;open $self-&gt;{file} for appending, safely.</td></tr>
-<tr><td class="h">1327</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{file} set.</td></tr>
-<tr><td class="h">1328</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;an autoflushed filehandle; croaks on failure.</td></tr>
-<tr><td class="h">1329</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: may create the file (mode 0600) and write the header row;</td></tr>
-<tr><td class="h">1330</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chmods an existing file to 0600.</td></tr>
-<tr><td class="h">1331</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _open_log :Private</td></tr>
-<tr><td class="h">1332</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1333</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">1334</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $file = $self-&gt;{file};</td></tr>
-<tr><td class="h">1335</td><td colspan="6"></td></tr><tr><td class="h">1336</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# O_NOFOLLOW: the default lives in /tmp, where anyone could plant a</td></tr>
-<tr><td class="h">1337</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# symlink to /etc/shadow before root starts us.&nbsp;&nbsp;O_APPEND: rows from</td></tr>
-<tr><td class="h">1338</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# one write() are never interleaved with another writer&#39;s.</td></tr>
-<tr><td class="h">1339</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $fh;</td></tr>
-<tr><td class="h">1340</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</td></tr>
-<tr><td class="h">1341</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1341">5</a></div></td><td><div>549</div><div>1</div><div>14</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no autodie qw(sysopen);</td></tr>
-<tr><td class="h">1342</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW, $LOG_MODE)</td></tr>
-<tr><td class="h">1343</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or croak($self-&gt;i18n(&#39;open_failed&#39;, { file =&gt; $file, error =&gt; &quot;$!&quot; }));</td></tr>
-<tr><td class="h">1344</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1345</td><td colspan="6"></td></tr><tr><td class="h">1346</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# O_NOFOLLOW cannot catch a hard link or a file someone else pre-created</td></tr>
-<tr><td class="h">1347</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# for us to fill with their reading material, so check after opening</td></tr>
-<tr><td class="h">1348</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @st = stat($fh);</td></tr>
-<tr><td class="h">1349</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((!-f _) || ($st[4] != $&gt;) || ($st[3] != 1)) {</td></tr>
-<tr><td class="h">1350</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;unsafe_file&#39;, { file =&gt; $file }));</td></tr>
-<tr><td class="h">1351</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1352</td><td colspan="6"></td></tr><tr><td class="h">1353</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Tighten an existing file too: previous versions created it 0644</td></tr>
-<tr><td class="h">1354</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chmod($LOG_MODE, $fh) if($HAVE_FCHMOD);</td></tr>
-<tr><td class="h">1355</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;binmode($fh);</td></tr>
-<tr><td class="h">1356</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$fh-&gt;autoflush(1);</td></tr>
-<tr><td class="h">1357</td><td colspan="6"></td></tr><tr><td class="h">1358</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Header only on an empty file, so a reopened file is not given a</td></tr>
-<tr><td class="h">1359</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# second header row half way down</td></tr>
-<tr><td class="h">1360</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_write_header($fh) if(-z $fh);</td></tr>
-<tr><td class="h">1361</td><td colspan="6"></td></tr><tr><td class="h">1362</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $fh;</td></tr>
-<tr><td class="h">1363</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1363">5</a></div></td><td><div>792</div><div>2</div><div>33</div></td><td class="s">}</td></tr>
-<tr><td class="h">1364</td><td colspan="6"></td></tr><tr><td class="h">1365</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _write_header</td></tr>
-<tr><td class="h">1366</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put the column headings at the top of a new log.</td></tr>
-<tr><td class="h">1367</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$fh open on an empty file.</td></tr>
-<tr><td class="h">1368</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
-<tr><td class="h">1369</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: writes one line; croaks if it cannot, since a log that</td></tr>
-<tr><td class="h">1370</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cannot take its first line will not take any others.</td></tr>
-<tr><td class="h">1371</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _write_header :Private</td></tr>
-<tr><td class="h">1372</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1373</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $fh) = @_;</td></tr>
-<tr><td class="h">1374</td><td colspan="6"></td></tr><tr><td class="h">1375</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{csv}-&gt;combine(@CSV_HEADER);</td></tr>
-<tr><td class="h">1376</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print { $fh } $self-&gt;{csv}-&gt;string()</td></tr>
-<tr><td class="h">1377</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or croak($self-&gt;i18n(&#39;write_failed&#39;, { file =&gt; $self-&gt;{file}, error =&gt; &quot;$!&quot; }));</td></tr>
-<tr><td class="h">1378</td><td colspan="6"></td></tr><tr><td class="h">1379</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1380</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1380">5</a></div></td><td><div>487</div><div>12</div><div>25</div></td><td class="s">}</td></tr>
-<tr><td class="h">1381</td><td colspan="6"></td></tr><tr><td class="h">1382</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _close_log</td></tr>
-<tr><td class="h">1383</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close the log if it is open.</td></tr>
-<tr><td class="h">1384</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;none.</td></tr>
-<tr><td class="h">1385</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self; $self-&gt;{fh} is undef.</td></tr>
-<tr><td class="h">1386</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: closes a filehandle.</td></tr>
-<tr><td class="h">1387</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _close_log :Private</td></tr>
-<tr><td class="h">1388</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1389</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">1390</td><td colspan="6"></td></tr><tr><td class="h">1391</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $fh = delete $self-&gt;{fh}) {</td></tr>
-<tr><td class="h">1392</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close($fh);</td></tr>
-<tr><td class="h">1393</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1394</td><td colspan="6"></td></tr><tr><td class="h">1395</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1396</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1396">5</a></div></td><td><div>355</div><div>4</div><div>21</div></td><td class="s">}</td></tr>
-<tr><td class="h">1397</td><td colspan="6"></td></tr><tr><td class="h">1398</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _shutdown</td></tr>
-<tr><td class="h">1399</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;release the socket and the log when run() finishes.</td></tr>
-<tr><td class="h">1400</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;none.</td></tr>
-<tr><td class="h">1401</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
-<tr><td class="h">1402</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: closes the socket and log; open_socket() and reopen_log() are</td></tr>
-<tr><td class="h">1403</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;needed before another run().</td></tr>
-<tr><td class="h">1404</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _shutdown :Private</td></tr>
-<tr><td class="h">1405</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1406</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
-<tr><td class="h">1407</td><td colspan="6"></td></tr><tr><td class="h">1408</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $socket = delete $self-&gt;{socket}) {</td></tr>
-<tr><td class="h">1409</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$socket-&gt;close();</td></tr>
-<tr><td class="h">1410</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1411</td><td colspan="6"></td></tr><tr><td class="h">1412</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;_close_log();</td></tr>
-<tr><td class="h">1413</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1413">5</a></div></td><td><div>362</div><div>4</div><div>18</div></td><td class="s">}</td></tr>
-<tr><td class="h">1414</td><td colspan="6"></td></tr><tr><td class="h">1415</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _write_row</td></tr>
-<tr><td class="h">1416</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;append one CSV row to the log.</td></tr>
-<tr><td class="h">1417</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{fh} open; $row an arrayref of fields.</td></tr>
-<tr><td class="h">1418</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
-<tr><td class="h">1419</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: writes to the log; carps (does not croak) if that fails, so</td></tr>
-<tr><td class="h">1420</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that a transiently full disk does not stop the daemon.</td></tr>
-<tr><td class="h">1421</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _write_row :Private</td></tr>
-<tr><td class="h">1422</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1423</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $row) = @_;</td></tr>
-<tr><td class="h">1424</td><td colspan="6"></td></tr><tr><td class="h">1425</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# combine() then a plain print, rather than Text::CSV&#39;s print(): the</td></tr>
-<tr><td class="h">1426</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# XS print emits a spurious &quot;uninitialized&quot; warning when write() fails</td></tr>
-<tr><td class="h">1427</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $csv = $self-&gt;{csv};</td></tr>
-<tr><td class="h">1428</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$csv-&gt;combine(@{$row});</td></tr>
-<tr><td class="h">1429</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;unless(print { $self-&gt;{fh} } $csv-&gt;string()) {</td></tr>
-<tr><td class="h">1430</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carp($self-&gt;i18n(&#39;write_failed&#39;, { file =&gt; $self-&gt;{file}, error =&gt; &quot;$!&quot; }));</td></tr>
-<tr><td class="h">1431</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
-<tr><td class="h">1432</td><td colspan="6"></td></tr><tr><td class="h">1433</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
-<tr><td class="h">1434</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1434">5</a></div></td><td><div>422</div><div>6</div><div>18</div></td><td class="s">}</td></tr>
-<tr><td class="h">1435</td><td colspan="6"></td></tr><tr><td class="h">1436</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _peer_name</td></tr>
-<tr><td class="h">1437</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;turn the sender&#39;s sockaddr into the string to log.</td></tr>
-<tr><td class="h">1438</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$peer a packed sockaddr (IPv4 or IPv6).</td></tr>
-<tr><td class="h">1439</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the host name if resolution is on and succeeds, else the</td></tr>
-<tr><td class="h">1440</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numeric address.</td></tr>
-<tr><td class="h">1441</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: may do a (cached) reverse DNS lookup.</td></tr>
-<tr><td class="h">1442</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Protected rather than private so that a subclass can, say, log</td></tr>
-<tr><td class="h">1443</td><td></td><td></td><td></td><td></td><td></td><td class="s"># &quot;name (address)&quot; or use an asynchronous resolver.</td></tr>
-<tr><td class="h">1444</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _peer_name :Protected</td></tr>
-<tr><td class="h">1445</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1446</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $peer) = @_;</td></tr>
-<tr><td class="h">1447</td><td colspan="6"></td></tr><tr><td class="h">1448</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# getnameinfo copes with both families, unlike inet_ntoa.&nbsp;&nbsp;It dies on</td></tr>
-<tr><td class="h">1449</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# undef (&quot;addr is not a string&quot;), so a missing peer is treated like an</td></tr>
-<tr><td class="h">1450</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# undecodable one: logged as an empty host</td></tr>
-<tr><td class="h">1451</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $address = &#39;&#39;;</td></tr>
-<tr><td class="h">1452</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV) if(defined($peer));</td></tr>
-<tr><td class="h">1453</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$address //= &#39;&#39;;</td></tr>
-<tr><td class="h">1454</td><td colspan="6"></td></tr><tr><td class="h">1455</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $address unless($self-&gt;{resolve} &amp;&amp; length($address));</td></tr>
-<tr><td class="h">1456</td><td colspan="6"></td></tr><tr><td class="h">1457</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# getnameinfo consults /etc/hosts before DNS (via nsswitch.conf), so</td></tr>
-<tr><td class="h">1458</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# there is no need to read /etc/hosts ourselves</td></tr>
-<tr><td class="h">1459</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;{cache}-&gt;compute($address, $self-&gt;{dns_ttl}, sub {</td></tr>
-<tr><td class="h">1460</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($error, $name) = getnameinfo($peer, NI_NAMEREQD, NIx_NOSERV);</td></tr>
-<tr><td class="h">1461</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $error ? $address : $name;</td></tr>
-<tr><td class="h">1462</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});</td></tr>
-<tr><td class="h">1463</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1463">5</a></div></td><td><div>469</div><div>3</div><div>17</div></td><td class="s">}</td></tr>
-<tr><td class="h">1464</td><td colspan="6"></td></tr><tr><td class="h">1465</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _escape_controls</td></tr>
-<tr><td class="h">1466</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make a message safe to store as one CSV line.</td></tr>
-<tr><td class="h">1467</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a string.</td></tr>
-<tr><td class="h">1468</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the string with every C0 control and DEL written as \xNN.</td></tr>
-<tr><td class="h">1469</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: none.</td></tr>
-<tr><td class="h">1470</td><td></td><td></td><td></td><td></td><td></td><td class="s"># A plain function, not a method, because it uses no state.</td></tr>
-<tr><td class="h">1471</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _escape_controls :Private</td></tr>
-<tr><td class="h">1472</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
-<tr><td class="h">1473</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $text = shift;</td></tr>
-<tr><td class="h">1474</td><td colspan="6"></td></tr><tr><td class="h">1475</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$text =~ s/([\x00-\x1F\x7F])/sprintf(&#39;\\x%02X&#39;, ord($1))/ge;</td></tr>
-<tr><td class="h">1476</td><td colspan="6"></td></tr><tr><td class="h">1477</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $text;</td></tr>
-<tr><td class="h">1478</td><td><div class="c3">5</div><div class="c3">5</div><div class="c3">5</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1478">5</a></div></td><td><div>458</div><div>2</div><div>22</div></td><td class="s">}</td></tr>
-<tr><td class="h">1479</td><td colspan="6"></td></tr><tr><td class="h">1480 - 1856</td><td colspan="5"></td><td class="s"><pre>=head1 LIMITATIONS
+<tr><td class="h">1317</td><td colspan="6"></td></tr><tr><td class="h">1318</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub i18n</td></tr>
+<tr><td class="h">1319</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1320</td><td><div class="c3">54</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1320">54</a></div></td><td><div>15590</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $key, $args) = @_;</td></tr>
+<tr><td class="h">1321</td><td colspan="6"></td></tr><tr><td class="h">1322</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Class-method calls have no object and so no stored handle</td></tr>
+<tr><td class="h">1323</td><td><div class="c3">54</div></td><td><div class="c3" title="T/F"><a href="lib-App-Syslogd-pm--branch.html#L1323">100</a></div></td><td></td><td></td><td><div>99</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $lh = ref($self) ? $self-&gt;{lh} : App::Syslogd::I18N-&gt;handle();</td></tr>
+<tr><td class="h">1324</td><td colspan="6"></td></tr><tr><td class="h">1325</td><td><div class="c3">54</div></td><td></td><td></td><td></td><td><div>509</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $lh-&gt;text($key, $args);</td></tr>
+<tr><td class="h">1326</td><td></td><td></td><td></td><td></td><td></td><td class="s">}</td></tr>
+<tr><td class="h">1327</td><td colspan="6"></td></tr><tr><td class="h">1328</td><td></td><td></td><td></td><td></td><td></td><td class="s"># ---------------------------------------------------------------------------</td></tr>
+<tr><td class="h">1329</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Private and protected helpers</td></tr>
+<tr><td class="h">1330</td><td></td><td></td><td></td><td></td><td></td><td class="s"># ---------------------------------------------------------------------------</td></tr>
+<tr><td class="h">1331</td><td colspan="6"></td></tr><tr><td class="h">1332</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _receive</td></tr>
+<tr><td class="h">1333</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait for one datagram.</td></tr>
+<tr><td class="h">1334</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{socket} set; $buffer_ref a scalar ref to fill.</td></tr>
+<tr><td class="h">1335</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the sender&#39;s sockaddr, or undef if interrupted or on error.</td></tr>
+<tr><td class="h">1336</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: carps on errors other than EINTR.</td></tr>
+<tr><td class="h">1337</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _receive :Private</td></tr>
+<tr><td class="h">1338</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1339</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $buffer_ref) = @_;</td></tr>
+<tr><td class="h">1340</td><td colspan="6"></td></tr><tr><td class="h">1341</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;not_listening&#39;)) unless($self-&gt;{socket});</td></tr>
+<tr><td class="h">1342</td><td colspan="6"></td></tr><tr><td class="h">1343</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $peer = $self-&gt;{socket}-&gt;recv(${$buffer_ref}, $RECV_BUFFER);</td></tr>
+<tr><td class="h">1344</td><td colspan="6"></td></tr><tr><td class="h">1345</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# EINTR is how a signal wakes us; it is expected, not an error</td></tr>
+<tr><td class="h">1346</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(!defined($peer) &amp;&amp; !$!{EINTR}) {</td></tr>
+<tr><td class="h">1347</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carp($self-&gt;i18n(&#39;recv_failed&#39;, { error =&gt; &quot;$!&quot; }));</td></tr>
+<tr><td class="h">1348</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1349</td><td colspan="6"></td></tr><tr><td class="h">1350</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $peer;</td></tr>
+<tr><td class="h">1351</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1351">6</a></div></td><td><div>22</div><div>3</div><div>139</div></td><td class="s">}</td></tr>
+<tr><td class="h">1352</td><td colspan="6"></td></tr><tr><td class="h">1353</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _open_log</td></tr>
+<tr><td class="h">1354</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;open $self-&gt;{file} for appending, safely.</td></tr>
+<tr><td class="h">1355</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{file} set.</td></tr>
+<tr><td class="h">1356</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;an open filehandle (written with syswrite, unbuffered);</td></tr>
+<tr><td class="h">1357</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croaks on failure.</td></tr>
+<tr><td class="h">1358</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: may create the file (mode 0600) and write the header row;</td></tr>
+<tr><td class="h">1359</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chmods an existing file to 0600.</td></tr>
+<tr><td class="h">1360</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _open_log :Private</td></tr>
+<tr><td class="h">1361</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1362</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">1363</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $file = $self-&gt;{file};</td></tr>
+<tr><td class="h">1364</td><td colspan="6"></td></tr><tr><td class="h">1365</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# O_NOFOLLOW: the default lives in /tmp, where anyone could plant a</td></tr>
+<tr><td class="h">1366</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# symlink to /etc/shadow before root starts us.&nbsp;&nbsp;O_APPEND: rows from</td></tr>
+<tr><td class="h">1367</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# one write() are never interleaved with another writer&#39;s.</td></tr>
+<tr><td class="h">1368</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $fh;</td></tr>
+<tr><td class="h">1369</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</td></tr>
+<tr><td class="h">1370</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1370">6</a></div></td><td><div>866</div><div>6</div><div>23</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no autodie qw(sysopen);</td></tr>
+<tr><td class="h">1371</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sysopen($fh, $file, O_WRONLY | O_APPEND | O_CREAT | $O_NOFOLLOW, $LOG_MODE)</td></tr>
+<tr><td class="h">1372</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or croak($self-&gt;i18n(&#39;open_failed&#39;, { file =&gt; $file, error =&gt; &quot;$!&quot; }));</td></tr>
+<tr><td class="h">1373</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1374</td><td colspan="6"></td></tr><tr><td class="h">1375</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# O_NOFOLLOW cannot catch a hard link or a file someone else pre-created</td></tr>
+<tr><td class="h">1376</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# for us to fill with their reading material, so check after opening</td></tr>
+<tr><td class="h">1377</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my @st = stat($fh);</td></tr>
+<tr><td class="h">1378</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if((!-f _) || ($st[4] != $&gt;) || ($st[3] != 1)) {</td></tr>
+<tr><td class="h">1379</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;unsafe_file&#39;, { file =&gt; $file }));</td></tr>
+<tr><td class="h">1380</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1381</td><td colspan="6"></td></tr><tr><td class="h">1382</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Tighten an existing file too: previous versions created it 0644</td></tr>
+<tr><td class="h">1383</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chmod($LOG_MODE, $fh) if($HAVE_FCHMOD);</td></tr>
+<tr><td class="h">1384</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;binmode($fh);</td></tr>
+<tr><td class="h">1385</td><td colspan="6"></td></tr><tr><td class="h">1386</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Header only on an empty file, so a reopened file is not given a</td></tr>
+<tr><td class="h">1387</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# second header row half way down</td></tr>
+<tr><td class="h">1388</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;_write_header($fh) if(-z $fh);</td></tr>
+<tr><td class="h">1389</td><td colspan="6"></td></tr><tr><td class="h">1390</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $fh;</td></tr>
+<tr><td class="h">1391</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1391">6</a></div></td><td><div>1268</div><div>5</div><div>93</div></td><td class="s">}</td></tr>
+<tr><td class="h">1392</td><td colspan="6"></td></tr><tr><td class="h">1393</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _write_header</td></tr>
+<tr><td class="h">1394</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put the column headings at the top of a new log.</td></tr>
+<tr><td class="h">1395</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$fh open on an empty file.</td></tr>
+<tr><td class="h">1396</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
+<tr><td class="h">1397</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: writes one line; croaks if it cannot, since a log that</td></tr>
+<tr><td class="h">1398</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cannot take its first line will not take any others.</td></tr>
+<tr><td class="h">1399</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _write_header :Private</td></tr>
+<tr><td class="h">1400</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1401</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $fh) = @_;</td></tr>
+<tr><td class="h">1402</td><td colspan="6"></td></tr><tr><td class="h">1403</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{csv}-&gt;combine(@CSV_HEADER);</td></tr>
+<tr><td class="h">1404</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $error = $self-&gt;_append_line($fh, $self-&gt;{csv}-&gt;string());</td></tr>
+<tr><td class="h">1405</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;croak($self-&gt;i18n(&#39;write_failed&#39;, { file =&gt; $self-&gt;{file}, error =&gt; $error })) if(defined($error));</td></tr>
+<tr><td class="h">1406</td><td colspan="6"></td></tr><tr><td class="h">1407</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1408</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1408">6</a></div></td><td><div>805</div><div>5</div><div>56</div></td><td class="s">}</td></tr>
+<tr><td class="h">1409</td><td colspan="6"></td></tr><tr><td class="h">1410</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _append_line</td></tr>
+<tr><td class="h">1411</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add one complete line to the end of the log, or nothing.</td></tr>
+<tr><td class="h">1412</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$fh open for appending; $line ends with a newline.</td></tr>
+<tr><td class="h">1413</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;undef on success, or the system&#39;s error text.</td></tr>
+<tr><td class="h">1414</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: writes to the file.&nbsp;&nbsp;If only part of the line could be</td></tr>
+<tr><td class="h">1415</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;written (e.g. the disk filled up mid-line), the part is cut off</td></tr>
+<tr><td class="h">1416</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;again, so the next line does not join a half-written one.</td></tr>
+<tr><td class="h">1417</td><td></td><td></td><td></td><td></td><td></td><td class="s"># syswrite rather than print: print leaves a failed line in Perl&#39;s</td></tr>
+<tr><td class="h">1418</td><td></td><td></td><td></td><td></td><td></td><td class="s"># buffer, where it makes the next close() fail (fatal under autodie) and</td></tr>
+<tr><td class="h">1419</td><td></td><td></td><td></td><td></td><td></td><td class="s"># makes Perl add an &quot;unable to close filehandle properly&quot; warning.</td></tr>
+<tr><td class="h">1420</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _append_line :Private</td></tr>
+<tr><td class="h">1421</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1422</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $fh, $line) = @_;</td></tr>
+<tr><td class="h">1423</td><td colspan="6"></td></tr><tr><td class="h">1424</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1424">6</a></div></td><td><div>553</div><div>5</div><div>28</div></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no autodie qw(sysseek syswrite truncate);</td></tr>
+<tr><td class="h">1425</td><td colspan="6"></td></tr><tr><td class="h">1426</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Where the line starts, so a partial line can be removed</td></tr>
+<tr><td class="h">1427</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $start = sysseek($fh, 0, SEEK_END);</td></tr>
+<tr><td class="h">1428</td><td colspan="6"></td></tr><tr><td class="h">1429</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# syswrite may write less than asked; keep going until done or error</td></tr>
+<tr><td class="h">1430</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $done = 0;</td></tr>
+<tr><td class="h">1431</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while($done &lt; length($line)) {</td></tr>
+<tr><td class="h">1432</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $written = syswrite($fh, $line, length($line) - $done, $done);</td></tr>
+<tr><td class="h">1433</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;last unless($written);</td></tr>
+<tr><td class="h">1434</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$done += $written;</td></tr>
+<tr><td class="h">1435</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1436</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return undef if($done == length($line));</td></tr>
+<tr><td class="h">1437</td><td colspan="6"></td></tr><tr><td class="h">1438</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# Remember the error before truncate can change $!</td></tr>
+<tr><td class="h">1439</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $error = &quot;$!&quot;;</td></tr>
+<tr><td class="h">1440</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;truncate($fh, $start) if($done &amp;&amp; defined($start));</td></tr>
+<tr><td class="h">1441</td><td colspan="6"></td></tr><tr><td class="h">1442</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $error;</td></tr>
+<tr><td class="h">1443</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1443">6</a></div></td><td><div>1380</div><div>5</div><div>49</div></td><td class="s">}</td></tr>
+<tr><td class="h">1444</td><td colspan="6"></td></tr><tr><td class="h">1445</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _close_log</td></tr>
+<tr><td class="h">1446</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close the log if it is open.</td></tr>
+<tr><td class="h">1447</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;none.</td></tr>
+<tr><td class="h">1448</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self; $self-&gt;{fh} is undef.</td></tr>
+<tr><td class="h">1449</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: closes a filehandle.</td></tr>
+<tr><td class="h">1450</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _close_log :Private</td></tr>
+<tr><td class="h">1451</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1452</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">1453</td><td colspan="6"></td></tr><tr><td class="h">1454</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $fh = delete $self-&gt;{fh}) {</td></tr>
+<tr><td class="h">1455</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;close($fh);</td></tr>
+<tr><td class="h">1456</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1457</td><td colspan="6"></td></tr><tr><td class="h">1458</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1459</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1459">6</a></div></td><td><div>714</div><div>5</div><div>41</div></td><td class="s">}</td></tr>
+<tr><td class="h">1460</td><td colspan="6"></td></tr><tr><td class="h">1461</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _shutdown</td></tr>
+<tr><td class="h">1462</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;release the socket and the log when run() finishes.</td></tr>
+<tr><td class="h">1463</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;none.</td></tr>
+<tr><td class="h">1464</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
+<tr><td class="h">1465</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: closes the socket and log; open_socket() and reopen_log() are</td></tr>
+<tr><td class="h">1466</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;needed before another run().</td></tr>
+<tr><td class="h">1467</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _shutdown :Private</td></tr>
+<tr><td class="h">1468</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1469</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $self = shift;</td></tr>
+<tr><td class="h">1470</td><td colspan="6"></td></tr><tr><td class="h">1471</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(my $socket = delete $self-&gt;{socket}) {</td></tr>
+<tr><td class="h">1472</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$socket-&gt;close();</td></tr>
+<tr><td class="h">1473</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</td></tr>
+<tr><td class="h">1474</td><td colspan="6"></td></tr><tr><td class="h">1475</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;_close_log();</td></tr>
+<tr><td class="h">1476</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1476">6</a></div></td><td><div>619</div><div>4</div><div>39</div></td><td class="s">}</td></tr>
+<tr><td class="h">1477</td><td colspan="6"></td></tr><tr><td class="h">1478</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _write_row</td></tr>
+<tr><td class="h">1479</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;append one CSV row to the log.</td></tr>
+<tr><td class="h">1480</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self-&gt;{fh} open; $row an arrayref of fields.</td></tr>
+<tr><td class="h">1481</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$self.</td></tr>
+<tr><td class="h">1482</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: writes to the log; carps (does not croak) if that fails, so</td></tr>
+<tr><td class="h">1483</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;that a transiently full disk does not stop the daemon.</td></tr>
+<tr><td class="h">1484</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _write_row :Private</td></tr>
+<tr><td class="h">1485</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1486</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $row) = @_;</td></tr>
+<tr><td class="h">1487</td><td colspan="6"></td></tr><tr><td class="h">1488</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# combine() then our own write, rather than Text::CSV&#39;s print(): the</td></tr>
+<tr><td class="h">1489</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# XS print emits a spurious &quot;uninitialized&quot; warning when write() fails</td></tr>
+<tr><td class="h">1490</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $csv = $self-&gt;{csv};</td></tr>
+<tr><td class="h">1491</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$csv-&gt;combine(@{$row});</td></tr>
+<tr><td class="h">1492</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $error = $self-&gt;_append_line($self-&gt;{fh}, $csv-&gt;string());</td></tr>
+<tr><td class="h">1493</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;carp($self-&gt;i18n(&#39;write_failed&#39;, { file =&gt; $self-&gt;{file}, error =&gt; $error })) if(defined($error));</td></tr>
+<tr><td class="h">1494</td><td colspan="6"></td></tr><tr><td class="h">1495</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self;</td></tr>
+<tr><td class="h">1496</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1496">6</a></div></td><td><div>722</div><div>8</div><div>42</div></td><td class="s">}</td></tr>
+<tr><td class="h">1497</td><td colspan="6"></td></tr><tr><td class="h">1498</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _peer_name</td></tr>
+<tr><td class="h">1499</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;turn the sender&#39;s sockaddr into the string to log.</td></tr>
+<tr><td class="h">1500</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$peer a packed sockaddr (IPv4 or IPv6).</td></tr>
+<tr><td class="h">1501</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the host name if resolution is on and succeeds, else the</td></tr>
+<tr><td class="h">1502</td><td></td><td></td><td></td><td></td><td></td><td class="s">#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numeric address.</td></tr>
+<tr><td class="h">1503</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: may do a (cached) reverse DNS lookup.</td></tr>
+<tr><td class="h">1504</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Protected rather than private so that a subclass can, say, log</td></tr>
+<tr><td class="h">1505</td><td></td><td></td><td></td><td></td><td></td><td class="s"># &quot;name (address)&quot; or use an asynchronous resolver.</td></tr>
+<tr><td class="h">1506</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _peer_name :Protected</td></tr>
+<tr><td class="h">1507</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1508</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($self, $peer) = @_;</td></tr>
+<tr><td class="h">1509</td><td colspan="6"></td></tr><tr><td class="h">1510</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# getnameinfo copes with both families, unlike inet_ntoa.&nbsp;&nbsp;It dies on</td></tr>
+<tr><td class="h">1511</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# undef (&quot;addr is not a string&quot;), so a missing peer is treated like an</td></tr>
+<tr><td class="h">1512</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# undecodable one: logged as an empty host</td></tr>
+<tr><td class="h">1513</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $address = &#39;&#39;;</td></tr>
+<tr><td class="h">1514</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(undef, $address) = getnameinfo($peer, NI_NUMERICHOST, NIx_NOSERV) if(defined($peer));</td></tr>
+<tr><td class="h">1515</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$address //= &#39;&#39;;</td></tr>
+<tr><td class="h">1516</td><td colspan="6"></td></tr><tr><td class="h">1517</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $address unless($self-&gt;{resolve} &amp;&amp; length($address));</td></tr>
+<tr><td class="h">1518</td><td colspan="6"></td></tr><tr><td class="h">1519</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# getnameinfo consults /etc/hosts before DNS (via nsswitch.conf), so</td></tr>
+<tr><td class="h">1520</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# there is no need to read /etc/hosts ourselves</td></tr>
+<tr><td class="h">1521</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $self-&gt;{cache}-&gt;compute($address, $self-&gt;{dns_ttl}, sub {</td></tr>
+<tr><td class="h">1522</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my ($error, $name) = getnameinfo($peer, NI_NAMEREQD, NIx_NOSERV);</td></tr>
+<tr><td class="h">1523</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $error ? $address : $name;</td></tr>
+<tr><td class="h">1524</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;});</td></tr>
+<tr><td class="h">1525</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1525">6</a></div></td><td><div>847</div><div>4</div><div>46</div></td><td class="s">}</td></tr>
+<tr><td class="h">1526</td><td colspan="6"></td></tr><tr><td class="h">1527</td><td></td><td></td><td></td><td></td><td></td><td class="s"># _escape_controls</td></tr>
+<tr><td class="h">1528</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Purpose:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make a message safe to store as one CSV line.</td></tr>
+<tr><td class="h">1529</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Entry:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a string.</td></tr>
+<tr><td class="h">1530</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Exit:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the string with every C0 control and DEL written as \xNN.</td></tr>
+<tr><td class="h">1531</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Side Effects: none.</td></tr>
+<tr><td class="h">1532</td><td></td><td></td><td></td><td></td><td></td><td class="s"># A plain function, not a method, because it uses no state.</td></tr>
+<tr><td class="h">1533</td><td></td><td></td><td></td><td></td><td></td><td class="s">sub _escape_controls :Private</td></tr>
+<tr><td class="h">1534</td><td></td><td></td><td></td><td></td><td></td><td class="s">{</td></tr>
+<tr><td class="h">1535</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;my $text = shift;</td></tr>
+<tr><td class="h">1536</td><td colspan="6"></td></tr><tr><td class="h">1537</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$text =~ s/([\x00-\x1F\x7F])/sprintf(&#39;\\x%02X&#39;, ord($1))/ge;</td></tr>
+<tr><td class="h">1538</td><td colspan="6"></td></tr><tr><td class="h">1539</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return $text;</td></tr>
+<tr><td class="h">1540</td><td><div class="c3">6</div><div class="c3">6</div><div class="c3">6</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-pm--subroutine.html#L1540">6</a></div></td><td><div>727</div><div>5</div><div>45</div></td><td class="s">}</td></tr>
+<tr><td class="h">1541</td><td colspan="6"></td></tr><tr><td class="h">1542 - 1918</td><td colspan="5"></td><td class="s"><pre>=head1 LIMITATIONS
 
 =over 4
 
@@ -1778,7 +1829,7 @@ If you use it,
 please let me know.
 
 =cut</pre></td></tr>
-<tr><td class="h">1857</td><td colspan="6"></td></tr><tr><td class="h">1858</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">1919</td><td colspan="6"></td></tr><tr><td class="h">1920</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
 </table>
 </body>
 </html>
