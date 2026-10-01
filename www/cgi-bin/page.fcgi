@@ -54,6 +54,7 @@ use autodie qw(:all);
 use lib CGI::Info::script_dir() . '/../lib';
 use lib File::HomeDir->my_home() . '/lib/perl5';
 
+use VWF::Blacklist;
 use VWF::Config;
 use VWF::Utils;
 
@@ -111,16 +112,16 @@ Database::Abstraction::init({
 	logger => $logger
 });
 
-my $syslog_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'log.log', no_entry => 1 });
+# The CSV file written by bin/syslogd.  This used to open logdir/log.log
+# with the vwf_log class (wrong file, and wrong column names), so the index
+# page never saw the syslog data.  SYSLOGD_DIR must match the directory of
+# the daemon's --file; its default matches the daemon's default.
+Readonly my $SYSLOG_DIR => $ENV{'SYSLOGD_DIR'} || '/tmp';
+my $syslog_log = VWF::Data::syslog_log->new({ directory => $SYSLOG_DIR, filename => 'syslog.log', no_entry => 1 });
 
-if($@) {
-	$logger->error($@);
-	Log::WarnDie->dispatcher(undef);
-	die $@;
-}
-
-# FIXME - support $config->vwflog();
-my $vwf_log = VWF::Data::vwf_log->new({ directory => $info->logdir(), filename => 'vwf.log', no_entry => 1 });
+# Opened in doit() once the configuration has been read, so that the
+# configuration file's vwflog setting is honoured
+my $vwf_log;
 
 # http://www.fastcgi.com/docs/faq.html#PerlSignals
 my $requestcount = 0;
@@ -133,12 +134,14 @@ my %blacklisted_ip;
 my $rate_limit_cache;	# Rate limit clients by IP address
 Readonly my @rate_limit_trusted_ips => ('127.0.0.1', '192.168.1.1');
 
-Readonly my @blacklist_country_list => (
-	'BY', 'MD', 'RU', 'CN', 'BR', 'UY', 'TR', 'MA', 'VE', 'SA', 'CY',
-	'CO', 'MX', 'IN', 'RS', 'PK', 'UA', 'XH'
-);
+# Built in doit() from the configuration's blacklist_countries (see
+# VWF::Blacklist), so this file and VWF::Display share one list
+my $acl;
+Readonly my @acl_allowed_ips => ('108.44.193.70', '127.0.0.1');
 
-my $acl = CGI::ACL->new()->deny_country(country => \@blacklist_country_list)->allow_ip('108.44.193.70')->allow_ip('127.0.0.1');
+# The only pages that exist.  Loading "VWF::Display::$page" for any $page a
+# client sends would let them load any module of that name on @INC.
+Readonly my @valid_pages => ('index', 'meta_data');
 
 sub sig_handler {
 	$exit_requested = 1;
@@ -190,7 +193,7 @@ while($handling_request = ($request->Accept() >= 0)) {
 		Database::Abstraction::init({ logger => $logger });
 		$info->set_logger($logger);
 		$syslog_log->set_logger($logger);
-		$vwf_log->set_logger($logger);
+		$vwf_log->set_logger($logger) if($vwf_log);
 		# $Config::Auto::Debug = 1;
 
 		$Error::Debug = 1;
@@ -211,7 +214,7 @@ while($handling_request = ($request->Accept() >= 0)) {
 	$logger->info("Request $requestcount: ", $ENV{'REMOTE_ADDR'});
 	$info->set_logger($logger);
 	$syslog_log->set_logger($logger);
-	$vwf_log->set_logger($logger);
+	$vwf_log->set_logger($logger) if($vwf_log);
 
 	my $start = [Time::HiRes::gettimeofday()];
 
@@ -307,20 +310,19 @@ sub doit
 	# Check and increment request count
 	my $request_count = $rate_limit_cache->get($client_ip) || 0;
 
-	# TODO: update the vwf_log variable to point here
+	# One path for both writing (vwflog()) and reading (meta_data page)
 	$vwflog ||= $config->vwflog() || File::Spec->catfile($info->logdir(), 'vwf.log');
+	$vwf_log ||= VWF::Data::vwf_log->new({ directory => dirname($vwflog), filename => basename($vwflog), no_entry => 1, logger => $logger });
 	my $log = Class::Simple->new();
 
 	# Rate limit by IP
 	unless(grep { $_ eq $client_ip } @rate_limit_trusted_ips) {	# Bypass rate limiting
 		if($request_count >= $MAX_REQUESTS) {
-			# Block request: Too many requests
-			print "Status: 429 Too Many Requests\n",
-				"Content-type: text/plain\n",
-				"Pragma: no-cache\n\n";
+			# Block request: Too many requests.  Retry-After tells
+			# well-behaved clients how long the window is.
+			send_error(429, undef, "Retry-After: $TIME_WINDOW\n");
 
 			$logger->warn("Too many requests from $client_ip");
-			# TODO: Work out how to add the "Retry-After" header, setting to $TIME_WINDOW
 			$info->status(429);
 
 			vwflog($vwflog, $info, $lingua, $syslog, 'Too many requests', $log);
@@ -339,6 +341,14 @@ sub doit
 
 	# Access control checks
 	if(my $remote_addr = $ENV{'REMOTE_ADDR'}) {
+		# Built once per process; FCGI keeps it for later requests
+		$acl ||= do {
+			my $new_acl = CGI::ACL->new()
+				->deny_country(country => VWF::Blacklist->new(countries => $config->blacklist_countries())->countries());
+			$new_acl->allow_ip($_) foreach(@acl_allowed_ips);
+			$new_acl;
+		};
+
 		my $reason;
 		if($acl->all_denied(lingua => $lingua)) {
 			$reason = 'Denied by CGI::ACL';
@@ -347,13 +357,7 @@ sub doit
 		}
 		if($reason) {
 			# Client has been blocked
-			print "Status: 403 Forbidden\n",
-				"Content-type: text/plain\n",
-				"Pragma: no-cache\n\n";
-
-			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-				print "Access Denied\n";
-			}
+			send_error(403, "Access Denied\n");
 			$logger->info("$remote_addr: access denied: $reason");
 			$info->status(403);
 			vwflog($vwflog, $info, $lingua, $syslog, $reason, $log);
@@ -422,12 +426,15 @@ sub doit
 			$info->status(403);
 			$log->status(403);
 			$invalidpage = 1;
+		} elsif(!grep { $_ eq $page } @valid_pages) {
+			# Never try to load a module the client named; only known pages
+			$logger->info("Unknown page $page");
+			$invalidpage = 1;
+			$info->status(404) if($info->status() == 200);
 		} else {
-			# Remove all non alphanumeric characters in the name of the page to be loaded
-			$page =~ s/\W//;
+			# $page is now one of @valid_pages, so it is safe to load
 			my $display_module = "VWF::Display::$page";
 
-			# TODO: consider creating a whitelist of valid modules
 			$logger->debug("doit(): Loading module $display_module from @INC");
 			eval "require $display_module";
 			if($@) {
@@ -488,39 +495,21 @@ sub doit
 			cache => undef,
 		);
 		# Handle errors gracefully
+		my $status;
 		if($error eq 'Unknown page to display') {
-			print "Status: 400 Bad Request\n",
-				"Content-type: text/plain\n",
-				"Pragma: no-cache\n\n";
-
-			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-				print "I don't know what you want me to display.\n";
-			}
-			$info->status(400);
-			$log->status(400);
+			$status = 400;
+			send_error($status, "I don't know what you want me to display.\n");
 		} elsif($error =~ /Can\'t locate .* in \@INC/) {
 			$logger->error($error);
-			print "Status: 500 Internal Server Error\n",
-				"Content-type: text/plain\n",
-				"Pragma: no-cache\n\n";
-
-			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-				print "Software error - contact the webmaster\n";
-			}
-			$info->status(500);
-			$log->status(500);
+			$status = 500;
+			send_error($status, "Software error - contact the webmaster\n");
 		} else {
 			# No permission to show this page
-			print "Status: 403 Forbidden\n",
-				"Content-type: text/plain\n",
-				"Pragma: no-cache\n\n";
-
-			unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-				print "Access Denied\n";
-			}
-			$info->status(403);
-			$log->status(403);
+			$status = 403;
+			send_error($status, "Access Denied\n");
 		}
+		$info->status($status);
+		$log->status($status);
 		vwflog($vwflog, $info, $lingua, $syslog, 'Access denied', $log);
 		throw Error::Simple($error ? $error : $info->as_string());
 	}
@@ -561,21 +550,24 @@ sub choose
 
 	# Print available pages unless it's a HEAD request
 	unless($ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD')) {
-		print "/cgi-bin/page.fcgi?page=index\n",
-			"/cgi-bin/page.fcgi?page=meta_data\n";
+		# Generated from @valid_pages so the list cannot drift
+		print map { "/cgi-bin/page.fcgi?page=$_\n" } @valid_pages;
 	}
 }
 
 # Is this client trying to attack us?
 sub blacklist
 {
+	# Take the argument first: it used to be shifted half way down, after
+	# the global $info had already been used, so the two could differ
+	my $info = shift;
+
 	if(my $remote = $ENV{'REMOTE_ADDR'}) {
 		if($blacklisted_ip{$remote}) {
 			$info->status(301);
 			return 1;
 		}
 
-		my $info = shift;
 		if(my $string = $info->as_string()) {
 			if(($string =~ /SELECT.+AND.+/) || ($string =~ /ORDER BY /) || ($string =~ / OR NOT /) || ($string =~ / AND \d+=\d+/) || ($string =~ /THEN.+ELSE.+END/) || ($string =~ /.+AND.+SELECT.+/) || ($string =~ /\sAND\s.+\sAND\s/) || ($string =~ /AND\sCASE\sWHEN/)) {
 				$blacklisted_ip{$remote} = 1;
@@ -585,6 +577,31 @@ sub blacklist
 		}
 	}
 	return 0;
+}
+
+# Print a plain-text error response.
+# Purpose:	one place for the status/headers/body sequence that was
+#		copied five times.
+# Entry:	$status an HTTP status code; $body the text (may be undef);
+#		$extra_headers optional, each ending in "\n".
+# Exit:		1.
+# Side Effects:	prints to STDOUT; omits the body for HEAD requests, as
+#		HTTP requires.
+sub send_error
+{
+	my ($status, $body, $extra_headers) = @_;
+
+	require HTTP::Status;
+
+	print "Status: $status ", HTTP::Status::status_message($status), "\n",
+		$extra_headers // '',
+		"Content-type: text/plain\n",
+		"Pragma: no-cache\n\n";
+
+	my $is_head = $ENV{'REQUEST_METHOD'} && ($ENV{'REQUEST_METHOD'} eq 'HEAD');
+	print $body if(defined($body) && !$is_head);
+
+	return 1;
 }
 
 # False positives we don't need in the logs

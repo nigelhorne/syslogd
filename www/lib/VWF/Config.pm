@@ -24,8 +24,10 @@ our $VERSION = '0.01';
 
 use warnings;
 use strict;
+use Carp qw(croak);
 use Config::Auto;
 use CGI::Info;
+use Error;
 use File::Spec;
 
 =head1 SUBROUTINES/METHODS
@@ -141,7 +143,7 @@ sub new
 			}
 			$config = Config::Auto::parse('default', path => $config_dir);
 		} else {
-			die "no suitable config file found in $config_dir";
+			croak("no suitable config file found in $config_dir");
 		}
 	};
 	if($@ || !defined($config)) {

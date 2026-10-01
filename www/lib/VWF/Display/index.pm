@@ -5,8 +5,8 @@ use warnings;
 
 # Display the index page
 
+use Carp qw(croak);
 use VWF::Display;
-use String::Random;
 
 our @ISA = ('VWF::Display');
 
@@ -15,10 +15,10 @@ sub html {
 	my %args = (ref($_[0]) eq 'HASH') ? %{$_[0]} : @_;
 
 	my $info = $self->{_info};
-	die 'Missing _info in object' unless $info;
+	croak('Missing _info in object') unless $info;
 
-	# Define allowed parameters (use state to avoid redeclaring in subsequent calls)
-	# state $allowed = {
+	# Reject requests with parameters other than these.  params() returns
+	# undef both when there are none and when one is not allowed.
 	my $allow = {
 		'person' => undef,
 		'action' => 'login',
@@ -29,27 +29,14 @@ sub html {
 		'lint_content' => qr/^\d$/,
 	};
 
-	my $config = $args{'config'};
-	my $logger = $args{'logger'};
-	my $params = $info->params({ allow => $allow });
-
-	if(!defined($params)) {
+	if(!defined($info->params({ allow => $allow }))) {
 		# No parameters to process: display the main index page
 		return $self->SUPER::html();
 	}
 
-	# Parameters to exclude from further processing
-	# my @exclude_keys = qw(page lint_content lang fbclid gclid);
-	# delete @params{@exclude_keys};
-	delete $params->{'page'};
-	delete $params->{'lint_content'};
-	delete $params->{'lang'};
-	delete $params->{'fbclid'};
-	delete $params->{'gclid'};
-
-	# Database handle
+	# Database handle, passed in by page.fcgi
 	my $syslog_log = $args{'syslog_log'};
-	die "Missing 'syslog_log' handle" unless($syslog_log);
+	croak("Missing 'syslog_log' handle") unless($syslog_log);
 
 	return $self->SUPER::html(updated => $syslog_log->updated());
 }

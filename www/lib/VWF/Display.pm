@@ -14,6 +14,7 @@ our $VERSION = '0.01';
 use strict;
 use warnings;
 
+use Carp qw(croak);
 use Config::Auto;
 use CGI::Info;
 use Data::Dumper;
@@ -22,30 +23,11 @@ use Template::Filters;
 use Template::Plugin::EnvHash;
 use Template::Plugin::Math;
 use HTML::SocialMedia;
+use VWF::Blacklist;
 use VWF::Utils;
 use Error;
-use Fatal qw(:void open);
 use File::pfopen;
 use Scalar::Util;
-
-# TODO: read this from the config file
-my %blacklist = (
-	'MD' => 1,
-	'RU' => 1,
-	'CN' => 1,
-	'BR' => 1,
-	'UY' => 1,
-	'TR' => 1,
-	'MA' => 1,
-	'VE' => 1,
-	'SA' => 1,
-	'CY' => 1,
-	'CO' => 1,
-	'MX' => 1,
-	'IN' => 1,
-	'RS' => 1,
-	'PK' => 1,
-);
 
 our $sm;
 our $smcache;
@@ -88,15 +70,18 @@ sub new {
 		$ids->set_scan_keys(scan_keys => 1);
 		my $impact = $ids->detect_attacks(request => $info->params());
 		if($impact > 0) {
-			die "IDS impact is $impact";
+			croak("IDS impact is $impact");
 		}
 
 		require Data::Throttler;
 		Data::Throttler->import();
 
-		# Handle YAML Errors
+		# Throttle per client IP.  The die used to be inside the eval, so
+		# a throttled client was let through and the throttle database
+		# was deleted instead.  Now only a broken (YAML) database is
+		# deleted; throttling is decided outside the eval.
 		my $db_file = File::Spec->catdir($info->tmpdir(), 'throttle');
-		eval {
+		my $throttled = eval {
 			my $throttler = Data::Throttler->new(
 				max_items => 30,
 				interval => 90,
@@ -105,18 +90,21 @@ sub new {
 					db_file => $db_file
 				}
 			);
-
-			unless($throttler->try_push(key => $ENV{'REMOTE_ADDR'})) {
-				sleep(1);
-				die "$ENV{REMOTE_ADDR} connexion throttled";
-			}
+			!$throttler->try_push(key => $ENV{'REMOTE_ADDR'});
 		};
 		if($@) {
 			unlink($db_file);
+		} elsif($throttled) {
+			sleep(1);	# Slow down a client that is hammering us
+			croak("$ENV{REMOTE_ADDR} connexion throttled");
 		}
+
+		# The list comes from the configuration (blacklist_countries) and
+		# is shared with page.fcgi's CGI::ACL, rather than copied here
 		if(my $lingua = $args{lingua}) {
-			if($blacklist{uc($lingua->country())}) {
-				die "$ENV{REMOTE_ADDR} is from a blacklisted country ", $lingua->country();
+			my $countries = $args{config} ? $args{config}->{blacklist_countries} : undef;
+			if(VWF::Blacklist->new(countries => $countries)->is_blocked($lingua->country())) {
+				croak("$ENV{REMOTE_ADDR} is from a blacklisted country ", $lingua->country());
 			}
 		}
 	}
@@ -131,11 +119,11 @@ sub new {
 		} elsif (-r File::Spec->catdir($config_dir, 'default')) {
 			$config = Config::Auto::parse('default', path => $config_dir);
 		} else {
-			die 'no suitable config file found';
+			croak('no suitable config file found');
 		}
 	};
 	if($@ || !defined($config)) {
-		die "Configuration error: $@: $config_dir/", $info->domain_name();
+		croak("Configuration error: $@: $config_dir/", $info->domain_name());
 	}
 
 	# The values in config are defaults which can be overridden by
@@ -500,7 +488,8 @@ sub html {
 
 	# Check for mailto links and log a warning
 	if(($filename !~ /.txt$/) && ($rc =~ /\smailto:(.+?)>/) && ($1 !~ /^&/) && $self->{_logger}) {
-		$self->{_logger}->warn({ message => "Found mailto link $1, you should remove it or use " . obfuscate($1) . ' instead' });
+		# A plain string: Log4perl would print a hashref as HASH(0x...)
+		$self->{_logger}->warn("Found mailto link $1, you should remove it or use " . obfuscate($1) . ' instead');
 	}
 
 	return $rc;
@@ -521,8 +510,11 @@ sub _debug
 	return $self;
 }
 
+# Encode every character of an e-mail address as an HTML entity.
+# join() matters: in scalar context (e.g. inside a string concatenation)
+# a bare map returns the number of characters, not the entities.
 sub obfuscate {
-	return map { '&#' . ord($_) . ';' } split(//, shift);
+	return join('', map { '&#' . ord($_) . ';' } split(//, shift));
 }
 
 sub _types
