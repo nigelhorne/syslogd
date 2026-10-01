@@ -150,7 +150,7 @@ my %ledger = map { $_ => 1 } (
 	'i18n: class call',
 	'i18n: unknown key',
 	map({ "i18n: key $_" } qw(usage listening shutdown socket_failed open_failed unsafe_file
-		write_failed recv_failed not_listening no_log_open not_a_datagram missing_key bad_values no_progress)),
+		write_failed recv_failed no_log_open not_a_datagram missing_key bad_values no_progress)),
 	'parse_message: message A datagram must be a string',
 	'process: anything but an address gives an empty host',
 	# App::Syslogd::I18N
@@ -748,7 +748,6 @@ subtest 'i18n' => sub {
 		unsafe_file => [{ file => 'F' }, 'Refusing to log to F: it must be a regular file, owned by this user, with exactly one link'],
 		write_failed => [{ file => 'F', error => 'E' }, 'Could not write to log file F: E'],
 		recv_failed => [{ error => 'E' }, 'Error receiving a datagram: E'],
-		not_listening => [{}, 'run() was called before open_socket() succeeded'],
 		no_log_open => [{}, 'process() was called before reopen_log() succeeded'],
 		not_a_datagram => [{ type => 'ARRAY' }, 'A datagram must be a string (the type given was ARRAY)'],
 		missing_key => [{}, 'A message key is needed'],

@@ -64,6 +64,14 @@ Revision history for App-Syslogd
 	- t/unit.t: black-box tests of every documented message and state
 	- t/edge_cases.t: hostile, boundary and security tests
 	- t/data-flow.t: define-use chains and resource lifecycles
+	- Logic reductions: run() calls open_socket() unconditionally (it is
+	  a no-op when a socket is open); _receive() no longer re-checks the
+	  socket, which run() guarantees, so the unreachable not_listening
+	  message is gone; _csv_line() no longer re-checks string(), which
+	  Text::CSV defines whenever combine() succeeds
+	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
+	  domain says; they were silently treated as "no values"
+	- t/logic.t: each logical gate proved at its boundaries
 	- t/domain.t: equivalence partitions and boundaries of every input;
 	  the POD now documents each input's domains
 	- t/integration.t: end-to-end workflows, the program, and both

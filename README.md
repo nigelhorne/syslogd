@@ -848,7 +848,13 @@ Returns: the object, after SIGTERM, SIGINT or `stop()`.
 Side Effects:
 
 - Calls `open_socket()` and `reopen_log()` first if they have not been
-called.
+called.  The socket comes first, so if it cannot be opened, `run()` dies
+before the log file is touched.
+
+    Why the loop never checks for a socket: `open_socket()` either gives a
+    socket or dies (premise 1); the loop only starts after it (premise 2); so
+    inside the loop the socket always exists (conclusion).
+
 - While it runs: SIGHUP reopens the log, and SIGTERM or SIGINT stop the
 loop.  Your own handlers for these three signals are put back when it
 returns.
@@ -891,7 +897,7 @@ Usage:
 
 ### PSEUDOCODE
 
-        if no socket is open: open_socket()
+        open_socket()           (does nothing if a socket is already open)
         if no log is open: reopen_log()
         for the duration of run():
                 SIGHUP          -> set "reopen requested"
@@ -986,7 +992,7 @@ Usage:
 
 Domains: `key` is one of the keys in the table below (an unknown key gives
 the key back; undef, "" or a reference dies).  `args` is a hash reference
-or undef (anything else dies).  Values may be any text, including
+or undef; anything else dies, including `""` and `0`.  Values may be any text, including
 non-ASCII characters, which appear unchanged.  For `count`, 1 gives the
 singular and every other number (0, 2, -1, 1.5) the plural; text that is
 not a number counts as 0.
@@ -1014,7 +1020,6 @@ The keys, the values each one uses, and the English text:
         |               |                        |   link                                           |
         | write_failed  | file, error            | Could not write to log file FILE: ERROR          |
         | recv_failed   | error                  | Error receiving a datagram: ERROR                |
-        | not_listening | (none)                 | run() was called before open_socket() succeeded  |
         | no_log_open   | (none)                 | process() was called before reopen_log()         |
         |               |                        |   succeeded                                      |
         | not_a_datagram| type                   | A datagram must be a string (the type given was  |

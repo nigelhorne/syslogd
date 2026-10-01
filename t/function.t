@@ -75,7 +75,6 @@ Readonly my %ARGUMENT_ORDER => (
 	unsafe_file => [qw(file)],
 	write_failed => [qw(file error)],
 	recv_failed => [qw(error)],
-	not_listening => [],
 	no_log_open => [],
 	not_a_datagram => [qw(type)],
 	missing_key => [],
@@ -521,13 +520,15 @@ subtest 'App::Syslogd::run - start-up and loop' => sub {
 		'opens, processes each datagram, then shuts down');
 	ok(!$server->{running}, 'not running after it returns');
 
-	# Already open: run() does not reopen
+	# Already open: run() does not reopen the log.  It still calls
+	# open_socket(), which does nothing when a socket is open (that is
+	# proved against the real open_socket() in t/logic.t)
 	@calls = ();
 	@script = (sub { $server->stop(); return undef });
 	$server->{socket} = 'S';
 	$server->{fh} = 'F';
 	$server->run();
-	is_deeply(\@calls, ['shutdown'], 'nothing reopened when socket and log are open');
+	is_deeply(\@calls, ['open_socket', 'shutdown'], 'the log is not reopened when it is open');
 };
 
 subtest 'App::Syslogd::run - signals' => sub {
@@ -657,8 +658,9 @@ subtest 'App::Syslogd::_receive - interruptions and errors' => sub {
 		exact('Error receiving a datagram: ' . errno_text(EBADF)), 'other errors warn exactly';
 	is($peer, undef, '...and return undef');
 
-	throws_ok { App::Syslogd->new()->_receive(\my $b) }
-		exact('run() was called before open_socket() succeeded'), 'no socket: exact error';
+	# No "no socket" case: run() guarantees the socket exists (see the
+	# premises above _receive), so calling it without one breaks its entry
+	# condition rather than testing a documented state.
 };
 
 subtest 'App::Syslogd::_open_log' => sub {

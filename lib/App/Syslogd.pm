@@ -1257,7 +1257,12 @@ Side Effects:
 =over 4
 
 =item * Calls C<open_socket()> and C<reopen_log()> first if they have not been
-called.
+called.  The socket comes first, so if it cannot be opened, C<run()> dies
+before the log file is touched.
+
+Why the loop never checks for a socket: C<open_socket()> either gives a
+socket or dies (premise 1); the loop only starts after it (premise 2); so
+inside the loop the socket always exists (conclusion).
 
 =item * While it runs: SIGHUP reopens the log, and SIGTERM or SIGINT stop the
 loop.  Your own handlers for these three signals are put back when it
@@ -1304,7 +1309,7 @@ Usage:
 
 =head3 PSEUDOCODE
 
-	if no socket is open: open_socket()
+	open_socket()		(does nothing if a socket is already open)
 	if no log is open: reopen_log()
 	for the duration of run():
 		SIGHUP          -> set "reopen requested"
@@ -1329,7 +1334,10 @@ sub run
 	# Keep the caller's $! and $@ (see new())
 	local ($!, $@);
 
-	$self->open_socket() unless($self->{socket});
+	# Premise: open_socket() does nothing when a socket is already open.
+	# Conclusion: it can be called unconditionally.  reopen_log() is not
+	# like that (it always reopens), so its guard stays.
+	$self->open_socket();
 	$self->reopen_log() unless($self->{fh});
 
 	# Handlers only set flags: Perl's deferred signals make that safe, and
@@ -1456,7 +1464,7 @@ Usage:
 
 Domains: C<key> is one of the keys in the table below (an unknown key gives
 the key back; undef, "" or a reference dies).  C<args> is a hash reference
-or undef (anything else dies).  Values may be any text, including
+or undef; anything else dies, including C<""> and C<0>.  Values may be any text, including
 non-ASCII characters, which appear unchanged.  For C<count>, 1 gives the
 singular and every other number (0, 2, -1, 1.5) the plural; text that is
 not a number counts as 0.
@@ -1484,7 +1492,6 @@ The keys, the values each one uses, and the English text:
 	|               |                        |   link                                           |
 	| write_failed  | file, error            | Could not write to log file FILE: ERROR          |
 	| recv_failed   | error                  | Error receiving a datagram: ERROR                |
-	| not_listening | (none)                 | run() was called before open_socket() succeeded  |
 	| no_log_open   | (none)                 | process() was called before reopen_log()         |
 	|               |                        |   succeeded                                      |
 	| not_a_datagram| type                   | A datagram must be a string (the type given was  |
@@ -1515,13 +1522,15 @@ sub i18n
 # _receive
 # Purpose:	wait for one datagram.
 # Entry:	$self->{socket} set; $buffer_ref a scalar ref to fill.
+#		Premise 1: _receive is only called from run()'s loop.
+#		Premise 2: run() calls open_socket() before the loop, and
+#		open_socket() dies if it cannot give a socket.  Conclusion:
+#		the socket always exists here, so it is not checked again.
 # Exit:		the sender's sockaddr, or undef if interrupted or on error.
 # Side Effects:	carps on errors other than EINTR.
 sub _receive
 {
 	my ($self, $buffer_ref) = @_;
-
-	croak($self->i18n('not_listening')) unless($self->{socket});
 
 	my $peer = $self->{socket}->recv(${$buffer_ref}, $RECV_BUFFER);
 
@@ -1560,8 +1569,10 @@ sub _open_log
 
 	# O_NOFOLLOW cannot catch a hard link or a file someone else pre-created
 	# for us to fill with their reading material, so check after opening
+	# Safe means all three: a regular file, owned by us, one link.  By De
+	# Morgan, "not all three" is "any one of them fails".
 	my @st = stat($fh);
-	if((!-f _) || ($st[4] != $>) || ($st[3] != 1)) {
+	unless(-f _ && ($st[4] == $>) && ($st[3] == 1)) {
 		_discard($fh);
 		croak($self->i18n('unsafe_file', { file => $file }));
 	}
@@ -1724,8 +1735,11 @@ sub _csv_line
 	my ($self, $fields) = @_;
 	my $csv = $self->{csv};
 
+	# Premise: Text::CSV defines string() whenever combine() succeeds.
+	# Conclusion: combine()'s result alone decides; string() needs no
+	# separate check.
 	return (undef, '' . ($csv->error_diag() || 'Text::CSV could not build the line'))
-		unless($csv->combine(@{$fields}) && defined($csv->string()));
+		unless($csv->combine(@{$fields}));
 
 	return ($csv->string());
 }

@@ -34,7 +34,6 @@ Readonly my %ARGUMENT_ORDER => (
 	unsafe_file => [qw(file)],
 	write_failed => [qw(file error)],
 	recv_failed => [qw(error)],
-	not_listening => [],
 	no_log_open => [],
 	not_a_datagram => [qw(type)],
 	missing_key => [],
@@ -265,7 +264,6 @@ The keys, and the values each one uses (in slot order C<[_1]>, C<[_2]>,
 	| unsafe_file   | file                 |
 	| write_failed  | file, error          |
 	| recv_failed   | error                |
-	| not_listening | (none)               |
 	| no_log_open   | (none)               |
 	| not_a_datagram| type                 |
 	| missing_key   | (none)               |
@@ -302,7 +300,7 @@ Usage:
 
 Domains: C<key> as in the table below (undef, "" or a reference dies;
 an unknown key comes back as text).  C<args>: a hash reference or undef;
-an array, code, glob or plain string dies.  Values: any text, including
+an array, code, glob or plain string dies, including C<""> and C<0>.  Values: any text, including
 non-ASCII characters, emoji and right-to-left text, copied unchanged;
 missing ones become "".
 
@@ -335,7 +333,10 @@ sub text
 	# Programming errors, reported clearly rather than as an
 	# "uninitialized" warning or Perl's "Not a HASH reference"
 	croak($self->text('missing_key')) if(!defined($key) || ref($key) || !length($key));
-	$args ||= {};
+
+	# The values are undef (none) or a hash reference; nothing else.  "||="
+	# used to turn "" and 0 into "no values" too, which broke that rule.
+	$args //= {};
 	if(ref($args) ne 'HASH') {
 		croak($self->text('bad_values', { type => ref($args) || 'SCALAR' }));
 	}

@@ -23,7 +23,6 @@ our %Lexicon = (
 	unsafe_file => 'Refusing to log to [_1]: it must be a regular file, owned by this user, with exactly one link',
 	write_failed => 'Could not write to log file [_1]: [_2]',
 	recv_failed => 'Error receiving a datagram: [_1]',
-	not_listening => 'run() was called before open_socket() succeeded',
 	no_log_open => 'process() was called before reopen_log() succeeded',
 	not_a_datagram => 'A datagram must be a string (the type given was [_1])',
 	missing_key => 'A message key is needed',

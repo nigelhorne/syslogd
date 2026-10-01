@@ -17,5 +17,6 @@ t/function.t
 t/i18n.t
 t/integration.t
 t/locales.t
+t/logic.t
 t/server.t
 t/unit.t
