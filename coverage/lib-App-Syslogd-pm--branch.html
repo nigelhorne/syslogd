@@ -20,25 +20,26 @@ https://pjcj.net
 <h1>Branch Coverage</h1>
 <table>
 <tr><td class="h" align="right">File:</td><td align="left">lib/App/Syslogd.pm</td></tr>
-<tr><td class="h" align="right">Coverage:</td><td align="left" class="c2">96.4%</td></tr>
+<tr><td class="h" align="right">Coverage:</td><td align="left" class="c2">96.7%</td></tr>
 </table>
 <div><br/></div>
 <table>
 <tr><th>line</th><th>%</th><th colspan="2">coverage</th><th>branch</th></tr>
-<tr><td class="h"><a id="L18">18</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $_[0] =~ /\AToo late to run CHECK block /</td></tr>
-<tr><td class="h"><a id="L613">613</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $configured-&gt;{$key}</td></tr>
-<tr><td class="h"><a id="L754">754</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$socket &amp;&amp; $socket-&gt;can(&#39;sockport&#39;) ? :</td></tr>
-<tr><td class="h"><a id="L801">801</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$socket &amp;&amp; $socket-&gt;can(&#39;sockhost&#39;) ? :</td></tr>
-<tr><td class="h"><a id="L1022">1022</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if length $text &lt; $MIN_MESSAGE_LENGTH</td></tr>
-<tr><td class="h"><a id="L1026">1026</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">defined $pri &amp;&amp; $pri &lt;= $MAX_PRI ? :</td></tr>
-<tr><td class="h"><a id="L1029">1029</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $valid</td></tr>
-<tr><td class="h"><a id="L1118">1118</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;fh&#39;}</td></tr>
-<tr><td class="h"><a id="L1121">1121</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $record = $self-&gt;parse_message($datagram))</td></tr>
-<tr><td class="h"><a id="L1216">1216</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;socket&#39;}</td></tr>
-<tr><td class="h"><a id="L1217">1217</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;fh&#39;}</td></tr>
-<tr><td class="h"><a id="L1230">1230</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($self-&gt;{&#39;reopen_requested&#39;})</td></tr>
-<tr><td class="h"><a id="L1236">1236</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $peer</td></tr>
-<tr><td class="h"><a id="L1372">1372</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">ref $self ? :</td></tr>
+<tr><td class="h"><a id="L23">23</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless $_[0] =~ /\AToo late to run CHECK block /</td></tr>
+<tr><td class="h"><a id="L627">627</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if defined $configured-&gt;{$key}</td></tr>
+<tr><td class="h"><a id="L771">771</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$socket &amp;&amp; $socket-&gt;can(&#39;sockport&#39;) ? :</td></tr>
+<tr><td class="h"><a id="L818">818</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$socket &amp;&amp; $socket-&gt;can(&#39;sockhost&#39;) ? :</td></tr>
+<tr><td class="h"><a id="L1048">1048</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $datagram and not overload::Method($datagram, &quot;\&quot;\&quot;&quot;))</td></tr>
+<tr><td class="h"><a id="L1055">1055</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if length $text &lt; $MIN_MESSAGE_LENGTH</td></tr>
+<tr><td class="h"><a id="L1059">1059</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">@match &amp;&amp; $match[0] &lt;= $MAX_PRI ? :</td></tr>
+<tr><td class="h"><a id="L1063">1063</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$valid ? :</td></tr>
+<tr><td class="h"><a id="L1158">1158</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;fh&#39;}</td></tr>
+<tr><td class="h"><a id="L1161">1161</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (my $record = $self-&gt;parse_message($datagram))</td></tr>
+<tr><td class="h"><a id="L1260">1260</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;socket&#39;}</td></tr>
+<tr><td class="h"><a id="L1261">1261</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless $self-&gt;{&#39;fh&#39;}</td></tr>
+<tr><td class="h"><a id="L1278">1278</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($self-&gt;{&#39;reopen_requested&#39;})</td></tr>
+<tr><td class="h"><a id="L1284">1284</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if $peer</td></tr>
+<tr><td class="h"><a id="L1427">1427</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">ref $self ? :</td></tr>
 </table>
 </body>
 </html>
