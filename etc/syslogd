@@ -21,7 +21,13 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Getopt::Long qw(GetOptions);
+use IO::Handle;
 use App::Syslogd;
+
+# Status lines must appear when they happen, not when the buffer fills:
+# under systemd or a pipe STDOUT is not a terminal, so without this the
+# "listening" line would only be seen when the server exits
+STDOUT->autoflush(1);
 
 # Only options the user actually gave are passed on, so App::Syslogd's
 # %DEFAULTS stay the single place where defaults are defined

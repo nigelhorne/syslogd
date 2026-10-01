@@ -34,7 +34,14 @@ Revision history for App-Syslogd
 	  leaves data in Perl's buffer (which made the next close() die and
 	  added an "unable to close filehandle" warning), and a line that
 	  only partly fitted is removed, so the CSV never holds a half line
+	- Loading the module at run time (require) no longer warns "Too late
+	  to run CHECK block", and no longer leaves the private helpers
+	  callable from outside
+	- etc/syslogd flushes its status lines, so "listening" appears at
+	  once under systemd or a pipe, not only at exit
 	- t/function.t: white-box tests of every function
 	- t/unit.t: black-box tests of every documented message and state
+	- t/integration.t: end-to-end workflows, the program, and both
+	  Text::CSV backends
 	- Documentation rewritten in plain English, with ENCODING, COMMON
 	  PITFALLS, FORMAL SPECIFICATION and STATE DIAGRAM sections

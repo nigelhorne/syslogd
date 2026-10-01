@@ -22,17 +22,23 @@ requires 'autodie';
 requires 'parent';
 
 on 'test' => sub {
+	requires 'CHI';
 	requires 'Errno';
 	requires 'File::Temp';
+	requires 'IPC::Open3';
 	requires 'POSIX';
 	requires 'Readonly';
 	requires 'Scalar::Util';
+	requires 'Symbol';
 	requires 'Test::Memory::Cycle';
 	requires 'Test::Mockingbird', '0.14';   # mock_scoped multi-method form
 	requires 'Test::Most';
 	requires 'Test::Needs';
 	requires 'Test::Returns', '0.04';
 	requires 'Test::Warn';
+	requires 'Test::Without::Module';
+	requires 'Text::CSV_PP';   # t/integration.t compares both backends
+	requires 'Time::HiRes';
 	recommends 'CGI::ACL';
 	recommends 'IP::Country::Fast';
 };

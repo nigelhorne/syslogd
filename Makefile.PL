@@ -44,7 +44,11 @@ WriteMakefile(
 		'Sub::Protected' => 0.02,
 		'Text::CSV'    => 0,
 	}, TEST_REQUIRES => {
+		'CHI'          => 0,
 		'Errno'        => 0,
+		'IPC::Open3'   => 0,
+		'Symbol'       => 0,
+		'Time::HiRes'  => 0,
 		'File::Temp'   => 0,
 		'POSIX'        => 0,
 		'Readonly'     => 0,
@@ -54,6 +58,8 @@ WriteMakefile(
 		'Test::Most'   => 0,
 		'Test::Needs'  => 0,
 		'Test::Returns' => 0.04,
+		'Test::Without::Module' => 0,
+		'Text::CSV_PP' => 0,	# t/integration.t compares both backends
 		'Test::Warn'   => 0,
 	},
 	LICENSE => 'gpl_2',

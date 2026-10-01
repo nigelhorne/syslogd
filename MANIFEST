@@ -12,6 +12,7 @@ README.md
 t/00-load.t
 t/function.t
 t/i18n.t
+t/integration.t
 t/locales.t
 t/server.t
 t/unit.t

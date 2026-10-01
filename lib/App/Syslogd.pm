@@ -4,11 +4,21 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
-# Sub::Private's enforce mode must be chosen before the module is loaded,
-# otherwise :Private subs are removed from the stash and $self->_x() breaks
-BEGIN { $Sub::Private::config{mode} = 'enforce' }
-use Sub::Private;
-use Sub::Protected;
+# Encapsulation of the _helpers.  Sub::Private's enforce mode must be
+# chosen before the module is loaded, otherwise private subs are removed
+# from the stash and $self->_x() breaks.
+#
+# Both modules declare a CHECK block.  When this module is loaded at run
+# time (require, a plugin loader), CHECK has already happened, so Perl
+# warns "Too late to run CHECK block" while compiling them; the warning is
+# about their internals, so it is filtered here and nothing else is.
+# The helpers are protected at the bottom of this file; see there for why.
+BEGIN {
+	$Sub::Private::config{mode} = 'enforce';
+	local $SIG{__WARN__} = sub { warn(@_) unless($_[0] =~ /\AToo late to run CHECK block /) };
+	require Sub::Private;
+	require Sub::Protected;
+}
 
 use Carp qw(carp croak);
 use Config;
@@ -1334,7 +1344,7 @@ sub i18n
 # Entry:	$self->{socket} set; $buffer_ref a scalar ref to fill.
 # Exit:		the sender's sockaddr, or undef if interrupted or on error.
 # Side Effects:	carps on errors other than EINTR.
-sub _receive :Private
+sub _receive
 {
 	my ($self, $buffer_ref) = @_;
 
@@ -1357,7 +1367,7 @@ sub _receive :Private
 #		croaks on failure.
 # Side Effects:	may create the file (mode 0600) and write the header row;
 #		chmods an existing file to 0600.
-sub _open_log :Private
+sub _open_log
 {
 	my $self = shift;
 	my $file = $self->{file};
@@ -1396,7 +1406,7 @@ sub _open_log :Private
 # Exit:		$self.
 # Side Effects:	writes one line; croaks if it cannot, since a log that
 #		cannot take its first line will not take any others.
-sub _write_header :Private
+sub _write_header
 {
 	my ($self, $fh) = @_;
 
@@ -1417,7 +1427,7 @@ sub _write_header :Private
 # syswrite rather than print: print leaves a failed line in Perl's
 # buffer, where it makes the next close() fail (fatal under autodie) and
 # makes Perl add an "unable to close filehandle properly" warning.
-sub _append_line :Private
+sub _append_line
 {
 	my ($self, $fh, $line) = @_;
 
@@ -1447,7 +1457,7 @@ sub _append_line :Private
 # Entry:	none.
 # Exit:		$self; $self->{fh} is undef.
 # Side Effects:	closes a filehandle.
-sub _close_log :Private
+sub _close_log
 {
 	my $self = shift;
 
@@ -1464,7 +1474,7 @@ sub _close_log :Private
 # Exit:		$self.
 # Side Effects:	closes the socket and log; open_socket() and reopen_log() are
 #		needed before another run().
-sub _shutdown :Private
+sub _shutdown
 {
 	my $self = shift;
 
@@ -1481,7 +1491,7 @@ sub _shutdown :Private
 # Exit:		$self.
 # Side Effects:	writes to the log; carps (does not croak) if that fails, so
 #		that a transiently full disk does not stop the daemon.
-sub _write_row :Private
+sub _write_row
 {
 	my ($self, $row) = @_;
 
@@ -1503,7 +1513,7 @@ sub _write_row :Private
 # Side Effects:	may do a (cached) reverse DNS lookup.
 # Protected rather than private so that a subclass can, say, log
 # "name (address)" or use an asynchronous resolver.
-sub _peer_name :Protected
+sub _peer_name
 {
 	my ($self, $peer) = @_;
 
@@ -1530,13 +1540,53 @@ sub _peer_name :Protected
 # Exit:		the string with every C0 control and DEL written as \xNN.
 # Side Effects:	none.
 # A plain function, not a method, because it uses no state.
-sub _escape_controls :Private
+sub _escape_controls
 {
 	my $text = shift;
 
 	$text =~ s/([\x00-\x1F\x7F])/sprintf('\\x%02X', ord($1))/ge;
 
 	return $text;
+}
+
+# Protect the helpers now that they are all defined.  This uses the
+# declarative form, not :Private/:Protected attributes, because attributes
+# are only applied in a CHECK block, which never runs when this module is
+# loaded with require at run time: the helpers were then left callable by
+# anyone.
+#
+# Loaded normally (use), import() queues the subs for CHECK.  Loaded at run
+# time, import() should wrap them at once, but Sub::Private 0.05 and
+# Sub::Protected 0.02 only learn that CHECK has passed from their own CHECK
+# block; if they too were first loaded at run time, the queue is never
+# processed.  So, at run time, anything import() did not wrap is wrapped
+# here with the same routine their CHECK block uses.  Comparing code refs
+# first means nothing is ever wrapped twice (a double wrapper would lock
+# this package out of its own helpers).
+{
+	Readonly my %PROTECTION => (
+		'Sub::Private' => [qw(
+			_receive _open_log _write_header _append_line _close_log
+			_shutdown _write_row _escape_controls
+		)],
+		# Protected, not private: a subclass may override it (see SYNOPSIS)
+		'Sub::Protected' => [qw(_peer_name)],
+	);
+	no strict 'refs';
+	foreach my $module (sort keys %PROTECTION) {
+		my @names = @{$PROTECTION{$module}};
+		my %before = map { $_ => \&{__PACKAGE__ . "::$_"} } @names;
+		$module->import(@names);
+		next if(${^GLOBAL_PHASE} ne 'RUN');
+		my $wrap = $module->can('_process_one') or next;
+		# Their own helpers are protected too; the documented BYPASS
+		# switches lift that for this call only
+		local $Sub::Private::BYPASS = 1;
+		local $Sub::Protected::BYPASS = 1;
+		foreach my $name (grep { \&{__PACKAGE__ . "::$_"} == $before{$_} } @names) {
+			$wrap->(__PACKAGE__, $name);
+		}
+	}
 }
 
 =head1 LIMITATIONS
