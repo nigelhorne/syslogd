@@ -29,12 +29,12 @@ https://pjcj.net
 <tr><td class="h">2</td><td colspan="6"></td></tr><tr><td class="h">3</td><td></td><td></td><td></td><td></td><td></td><td class="s"># English lexicon.&nbsp;&nbsp;Square brackets are Maketext syntax; a literal bracket</td></tr>
 <tr><td class="h">4</td><td></td><td></td><td></td><td></td><td></td><td class="s"># is written &quot;~[&quot; or &quot;~]&quot;.&nbsp;&nbsp;Argument order is defined by %ARGUMENT_ORDER in</td></tr>
 <tr><td class="h">5</td><td></td><td></td><td></td><td></td><td></td><td class="s"># App::Syslogd::I18N, not here.</td></tr>
-<tr><td class="h">6</td><td colspan="6"></td></tr><tr><td class="h">7</td><td><div class="c3">23</div><div class="c3">23</div><div class="c3">23</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L7">23</a></div></td><td><div>10039</div><div>22</div><div>327</div></td><td class="s">use strict;</td></tr>
-<tr><td class="h">8</td><td><div class="c3">23</div><div class="c3">23</div><div class="c3">23</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L8">23</a></div></td><td><div>33</div><div>23</div><div>482</div></td><td class="s">use warnings;</td></tr>
-<tr><td class="h">9</td><td><div class="c3">23</div><div class="c3">23</div><div class="c3">23</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L9">23</a></div></td><td><div>47</div><div>22</div><div>79</div></td><td class="s">use autodie qw(:all);</td></tr>
+<tr><td class="h">6</td><td colspan="6"></td></tr><tr><td class="h">7</td><td><div class="c3">43</div><div class="c3">43</div><div class="c3">43</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L7">43</a></div></td><td><div>21068</div><div>42</div><div>705</div></td><td class="s">use strict;</td></tr>
+<tr><td class="h">8</td><td><div class="c3">43</div><div class="c3">43</div><div class="c3">43</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L8">43</a></div></td><td><div>79</div><div>69</div><div>1261</div></td><td class="s">use warnings;</td></tr>
+<tr><td class="h">9</td><td><div class="c3">43</div><div class="c3">43</div><div class="c3">43</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L9">43</a></div></td><td><div>99</div><div>36</div><div>207</div></td><td class="s">use autodie qw(:all);</td></tr>
 <tr><td class="h">10</td><td colspan="6"></td></tr><tr><td class="h">11</td><td></td><td></td><td></td><td></td><td></td><td class="s"># Not -norequire: a translation that inherits from this package (as the</td></tr>
 <tr><td class="h">12</td><td></td><td></td><td></td><td></td><td></td><td class="s"># documentation recommends) may be loaded before App::Syslogd::I18N is</td></tr>
-<tr><td class="h">13</td><td><div class="c3">23</div><div class="c3">23</div><div class="c3">23</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L13">23</a></div></td><td><div>50574</div><div>19</div><div>63</div></td><td class="s">use parent &#39;App::Syslogd::I18N&#39;;</td></tr>
+<tr><td class="h">13</td><td><div class="c3">43</div><div class="c3">43</div><div class="c3">43</div></td><td></td><td></td><td><div class="c3"><a href="lib-App-Syslogd-I18N-en-pm--subroutine.html#L13">43</a></div></td><td><div>98979</div><div>40</div><div>247</div></td><td class="s">use parent &#39;App::Syslogd::I18N&#39;;</td></tr>
 <tr><td class="h">14</td><td colspan="6"></td></tr><tr><td class="h">15</td><td></td><td></td><td></td><td></td><td></td><td class="s">our $VERSION = &#39;0.02&#39;;</td></tr>
 <tr><td class="h">16</td><td colspan="6"></td></tr><tr><td class="h">17</td><td></td><td></td><td></td><td></td><td></td><td class="s">our %Lexicon = (</td></tr>
 <tr><td class="h">18</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;usage =&gt; &#39;Usage: [_1] ~[--port &lt;port_number&gt;~] ~[--address &lt;address&gt;~] ~[--file &lt;CSV file&gt;~] ~[--no-resolve~] ~[--language &lt;tag&gt;~]&#39;,</td></tr>
@@ -50,8 +50,10 @@ https://pjcj.net
 <tr><td class="h">28</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;missing_key =&gt; &#39;A message key is needed&#39;,</td></tr>
 <tr><td class="h">29</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bad_values =&gt; &#39;Message values must be a hash reference (the type given was [_1])&#39;,</td></tr>
 <tr><td class="h">30</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no_progress =&gt; &#39;the system accepted no data&#39;,</td></tr>
-<tr><td class="h">31</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
-<tr><td class="h">32</td><td colspan="6"></td></tr><tr><td class="h">33 - 69</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
+<tr><td class="h">31</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_a_log =&gt; &#39;Refusing to log to [_1]: it is not empty and does not start with the syslog header line&#39;,</td></tr>
+<tr><td class="h">32</td><td></td><td></td><td></td><td></td><td></td><td class="s">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not_cgi =&gt; &#39;This program is a server, not a CGI program: it will not run from a web server&#39;,</td></tr>
+<tr><td class="h">33</td><td></td><td></td><td></td><td></td><td></td><td class="s">);</td></tr>
+<tr><td class="h">34</td><td colspan="6"></td></tr><tr><td class="h">35 - 71</td><td colspan="5"></td><td class="s"><pre>=head1 NAME
 
 App::Syslogd::I18N::en - English messages for App::Syslogd
 
@@ -88,7 +90,7 @@ This program is released under the GNU General Public License, version 2
 (see the F&lt;LICENSE&gt; file).&nbsp;&nbsp;If you use it, please let me know.
 
 =cut</pre></td></tr>
-<tr><td class="h">70</td><td colspan="6"></td></tr><tr><td class="h">71</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
+<tr><td class="h">72</td><td colspan="6"></td></tr><tr><td class="h">73</td><td></td><td></td><td></td><td></td><td></td><td class="s">1;</td></tr>
 </table>
 </body>
 </html>
