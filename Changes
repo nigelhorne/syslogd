@@ -39,6 +39,9 @@ Revision history for App-Syslogd
 	  callable from outside
 	- etc/syslogd flushes its status lines, so "listening" appears at
 	  once under systemd or a pipe, not only at exit
+	- Settings from Object::Configure (configuration files and
+	  App__Syslogd__* environment variables) are validated like
+	  arguments; they used to be accepted unchecked
 	- t/function.t: white-box tests of every function
 	- t/unit.t: black-box tests of every documented message and state
 	- t/integration.t: end-to-end workflows, the program, and both

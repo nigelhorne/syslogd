@@ -32,6 +32,7 @@ use Errno qw(EINTR EBADF EPERM ENOENT);
 use File::Spec;
 use File::Temp qw(tempdir);
 use Readonly;
+use Scalar::Util ();
 use Socket qw(pack_sockaddr_in inet_aton);
 use Test::Mockingbird;
 use Test::Most;
@@ -89,6 +90,10 @@ my %ledger = map { $_ => 1 } (
 	'new: message must be an integer',
 	'new: message out of range',
 	'new: message must be a boolean',
+	'new: settings from the environment',
+	'new: the environment wins over arguments',
+	'new: configured settings are validated',
+	'new: holds a logger',
 	# App::Syslogd::open_socket
 	'open_socket: returns $self',
 	'open_socket: does nothing when a socket is open',
@@ -362,6 +367,37 @@ subtest 'new - messages' => sub {
 	}
 };
 
+subtest 'new - settings from Object::Configure' => sub {
+	# Purpose: options can also come from App__Syslogd__* environment
+	# variables (Object::Configure); those win over the arguments, are
+	# checked exactly like arguments, and the object gets a logger
+	{
+		local $ENV{App__Syslogd__port} = $CONFIG{unprivileged_port};
+		is(App::Syslogd->new()->port(), $CONFIG{unprivileged_port}, 'port from the environment');
+		covered('new: settings from the environment');
+		is(App::Syslogd->new(port => $CONFIG{default_port})->port(), $CONFIG{unprivileged_port},
+			'the environment wins over the argument');
+		covered('new: the environment wins over arguments');
+	}
+	is(App::Syslogd->new()->port(), $CONFIG{default_port}, 'the default again once the variable is gone');
+
+	{
+		local $ENV{App__Syslogd__port} = 65_536;
+		throws_ok { App::Syslogd->new() } qr/validate_strict: Parameter 'port' \(65536\) must be no more than 65535/,
+			'an out-of-range port from the environment';
+	}
+	{
+		local $ENV{App__Syslogd__resolve} = 'maybe';
+		throws_ok { App::Syslogd->new() } qr/validate_strict: Parameter 'resolve' \(maybe\) must be a boolean/,
+			'a non-boolean from the environment';
+	}
+	covered('new: configured settings are validated');
+
+	my $logger = App::Syslogd->new()->{logger};
+	ok(Scalar::Util::blessed($logger) && $logger->can('warn'), 'holds a logger object');
+	covered('new: holds a logger');
+};
+
 subtest 'open_socket' => sub {
 	# Purpose: binds once, returns $self, and reports failure exactly.
 	# Strategy: mock the socket constructor (no network).
@@ -600,28 +636,55 @@ subtest 'run - signals' => sub {
 	# Purpose: SIGHUP reopens the log; SIGTERM and SIGINT make run()
 	# return; the caller's handlers are back afterwards.  Strategy: the
 	# socket double sends real signals to this process while run() waits.
-	plan(skip_all => 'Windows cannot send these signals to itself') if($WINDOWS);
+	# Windows cannot send these signals to its own process, so there the
+	# signal is delivered by calling the handler run() installed for it,
+	# which is what Perl does when a signal arrives.
+	my $deliver = $WINDOWS
+		? sub { my $signal = shift; $SIG{$signal}->($signal) }
+		: sub { my $signal = shift; kill($signal, $$) };
+	note($WINDOWS ? 'signals delivered by calling the installed handlers' : 'real signals');
 
 	my $outer = sub { fail('the caller handler ran during run()') };
 	local $SIG{HUP} = $outer;
 	local $SIG{TERM} = $outer;
 	local $SIG{INT} = $outer;
 
+	# Windows will not rename a file that is open, so log rotation (rename,
+	# then SIGHUP) can only be shown elsewhere.  The reopen itself is shown
+	# everywhere by spying on reopen_log() (a spy records the call and
+	# lets it run).
+	my $can_rotate = !$WINDOWS;
+
 	foreach my $signal ('TERM', 'INT') {
 		my $file = new_log();
 		my $rotated = "$file.1";
 		my $socket = QueueSocket->new(queue => [
 			'<13>before',
-			sub { rename($file, $rotated) or die "rename: $!"; kill('HUP', $$) },
+			sub {
+				if($can_rotate) {
+					rename($file, $rotated) or die "rename: $!";
+				}
+				$deliver->('HUP');
+			},
 			'<13>after',
-			sub { kill($signal, $$) },
+			sub { $deliver->($signal) },
 			'<13>never read',
 		]);
 		my $server = App::Syslogd->new(file => $file, resolve => 0, socket => $socket);
+		my $spy = spy('App::Syslogd::reopen_log');
 		$server->run();
+		my @reopens = $spy->();
+		unmock('App::Syslogd::reopen_log');
+
 		is($server->count(), 2, "returns after SIG$signal, before reading again");
-		is_deeply(lines_of($rotated), [$CONFIG{header}, '"192.0.2.1","1","5","before"'], 'SIGHUP: old file keeps its lines');
-		is_deeply(lines_of($file), [$CONFIG{header}, '"192.0.2.1","1","5","after"'], 'SIGHUP: a new file is started');
+		is(scalar(@reopens), 2, 'SIGHUP: the log is reopened (once at start, once on SIGHUP)');
+		if($can_rotate) {
+			is_deeply(lines_of($rotated), [$CONFIG{header}, '"192.0.2.1","1","5","before"'], 'SIGHUP: old file keeps its lines');
+			is_deeply(lines_of($file), [$CONFIG{header}, '"192.0.2.1","1","5","after"'], 'SIGHUP: a new file is started');
+		} else {
+			is_deeply(lines_of($file), [$CONFIG{header}, '"192.0.2.1","1","5","before"', '"192.0.2.1","1","5","after"'],
+				'SIGHUP: the reopened file carries on, with one header');
+		}
 	}
 	covered('run: returns after SIGTERM', 'run: returns after SIGINT', 'run: SIGHUP reopens the log');
 

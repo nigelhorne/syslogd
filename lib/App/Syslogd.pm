@@ -83,6 +83,9 @@ Readonly my $HAVE_FCHMOD => $Config{d_fchmod} ? 1 : 0;
 # reads these as its column names, so do not change them lightly.
 Readonly my @CSV_HEADER => qw(Host facility severity msg);
 
+# What Object::Configure adds that is kept on the object, besides settings
+Readonly my @CONFIGURE_EXTRAS => qw(logger config_path);
+
 # Parameter schema shared by new() and the API SPECIFICATION in the POD
 Readonly my %NEW_SCHEMA => (
 	port => { type => 'integer', min => 0, max => 65_535, optional => 1 },
@@ -323,7 +326,8 @@ in Perl's normal module directories.
 
 Perl 5.14 or later, and these modules: L<autodie> (which needs
 L<IPC::System::Simple>), L<CHI>, L<IO::Socket::IP>, L<Locale::Maketext>,
-L<Params::Get>, L<Params::Validate::Strict>, L<Readonly>, L<Socket>,
+L<Object::Configure>, L<Params::Get>, L<Params::Validate::Strict>,
+L<Readonly>, L<Socket>,
 L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  F<Makefile.PL> lists
 the minimum versions.
 
@@ -390,6 +394,12 @@ set an output layer first: C<binmode(STDOUT, ':encoding(UTF-8)')>.
 default file, not an empty file name.  This is useful when you pass options
 straight from L<Getopt::Long>, but it means you cannot use C<undef> to switch
 something off.  To turn off host names, use C<< resolve => 0 >>.
+
+=item * B<The environment wins over your arguments.>  An
+C<App__Syslogd__port> environment variable, or a configuration file, changes
+the port even when you pass C<port> to C<new()>.  This is how
+L<Object::Configure> works.  Check the environment when a setting seems to
+be ignored.
 
 =item * B<The options are merged one level deep only.>  Each option you give
 replaces the default with the same name; nothing is merged inside a value.
@@ -463,6 +473,13 @@ file yet, so you can create and inspect it without any special permissions.
 Args: all optional, given as a list of pairs or as one hash reference.  An
 option given as C<undef> uses its default.
 
+Every option can also be set outside the program, through
+L<Object::Configure>: in a configuration file (for example
+F<~/.conf/app-syslogd.yml>), or in an environment variable named
+C<App__Syslogd__> followed by the option, such as
+C<App__Syslogd__port=5514>.  B<Those settings win over the arguments given
+to new()>.  They are checked in exactly the same way as arguments.
+
 =over 4
 
 =item * C<port> - the UDP port number, 0 to 65535.  Default 514.  0 means
@@ -493,9 +510,13 @@ Any object with a C<recv()> method.
 
 =back
 
-Returns: the new object.
+Returns: the new object.  Besides the options, it holds the C<logger> (a
+L<Log::Abstraction> object) and C<config_path> that L<Object::Configure>
+provides.
 
-Side Effects: none.  Dies if an option is unknown or has a wrong value.
+Side Effects: reads configuration files and environment variables (see
+above).  Does not open the network or the log.  Dies if an option is
+unknown, or if an option has a wrong value, wherever the value came from.
 
 Usage:
 
@@ -569,13 +590,28 @@ sub new
 	# locals are restored.
 	local ($!, $@);
 
-	# Accept a hash, a hashref or nothing at all
-	my $args = Params::Validate::Strict::validate_strict({
+	# Check the caller's own arguments first, so that a misspelt option
+	# is reported as such.  Accept a hash, a hashref or nothing at all.
+	my $params = Params::Validate::Strict::validate_strict({
 		schema => \%NEW_SCHEMA,
 		input => Params::Get::get_params(undef, \@_) || {},
 	});
 
-	$args = Object::Configure::configure($class, $args // {});
+	# Object::Configure merges in configuration files and App__Syslogd__*
+	# environment variables (which win over the arguments) and adds a
+	# logger.  Settings from there are validated too: they used to go in
+	# unchecked, so App__Syslogd__port=70000 was accepted.  Only the
+	# settings this module uses are checked and kept, plus the logger and
+	# config_path that Object::Configure provides; sections meant for other
+	# classes are dropped.
+	my $configured = Object::Configure::configure($class, { %{$params} });
+	my $args = Params::Validate::Strict::validate_strict({
+		schema => \%NEW_SCHEMA,
+		input => { map { $_ => $configured->{$_} } grep { exists($NEW_SCHEMA{$_}) } keys %{$configured} },
+	});
+	foreach my $key (@CONFIGURE_EXTRAS) {
+		$args->{$key} = $configured->{$key} if(defined($configured->{$key}));
+	}
 
 	# An undef value means "use the default": without this,
 	# new(file => undef) replaced the default with undef and failed later,
@@ -1656,10 +1692,11 @@ the server may stop only after the next datagram arrives.
 
 =back
 
-=item * B<Object::Configure is not used.>  C<%DEFAULTS> has the flat form that
-Object::Configure uses, but its C<configure()> is not called.  It would add a
-global logger that may log through syslog, and a syslog server that logs to
-itself can loop.
+=item * B<Do not send the logger's output to this server.>  L<Object::Configure>
+gives each object a logger, and a shared configuration file may point it
+at syslog.  This module does not log through it today, but if it ever
+does, a logger that sends to the same syslog server would feed its own
+input back to itself.
 
 =back
 
@@ -1699,9 +1736,11 @@ things in words.
 	New
 	  Server'
 	  args? : NAME ⇸ VALUE
+	  configured? : NAME ⇸ VALUE	-- files and environment
 	  ─────────
-	  let a == args? ⩥ {⊥} •
+	  let a == ((args? ⊕ configured?) ▷ (VALUE \ {⊥})) ∩ (dom NEW_SCHEMA × VALUE) •
 	    dom args? ⊆ dom NEW_SCHEMA ∧
+	    conforms(a, NEW_SCHEMA) ∧
 	    θServer' = (DEFAULTS ⊕ a) ⊕ {count ↦ 0} ∧
 	    bound' = (socket ∈ dom a) ∧ ¬logging' ∧ ¬running' ∧ ¬hup'
 
@@ -1710,7 +1749,8 @@ things in words.
 	  args? : NAME ⇸ VALUE
 	  error! : STRING
 	  ─────────
-	  dom args? ⊈ dom NEW_SCHEMA ∨ ¬ conforms(args?, NEW_SCHEMA)
+	  dom args? ⊈ dom NEW_SCHEMA ∨ ¬ conforms(args?, NEW_SCHEMA) ∨
+	  ¬ conforms((args? ⊕ configured?) ∩ (dom NEW_SCHEMA × VALUE), NEW_SCHEMA)
 
 =head2 open_socket
 
