@@ -1,0 +1,387 @@
+{
+   "runs" : [
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867011.96962,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "-e",
+         "start" : 1790867002.24529,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867002.39354,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "-e",
+         "start" : 1790867002.39343,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867002.80241,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/00-load.t",
+         "start" : 1790867002.79725,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867003.55291,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/function.t",
+         "start" : 1790867003.30653,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867004.27785,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/i18n.t",
+         "start" : 1790867004.21444,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867008.71898,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/integration.t",
+         "start" : 1790867004.78938,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867005.24488,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child16.pl",
+         "start" : 1790867005.12403,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867005.66905,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child17.pl",
+         "start" : 1790867005.50432,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867006.1229,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child18.pl",
+         "start" : 1790867006.07583,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867006.57476,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child19.pl",
+         "start" : 1790867006.52652,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867007.02307,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child19.pl",
+         "start" : 1790867006.97444,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867007.39697,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child19.pl",
+         "start" : 1790867007.39692,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867007.72067,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/tmp/ON8PplEpyn/child19.pl",
+         "start" : 1790867007.72063,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867008.18361,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/home/runner/work/syslogd/syslogd/t/../etc/syslogd",
+         "start" : 1790867008.08004,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867008.60744,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "/home/runner/work/syslogd/syslogd/t/../etc/syslogd",
+         "start" : 1790867008.60339,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867009.38588,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/locales.t",
+         "start" : 1790867009.30446,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867010.06454,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/server.t",
+         "start" : 1790867009.90811,
+         "version" : "0.02"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "A small UDP syslog receiver that writes a CSV file",
+         "dir" : "/home/runner/work/syslogd/syslogd",
+         "finish" : 1790867011.72434,
+         "name" : "App-Syslogd",
+         "perl" : "5.40.5",
+         "run" : "t/unit.t",
+         "start" : 1790867010.63162,
+         "version" : "0.02"
+      }
+   ],
+   "summary" : {
+      "/tmp/ON8PplEpyn/child16.pl" : {},
+      "/tmp/ON8PplEpyn/child17.pl" : {},
+      "/tmp/ON8PplEpyn/child18.pl" : {},
+      "/tmp/ON8PplEpyn/child19.pl" : {},
+      "Total" : {
+         "branch" : {
+            "covered" : 35,
+            "error" : 7,
+            "percentage" : 83.3333333333333,
+            "total" : 42,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 32,
+            "error" : 9,
+            "percentage" : 78.0487804878049,
+            "total" : 41,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 224,
+            "error" : 16,
+            "percentage" : 93.3333333333333,
+            "total" : 240
+         },
+         "subroutine" : {
+            "covered" : 59,
+            "error" : 3,
+            "percentage" : 95.1612903225806,
+            "total" : 62
+         },
+         "total" : {
+            "covered" : 350,
+            "error" : 35,
+            "percentage" : 90.9090909090909,
+            "total" : 385,
+            "uncoverable" : 0
+         }
+      },
+      "etc/syslogd" : {
+         "branch" : {
+            "covered" : 2,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 2,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 31,
+            "percentage" : 100,
+            "total" : 31
+         },
+         "subroutine" : {
+            "covered" : 8,
+            "percentage" : 100,
+            "total" : 8
+         },
+         "total" : {
+            "covered" : 41,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 41,
+            "uncoverable" : 0
+         }
+      },
+      "lib/App/Syslogd.pm" : {
+         "branch" : {
+            "covered" : 25,
+            "error" : 1,
+            "percentage" : 96.1538461538462,
+            "total" : 26,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 21,
+            "error" : 1,
+            "percentage" : 95.4545454545455,
+            "total" : 22,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 128,
+            "percentage" : 100,
+            "total" : 128
+         },
+         "subroutine" : {
+            "covered" : 32,
+            "percentage" : 100,
+            "total" : 32
+         },
+         "total" : {
+            "covered" : 206,
+            "error" : 2,
+            "percentage" : 99.0384615384615,
+            "total" : 208,
+            "uncoverable" : 0
+         }
+      },
+      "lib/App/Syslogd/I18N.pm" : {
+         "branch" : {
+            "covered" : 8,
+            "error" : 0,
+            "percentage" : 100,
+            "total" : 8,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 11,
+            "error" : 1,
+            "percentage" : 91.6666666666667,
+            "total" : 12,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 32,
+            "percentage" : 100,
+            "total" : 32
+         },
+         "subroutine" : {
+            "covered" : 8,
+            "percentage" : 100,
+            "total" : 8
+         },
+         "total" : {
+            "covered" : 59,
+            "error" : 1,
+            "percentage" : 98.3333333333333,
+            "total" : 60,
+            "uncoverable" : 0
+         }
+      },
+      "lib/App/Syslogd/I18N/en.pm" : {
+         "statement" : {
+            "covered" : 12,
+            "percentage" : 100,
+            "total" : 12
+         },
+         "subroutine" : {
+            "covered" : 4,
+            "percentage" : 100,
+            "total" : 4
+         },
+         "total" : {
+            "covered" : 16,
+            "percentage" : 100,
+            "total" : 16
+         }
+      },
+      "www/lib/VWF/Blacklist.pm" : {
+         "branch" : {
+            "covered" : 0,
+            "error" : 6,
+            "percentage" : 0,
+            "total" : 6,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 0,
+            "error" : 7,
+            "percentage" : 0,
+            "total" : 7,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 21,
+            "error" : 16,
+            "percentage" : 56.7567567567568,
+            "total" : 37
+         },
+         "subroutine" : {
+            "covered" : 7,
+            "error" : 3,
+            "percentage" : 70,
+            "total" : 10
+         },
+         "total" : {
+            "covered" : 28,
+            "error" : 32,
+            "percentage" : 46.6666666666667,
+            "total" : 60,
+            "uncoverable" : 0
+         }
+      }
+   }
+}
