@@ -331,14 +331,19 @@ sub text
 	my ($self, $key, $args) = @_;
 
 	# Programming errors, reported clearly rather than as an
-	# "uninitialized" warning or Perl's "Not a HASH reference"
-	croak($self->text('missing_key')) if(!defined($key) || ref($key) || !length($key));
+	# "uninitialized" warning or Perl's "Not a HASH reference".  These two
+	# messages come straight from the lexicon with maketext(), never
+	# through text() again: an error path that calls the routine it guards
+	# can recurse for ever if the guard is ever wrong (mutation testing
+	# found exactly that).  Their single value is the [_1] of
+	# %ARGUMENT_ORDER.
+	croak($self->maketext('missing_key')) if(!defined($key) || ref($key) || !length($key));
 
 	# The values are undef (none) or a hash reference; nothing else.  "||="
 	# used to turn "" and 0 into "no values" too, which broke that rule.
 	$args //= {};
 	if(ref($args) ne 'HASH') {
-		croak($self->text('bad_values', { type => ref($args) || 'SCALAR' }));
+		croak($self->maketext('bad_values', ref($args) || 'SCALAR'));
 	}
 
 	# Unknown keys still produce something readable; see POD above

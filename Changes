@@ -69,9 +69,14 @@ Revision history for App-Syslogd
 	  socket, which run() guarantees, so the unreachable not_listening
 	  message is gone; _csv_line() no longer re-checks string(), which
 	  Text::CSV defines whenever combine() succeeds
+	- App::Syslogd::I18N::text() reports its own errors with maketext()
+	  instead of calling text() again, so a wrong guard can no longer
+	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
-	- t/logic.t: each logical gate proved at its boundaries
+	- t/logic.t: truth tables of every boolean expression (with De Morgan
+	  checks), the Z invariants before, during and after work, and every
+	  transition of the state diagram
 	- t/domain.t: equivalence partitions and boundaries of every input;
 	  the POD now documents each input's domains
 	- t/integration.t: end-to-end workflows, the program, and both
