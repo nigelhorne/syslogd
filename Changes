@@ -74,6 +74,8 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- t/path.t: one test for every path through every routine; path
+	  analysis found no dead code and no loops to simplify
 	- t/logic.t: truth tables of every boolean expression (with De Morgan
 	  checks), the Z invariants before, during and after work, and every
 	  transition of the state diagram
