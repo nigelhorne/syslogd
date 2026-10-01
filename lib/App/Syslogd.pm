@@ -26,6 +26,7 @@ use CHI;
 use Fcntl qw(O_WRONLY O_APPEND O_CREAT SEEK_END);
 use IO::Handle;
 use IO::Socket::IP;
+use Object::Configure;
 use Params::Get;
 use Params::Validate::Strict;
 use Readonly;
@@ -573,6 +574,8 @@ sub new
 		schema => \%NEW_SCHEMA,
 		input => Params::Get::get_params(undef, \@_) || {},
 	});
+
+	$args = Object::Configure::configure($class, $args // {});
 
 	# An undef value means "use the default": without this,
 	# new(file => undef) replaced the default with undef and failed later,

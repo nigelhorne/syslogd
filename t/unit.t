@@ -164,6 +164,15 @@ my $dir = tempdir(CLEANUP => 1);
 my $serial = 0;
 my $WINDOWS = ($^O eq 'MSWin32');
 
+# Can this Perl say how long a running alarm has left?  On Windows alarm()
+# is emulated and alarm(0) always returns 0, so the "alarm still running"
+# check cannot be made there; it is skipped rather than failed.
+my $ALARM_REPORTS_REMAINING = do {
+	local $SIG{ALRM} = sub { };
+	alarm($CONFIG{alarm_seconds});
+	alarm(0) > 0;
+};
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -214,7 +223,10 @@ sub keeps_state {
 	is($_, $CONFIG{sentinel_underscore}, "$name leaves \$_ alone");
 	is($@, $CONFIG{sentinel_eval_error}, "$name leaves \$\@ alone");
 	is($errno, $CONFIG{sentinel_errno}, "$name leaves \$! alone");
-	cmp_ok($remaining, '>=', $CONFIG{alarm_seconds} - $CONFIG{alarm_slack}, "$name leaves the alarm running");
+	SKIP: {
+		skip("this Perl's alarm() cannot report the time left", 1) unless($ALARM_REPORTS_REMAINING);
+		cmp_ok($remaining, '>=', $CONFIG{alarm_seconds} - $CONFIG{alarm_slack}, "$name leaves the alarm running");
+	}
 	return $result;
 }
 

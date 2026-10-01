@@ -35,6 +35,7 @@ WriteMakefile(
 		'IO::Socket::IP' => 0,
 		'IPC::System::Simple' => 0,	# needed by autodie qw(:all)
 		'Locale::Maketext' => 0,
+		'Object::Configure' => 0.24,
 		'Params::Get'  => 0.17,
 		'Params::Validate::Strict' => 0.40,
 		'parent'       => 0,
