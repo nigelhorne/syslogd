@@ -74,6 +74,12 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- Security: NUL bytes are refused in address, file and language; a
+	  NUL made the server bind to a different address than it reported
+	- POD: a SECURITY section (the attack surface and its protections)
+	  and security invariants in the formal specification
+	- t/cgi_security.t: simulated penetration tests (command injection,
+	  traversal, NUL bytes, markup, line injection, taint mode)
 	- t/path.t: one test for every path through every routine; path
 	  analysis found no dead code and no loops to simplify
 	- t/logic.t: truth tables of every boolean expression (with De Morgan

@@ -440,6 +440,10 @@ Domains (equivalence partitions and boundaries; t/domain.t tests each):
     +-----------------+--------------------------------+-----------------------+-------------------------------+
 ```
 
+`address`, `file` and `language` must not contain a NUL byte (refused:
+"must match pattern"): the C library would stop reading at the NUL, so the
+server would bind or write somewhere other than the value it reports.
+
 An undef value is in no partition: it means "use the default".  Options
 are checked one by one, so the error names the first invalid option even
 when the others are at their limits.
@@ -468,6 +472,8 @@ when the others are at their limits.
     |                                    |   at 1)                  |                             |
     | validate_strict: Parameter         | Not a true/false value   | Use 1, 0, true, false, yes, |
     |   'resolve' (x) must be a boolean  |                          |   no, on, off, TRUE, FALSE  |
+    | validate_strict: Parameter 'X'     | address, file or language| Remove the NUL byte         |
+    |   (x) must match pattern ...       |   contains a NUL byte    |                             |
     +------------------------------------+--------------------------+-----------------------------+
 ```
 
@@ -1169,6 +1175,37 @@ The keys, the values each one uses, and the English text:
     +---------------+------------------------+--------------------------------------------------+
 ```
 
+## Security
+
+This module is not a CGI program: it reads no HTTP request, no
+`QUERY_STRING`, `PATH_INFO`, cookies or other `HTTP_*` variables, and
+never reads standard input.  It writes CSV, not HTML.  Its untrusted
+inputs, and what protects against each, are:
+
+```
+    +----------------------+--------------------------+----------------------------------------+
+    | Input                | Controlled by            | Protection                             |
+    +----------------------+--------------------------+----------------------------------------+
+    | UDP datagrams        | anyone who can reach the | stored as data only; control           |
+    |                      | port                     | characters written as \xNN (no forged  |
+    |                      |                          | lines, no terminal escapes); never     |
+    |                      |                          | reflected into warnings or errors      |
+    | reverse-DNS names    | whoever owns the         | escaped like messages                  |
+    |                      | sender's address         |                                        |
+    | App__Syslogd__*      | whoever starts the       | validated like arguments; tainted      |
+    | variables, config    | server                   | values are refused under perl -T       |
+    | files                |                          | (never untainted)                      |
+    | LANG, LANGUAGE, LC_* | whoever starts the       | a tag can only select a lexicon        |
+    |                      | server                   | package; unknown tags give English     |
+    +----------------------+--------------------------+----------------------------------------+
+```
+
+It never runs another program (no `system`, `exec`, backticks or piped
+`open`), so shell metacharacters in any input are only ever text.  File
+names are passed to the system directly, never to a shell.  Markup such as
+`<script>` in a message is stored unchanged: a program that shows the
+log in a web page (for example the viewer in `www/`) must HTML-encode it.
+
 ## Limitations
 
 - **The default log file is in /tmp.**  This keeps compatibility with
@@ -1435,6 +1472,28 @@ things in words.
         out! = render(lexicon(language, key?),
                       ⟨args?(n) | n ∈ ARGUMENT_ORDER(key?)⟩)
       key? ∉ dom ARGUMENT_ORDER ⇒ key? ⊑ out!
+```
+
+### Security Invariants
+
+```
+    Commands ≙ { system, exec, readpipe, pipe-open }
+    Datagram, Line : seq BYTE
+
+    NoExecution
+      ∀ op : operations(App::Syslogd) • calls(op) ∩ Commands = ∅
+
+    LineIntegrity
+      ∀ d? : Datagram ; peer? : SOCKADDR •
+        #{ l : lines(record(d?, peer?)) } = 1 ∧
+        ran record(d?, peer?) ∩ ({0 .. 31} ∪ {127} \ {LF}) = ∅
+
+    NoReflection
+      ∀ d? : Datagram ; m : warnings ∪ errors •
+        #d? > 2 ⇒ ¬ (stripPRI(d?) ⊑ m)
+
+    NoNul
+      ∀ o : {address, file, language} • 0 ∉ ran args?(o)
 ```
 
 ## State Diagram

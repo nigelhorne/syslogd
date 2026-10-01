@@ -10,6 +10,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 README.md
 t/00-load.t
+t/cgi_security.t
 t/data-flow.t
 t/domain.t
 t/edge_cases.t

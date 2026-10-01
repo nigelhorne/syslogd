@@ -98,15 +98,20 @@ Readonly my @CSV_HEADER => qw(Host facility severity msg);
 # What Object::Configure adds that is kept on the object, besides settings
 Readonly my @CONFIGURE_EXTRAS => qw(logger config_path);
 
+# Strings that reach the C library (bind, open, the locale) must not hold
+# a NUL: C stops reading there, so "127.0.0.1\0.evil" would bind to
+# 127.0.0.1 while the object (and every message) named something else.
+Readonly my $NO_NUL => qr/\A[^\x00]+\z/;
+
 # Parameter schema shared by new() and the API SPECIFICATION in the POD
 Readonly my %NEW_SCHEMA => (
 	port => { type => 'integer', min => 0, max => 65_535, optional => 1 },
-	address => { type => 'string', min => 1, optional => 1 },
-	file => { type => 'string', min => 1, optional => 1 },
+	address => { type => 'string', min => 1, matches => $NO_NUL, optional => 1 },
+	file => { type => 'string', min => 1, matches => $NO_NUL, optional => 1 },
 	resolve => { type => 'boolean', optional => 1 },
 	dns_ttl => { type => 'integer', min => 0, optional => 1 },
 	dns_cache_bytes => { type => 'integer', min => 1, optional => 1 },
-	language => { type => 'string', min => 1, optional => 1 },
+	language => { type => 'string', min => 1, matches => $NO_NUL, optional => 1 },
 	cache => { type => 'object', can => ['compute'], optional => 1 },
 	socket => { type => 'object', can => ['recv'], optional => 1 },
 );
@@ -591,6 +596,10 @@ Domains (equivalence partitions and boundaries; t/domain.t tests each):
 	|                 | recv()                         |                       | object without the method     |
 	+-----------------+--------------------------------+-----------------------+-------------------------------+
 
+C<address>, C<file> and C<language> must not contain a NUL byte (refused:
+"must match pattern"): the C library would stop reading at the NUL, so the
+server would bind or write somewhere other than the value it reports.
+
 An undef value is in no partition: it means "use the default".  Options
 are checked one by one, so the error names the first invalid option even
 when the others are at their limits.
@@ -616,6 +625,8 @@ when the others are at their limits.
 	|                                    |   at 1)                  |                             |
 	| validate_strict: Parameter         | Not a true/false value   | Use 1, 0, true, false, yes, |
 	|   'resolve' (x) must be a boolean  |                          |   no, on, off, TRUE, FALSE  |
+	| validate_strict: Parameter 'X'     | address, file or language| Remove the NUL byte         |
+	|   (x) must match pattern ...       |   contains a NUL byte    |                             |
 	+------------------------------------+--------------------------+-----------------------------+
 
 =head3 PSEUDOCODE
@@ -1837,6 +1848,35 @@ sub _escape_controls
 	}
 }
 
+=head1 SECURITY
+
+This module is not a CGI program: it reads no HTTP request, no
+C<QUERY_STRING>, C<PATH_INFO>, cookies or other C<HTTP_*> variables, and
+never reads standard input.  It writes CSV, not HTML.  Its untrusted
+inputs, and what protects against each, are:
+
+	+----------------------+--------------------------+----------------------------------------+
+	| Input                | Controlled by            | Protection                             |
+	+----------------------+--------------------------+----------------------------------------+
+	| UDP datagrams        | anyone who can reach the | stored as data only; control           |
+	|                      | port                     | characters written as \xNN (no forged  |
+	|                      |                          | lines, no terminal escapes); never     |
+	|                      |                          | reflected into warnings or errors      |
+	| reverse-DNS names    | whoever owns the         | escaped like messages                  |
+	|                      | sender's address         |                                        |
+	| App__Syslogd__*      | whoever starts the       | validated like arguments; tainted      |
+	| variables, config    | server                   | values are refused under perl -T       |
+	| files                |                          | (never untainted)                      |
+	| LANG, LANGUAGE, LC_* | whoever starts the       | a tag can only select a lexicon        |
+	|                      | server                   | package; unknown tags give English     |
+	+----------------------+--------------------------+----------------------------------------+
+
+It never runs another program (no C<system>, C<exec>, backticks or piped
+C<open>), so shell metacharacters in any input are only ever text.  File
+names are passed to the system directly, never to a shell.  Markup such as
+C<< <script> >> in a message is stored unchanged: a program that shows the
+log in a web page (for example the viewer in F<www/>) must HTML-encode it.
+
 =head1 LIMITATIONS
 
 =over 4
@@ -2104,6 +2144,26 @@ things in words.
 	    out! = render(lexicon(language, key?),
 	                  ⟨args?(n) | n ∈ ARGUMENT_ORDER(key?)⟩)
 	  key? ∉ dom ARGUMENT_ORDER ⇒ key? ⊑ out!
+
+=head2 Security invariants
+
+	Commands ≙ { system, exec, readpipe, pipe-open }
+	Datagram, Line : seq BYTE
+
+	NoExecution
+	  ∀ op : operations(App::Syslogd) • calls(op) ∩ Commands = ∅
+
+	LineIntegrity
+	  ∀ d? : Datagram ; peer? : SOCKADDR •
+	    #{ l : lines(record(d?, peer?)) } = 1 ∧
+	    ran record(d?, peer?) ∩ ({0 .. 31} ∪ {127} \ {LF}) = ∅
+
+	NoReflection
+	  ∀ d? : Datagram ; m : warnings ∪ errors •
+	    #d? > 2 ⇒ ¬ (stripPRI(d?) ⊑ m)
+
+	NoNul
+	  ∀ o : {address, file, language} • 0 ∉ ran args?(o)
 
 =head1 STATE DIAGRAM
 

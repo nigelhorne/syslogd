@@ -236,10 +236,12 @@ subtest 'security: the language tag cannot load code or files' => sub {
 	# Purpose: Locale::Maketext turns the tag into a module name and loads
 	# it; a hostile tag must not run code or reach outside the lexicons
 	my $sentinel = new_path('pwned');
-	foreach my $tag (qq{en; system("touch $sentinel")}, '../../../../etc/passwd', 'en::Evil', "en\0x", 'x' x 10_000) {
+	foreach my $tag (qq{en; system("touch $sentinel")}, '../../../../etc/passwd', 'en::Evil', 'x' x 10_000) {
 		my $server = App::Syslogd->new(language => $tag);
 		isa_ok($server->{lh}, 'App::Syslogd::I18N::en', 'falls back to English');
 	}
+	# A NUL would be cut off by the C library; it is refused outright
+	throws_ok { App::Syslogd->new(language => "en\0x") } qr/Parameter 'language' .*must match pattern/, 'a NUL in the tag is refused';
 	ok(!-e $sentinel, 'no command was run');
 };
 
