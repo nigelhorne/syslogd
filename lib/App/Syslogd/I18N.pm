@@ -39,6 +39,7 @@ Readonly my %ARGUMENT_ORDER => (
 	not_a_datagram => [qw(type)],
 	missing_key => [],
 	bad_values => [qw(type)],
+	no_progress => [],
 );
 
 =encoding utf8
@@ -265,6 +266,7 @@ The keys, and the values each one uses (in slot order C<[_1]>, C<[_2]>,
 	| not_a_datagram| type                 |
 	| missing_key   | (none)               |
 	| bad_values    | type                 |
+	| no_progress   | (none)               |
 	+---------------+----------------------+
 
 Returns: the message, as a string.  An unknown key does not die: it returns

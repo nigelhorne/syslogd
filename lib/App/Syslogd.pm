@@ -14,6 +14,11 @@ use autodie qw(:all);
 # about their internals, so it is filtered here and nothing else is.
 # The helpers are protected at the bottom of this file; see there for why.
 BEGIN {
+	# TODO: Data Flow Anomaly - this global is defined here and never restored, so every
+	# package loaded later in the same process that uses Sub::Private also gets enforce
+	# mode instead of the default namespace mode.  It cannot be localised: Sub::Private
+	# reads it when it wraps the subs, at CHECK time.  Needs a per-package mode in
+	# Sub::Private (e.g. "use Sub::Private { mode => 'enforce' }").
 	$Sub::Private::config{mode} = 'enforce';
 	local $SIG{__WARN__} = sub { warn(@_) unless($_[0] =~ /\AToo late to run CHECK block /) };
 	require Sub::Private;
@@ -698,8 +703,11 @@ sub open_socket
 {
 	my $self = shift;
 
-	# Keep the caller's $! and $@ (see new())
+	# Keep the caller's $! and $@ (see new()).  $IO::Socket::errstr is a
+	# global too: start it empty, or a constructor that fails without
+	# setting it would report an older, unrelated socket error.
 	local ($!, $@);
+	local $IO::Socket::errstr = '';
 
 	# IO::Socket::IP handles both families; IO::Socket::INET is IPv4-only
 	$self->{socket} ||= IO::Socket::IP->new(
@@ -1047,11 +1055,12 @@ sub parse_message
 	return undef if(length($text) < $MIN_MESSAGE_LENGTH);
 
 	# 1-3 digits, no leading zeros except "<0>" itself (RFC 5424 6.2.1)
-	my ($pri, $body) = $text =~ /\A<(0|[1-9][0-9]{0,2})>(.*)\z/s;
-	my $valid = (defined($pri) && ($pri <= $MAX_PRI)) ? 1 : 0;
+	my @match = $text =~ /\A<(0|[1-9][0-9]{0,2})>(.*)\z/s;
+	my $valid = (@match && ($match[0] <= $MAX_PRI)) ? 1 : 0;
 
-	# RFC 3164 4.3.3: keep the whole datagram rather than discarding it
-	($pri, $body) = ($DEFAULT_PRI, $text) unless($valid);
+	# RFC 3164 4.3.3: keep the whole datagram rather than discarding it.
+	# Each value is assigned once, from the right source.
+	my ($pri, $body) = $valid ? @match : ($DEFAULT_PRI, $text);
 
 	return {
 		facility => int($pri / $SEVERITIES_PER_FACILITY),
@@ -1259,6 +1268,10 @@ sub run
 	# local, so the flag is cleared however run() ends: normally, or by
 	# dying when a reopen after SIGHUP fails
 	local $self->{running} = 1;
+
+	# Also local: a SIGHUP that arrives with the stop signal must not be
+	# left set, or the next run() would reopen the log for no reason
+	local $self->{reopen_requested} = 0;
 	while($self->{running}) {
 		# Perl does not use SA_RESTART, so a signal interrupts recv()
 		# and we get here promptly to act on it
@@ -1400,6 +1413,8 @@ The keys, the values each one uses, and the English text:
 	| missing_key   | (none)                 | A message key is needed                          |
 	| bad_values    | type                   | Message values must be a hash reference (the     |
 	|               |                        |   type given was TYPE)                           |
+	| no_progress   | (none)                 | the system accepted no data (the ERROR part of   |
+	|               |                        |   write_failed when a write makes no progress)   |
 	+---------------+------------------------+--------------------------------------------------+
 
 =cut
@@ -1451,6 +1466,9 @@ sub _open_log
 	my $self = shift;
 	my $file = $self->{file};
 
+	# The eval below must not touch the caller's $@
+	local $@;
+
 	# O_NOFOLLOW: the default lives in /tmp, where anyone could plant a
 	# symlink to /etc/shadow before root starts us.  O_APPEND: rows from
 	# one write() are never interleaved with another writer's.
@@ -1465,6 +1483,7 @@ sub _open_log
 	# for us to fill with their reading material, so check after opening
 	my @st = stat($fh);
 	if((!-f _) || ($st[4] != $>) || ($st[3] != 1)) {
+		_discard($fh);
 		croak($self->i18n('unsafe_file', { file => $file }));
 	}
 
@@ -1473,10 +1492,34 @@ sub _open_log
 	binmode($fh);
 
 	# Header only on an empty file, so a reopened file is not given a
-	# second header row half way down
-	$self->_write_header($fh) if(-z $fh);
+	# second header row half way down.  If that fails the handle is
+	# closed here, not left for the garbage collector.
+	if(-z $fh) {
+		eval { $self->_write_header($fh); 1 } or do {
+			my $error = $@;
+			_discard($fh);
+			die $error;
+		};
+	}
 
 	return $fh;
+}
+
+# _discard
+# Purpose:	close a handle that is being abandoned because of an error.
+# Entry:	$fh an open handle.
+# Exit:		nothing useful.
+# Side Effects:	closes $fh, ignoring a failure: the caller is already
+#		reporting a more useful error, and under autodie a failed
+#		close() would replace it.
+sub _discard
+{
+	my $fh = shift;
+
+	no autodie qw(close);
+	close($fh);
+
+	return;
 }
 
 # _write_header
@@ -1524,8 +1567,9 @@ sub _append_line
 	}
 	return undef if($done == length($line));
 
-	# Remember the error before truncate can change $!
-	my $error = "$!";
+	# Remember the error before truncate can change $!.  A write that
+	# returned 0 made no progress but set no error, so $! would be stale.
+	my $error = $! ? "$!" : $self->i18n('no_progress');
 	truncate($fh, $start) if($done && defined($start));
 
 	return $error;
@@ -1557,11 +1601,17 @@ sub _shutdown
 {
 	my $self = shift;
 
-	if(my $socket = delete $self->{socket}) {
-		$socket->close();
-	}
+	# Close the log even if closing the socket dies, then pass that
+	# error on: otherwise a broken socket would leave the log open too.
+	# The eval must not touch the caller's $@.
+	local $@;
+	my $socket = delete $self->{socket};
+	my $ok = eval { $socket->close() if($socket); 1 };
+	my $error = $@;
+	$self->_close_log();
+	die $error unless($ok);
 
-	return $self->_close_log();
+	return $self;
 }
 
 # _write_row
@@ -1672,7 +1722,7 @@ sub _escape_controls
 	Readonly my %PROTECTION => (
 		'Sub::Private' => [qw(
 			_receive _open_log _write_header _append_line _close_log
-			_shutdown _write_row _csv_line _escape_controls
+			_shutdown _write_row _csv_line _escape_controls _discard
 		)],
 		# Protected, not private: a subclass may override it (see SYNOPSIS)
 		'Sub::Protected' => [qw(_peer_name)],

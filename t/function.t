@@ -80,6 +80,7 @@ Readonly my %ARGUMENT_ORDER => (
 	not_a_datagram => [qw(type)],
 	missing_key => [],
 	bad_values => [qw(type)],
+	no_progress => [],
 );
 
 # Output schemas copied from the POD's API SPECIFICATION sections

@@ -943,6 +943,8 @@ The keys, the values each one uses, and the English text:
         | missing_key   | (none)                 | A message key is needed                          |
         | bad_values    | type                   | Message values must be a hash reference (the     |
         |               |                        |   type given was TYPE)                           |
+        | no_progress   | (none)                 | the system accepted no data (the ERROR part of   |
+        |               |                        |   write_failed when a write makes no progress)   |
         +---------------+------------------------+--------------------------------------------------+
 
 # LIMITATIONS

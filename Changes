@@ -54,9 +54,16 @@ Revision history for App-Syslogd
 	  address gives an empty Host instead of a Socket error
 	- App::Syslogd::I18N::text() reports a missing key or values that are
 	  not a hash reference clearly
+	- Data-flow fixes: run() no longer leaves a SIGHUP request set for the
+	  next run(); a failed or refused log open closes its handle at once;
+	  a socket whose close() dies no longer leaves the log open; socket
+	  errors no longer report a stale $IO::Socket::errstr; a write that
+	  makes no progress reports "the system accepted no data" instead of
+	  a stale $!
 	- t/function.t: white-box tests of every function
 	- t/unit.t: black-box tests of every documented message and state
 	- t/edge_cases.t: hostile, boundary and security tests
+	- t/data-flow.t: define-use chains and resource lifecycles
 	- t/integration.t: end-to-end workflows, the program, and both
 	  Text::CSV backends
 	- Documentation rewritten in plain English, with ENCODING, COMMON

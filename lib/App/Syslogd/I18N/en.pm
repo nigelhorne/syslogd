@@ -28,6 +28,7 @@ our %Lexicon = (
 	not_a_datagram => 'A datagram must be a string (the type given was [_1])',
 	missing_key => 'A message key is needed',
 	bad_values => 'Message values must be a hash reference (the type given was [_1])',
+	no_progress => 'the system accepted no data',
 );
 
 =head1 NAME
