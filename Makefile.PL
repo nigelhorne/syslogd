@@ -54,6 +54,7 @@ WriteMakefile(
 		'File::Temp'   => 0,
 		'POSIX'        => 0,
 		'Scalar::Util' => 0,
+		'Test::DescribeMe' => 0,
 		'Test::Memory::Cycle' => 0,
 		'Test::Mockingbird' => 0.14,	# mock_scoped multi-method form
 		'Test::Most'   => 0,
@@ -85,7 +86,7 @@ WriteMakefile(
 				# passed in.
 				recommends => { 'IP::Country::Fast' => 0, 'CGI::ACL' => 0, 'CHI' => 0 },
 			}, develop => {
-				# The author tests in xt/
+				# The author tests
 				requires => { 'Test::Perl::Critic' => 0, 'Test::Pod' => 0, 'Test::Pod::Coverage' => 0 },
 			},
 		},
