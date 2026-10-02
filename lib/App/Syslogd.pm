@@ -29,7 +29,7 @@ use Carp qw(carp croak);
 use Config;
 use Fcntl qw(O_RDWR O_APPEND O_CREAT SEEK_SET SEEK_END);
 use IO::Handle;
-use IO::Socket::IP;
+use IO::Socket::IP ();	# (): IO::Socket would export all of Socket's constants as methods
 use Object::Configure;
 use overload ();
 use Params::Get;
@@ -41,7 +41,7 @@ use Text::CSV;
 use App::Syslogd::Cache;
 use App::Syslogd::I18N;
 
-our $VERSION = '0.02';
+our $VERSION = '0.002.0';
 
 # Every tunable lives here, so it can be overridden from new() and so
 # nothing in the code below is a magic number
@@ -73,7 +73,7 @@ Readonly::Scalar my $MAX_PRI => 191;
 Readonly::Scalar my $DEFAULT_PRI => 13;
 
 # The log holds other hosts' messages, so only its owner may read it
-Readonly::Scalar my $LOG_MODE => 0600;
+Readonly::Scalar my $LOG_MODE => 0600;	## no critic (ProhibitLeadingZeros): a file mode is octal
 
 # O_NOFOLLOW is not defined everywhere: on Windows, Fcntl exports the name
 # but calling it dies ("Your vendor has not defined Fcntl macro").  Where it
@@ -127,7 +127,7 @@ App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
 =head1 VERSION
 
-Version 0.02
+Version 0.002.0
 
 =head1 SYNOPSIS
 
@@ -140,7 +140,7 @@ until it receives SIGTERM or SIGINT (Ctrl-C).
 
 	my $server = App::Syslogd->new(
 		port => 5514,				# 514 needs root
-		file => '/var/log/remote-syslog.csv',
+		file => '/var/log/syslogd/remote.csv',
 	);
 	$server->open_socket()->reopen_log();	# fail now, not later
 	print $server->i18n('listening', {
@@ -205,6 +205,11 @@ C<_peer_name()> is protected: a subclass may replace it.
 	}
 
 =head1 DESCRIPTION
+
+This distribution has two parts: the module App::Syslogd, and the program
+F<etc/syslogd> that wraps it.  Installing from CPAN installs only the
+module.  The program is not installed by C<make install>; copy it by hand
+(see L</INSTALLATION>).
 
 =head2 What syslog is
 
@@ -1350,7 +1355,7 @@ sub parse_message
 	# Senders disagree about terminators: "\n", "\r\n" and "\0" are all seen
 	(my $text = $datagram // '') =~ s/[\r\n\0]+\z//;
 
-	return undef if(length($text) < $MIN_MESSAGE_LENGTH);
+	return undef if(length($text) < $MIN_MESSAGE_LENGTH);	## no critic (ProhibitExplicitReturnUndef): documented, also in list context
 
 	# The PRI and the body, as RFC 5424 6.2.1 writes them.  Linear on
 	# any input: anchored at the start, the digits capped at three, and
@@ -1957,7 +1962,7 @@ sub _append_line
 		last unless($written);
 		$done += $written;
 	}
-	return undef if($done == length($line));
+	return undef if($done == length($line));	## no critic (ProhibitExplicitReturnUndef): undef means success
 
 	# Remember the error before truncate can change $!.  A write that
 	# returned 0 made no progress but set no error, so $! would be stale.
@@ -2130,7 +2135,7 @@ sub _escape_controls
 		# Protected, not private: a subclass may override it (see SYNOPSIS)
 		'Sub::Protected' => [qw(_peer_name)],
 	);
-	no strict 'refs';
+	no strict 'refs';	## no critic (ProhibitNoStrict): reads and replaces subs by name
 	foreach my $module (sort keys %PROTECTION) {
 		my @names = @{$PROTECTION{$module}};
 		my %before = map { $_ => \&{__PACKAGE__ . "::$_"} } @names;
@@ -2194,7 +2199,7 @@ L</SAMPLE CONFIGURATION>.
 =item * B<The default directory must already exist.>  The server does not
 create directories: create F</var/log/syslog> (see L</INSTALLATION>), or the
 server stops with "Could not open log file ...: No such file or directory".
-Versions before 0.02 logged to F</tmp/syslog.log> by default.
+Versions before 0.002.0 logged to F</tmp/syslog.log> by default.
 
 =item * B<The web viewer cannot read the log.>  The file is readable only by
 its owner (usually root), but the web pages in F<www/> run as the web

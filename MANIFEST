@@ -13,6 +13,7 @@ README.md
 t/00-load.t
 t/cache.t
 t/cgi_security.t
+t/critic.t
 t/data-flow.t
 t/domain.t
 t/edge_cases.t
@@ -22,6 +23,8 @@ t/integration.t
 t/locales.t
 t/logic.t
 t/path.t
+t/pod-coverage.t
+t/pod.t
 t/server.t
 t/transaction.t
 t/transition.t

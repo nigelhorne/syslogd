@@ -22,17 +22,18 @@ requires 'autodie';
 requires 'parent';
 
 on 'test' => sub {
+	requires 'Config';
+	requires 'Cwd';
 	requires 'Errno';
+	requires 'File::Spec';
 	requires 'File::Temp';
 	requires 'IPC::Open3';
 	requires 'POSIX';
-	requires 'Readonly';
 	requires 'Scalar::Util';
 	requires 'Symbol';
 	requires 'Test::Memory::Cycle';
 	requires 'Test::Mockingbird', '0.14';   # mock_scoped multi-method form
 	requires 'Test::Most';
-	requires 'Test::Needs';
 	requires 'Test::Returns', '0.04';
 	requires 'Test::Warn';
 	requires 'Test::Without::Module';
@@ -46,6 +47,7 @@ on 'test' => sub {
 on 'develop' => sub {
 	requires 'Devel::Cover';
 	requires 'Perl::Critic';
+	requires 'Test::Perl::Critic';
 	requires 'Test::Pod';
 	requires 'Test::Pod::Coverage';
 };

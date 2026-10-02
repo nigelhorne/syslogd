@@ -18,7 +18,7 @@ until it receives SIGTERM or SIGINT (Ctrl-C).
 
     my $server = App::Syslogd->new(
             port => 5514,                           # 514 needs root
-            file => '/var/log/remote-syslog.csv',
+            file => '/var/log/syslogd/remote.csv',
     );
     $server->open_socket()->reopen_log();   # fail now, not later
     print $server->i18n('listening', {
@@ -92,6 +92,11 @@ activation, or one opened before giving up root.  `stop()` ends `run()`.
 ```
 
 ## Description
+
+This distribution has two parts: the module App::Syslogd, and the program
+`etc/syslogd` that wraps it.  Installing from CPAN installs only the
+module.  The program is not installed by `make install`; copy it by hand
+(see ["INSTALLATION"](#installation)).
 
 ### What Syslog Is
 

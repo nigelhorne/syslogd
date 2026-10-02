@@ -1,142 +1,66 @@
 Revision history for App-Syslogd
 
-0.02	Thu Oct  1 2026
-	First CPAN release, as App::Syslogd (the backend of
-	https://github.com/nigelhorne/syslogd).
+0.002.0	2026-10-02
+	First CPAN release.  The logic of the syslogd program
+	(https://github.com/nigelhorne/syslogd) moves into the module
+	App::Syslogd; etc/syslogd is now a thin wrapper around it.
+
+	Behaviour
 	- The default log file is now /var/log/syslog/syslog.csv (was
-	  /tmp/syslog.log); the directory must exist.  On Debian and Ubuntu
-	  /var/log/syslog is a file, so give --file there
-	- Logic moved out of etc/syslogd into App::Syslogd, which
-	  etc/syslogd now wraps
-	- SIGHUP closes and reopens the log file, for logrotate;
-	  SIGTERM/SIGINT stop cleanly
-	- Security: the log file is opened with O_NOFOLLOW and mode 0600;
-	  symlinks, hard links and files owned by other users are refused
-	- Proper CSV via Text::CSV; control characters (including
-	  newlines) written as \xNN so each record is one line
+	  /tmp/syslog.log), and its directory must already exist.  On
+	  Debian and Ubuntu /var/log/syslog is a file, so give --file there
+	- Proper CSV via Text::CSV; control characters (including newlines)
+	  are written as \xNN, so each record is one line
 	- A message without a valid PRI (0-191) is recorded as user.notice,
 	  as RFC 3164 4.3.3 requires, rather than as a hex dump
-	- Host names via getnameinfo (honours /etc/hosts), cached with CHI;
-	  --no-resolve to log addresses; IPv6 and --address supported
-	- Datagrams up to 65535 bytes accepted without truncation
-	- Messages localisable through Locale::Maketext (English shipped)
-	- new(): an option given as undef now means "use the default"
-	  instead of replacing the default with undef
-	- process() with an undef sender records the message with an empty
-	  Host column instead of dying inside Socket::getnameinfo
-	- Windows: no longer dies because Fcntl does not define O_NOFOLLOW
-	  there, or because Perl has no fchmod there (an existing log's
-	  permissions are left alone); the tests skip what Windows cannot do (permission bits,
-	  symlinks, signals) and the real-UDP test no longer relies on
-	  alarm() interrupting recv()
-	- run() no longer leaves the object marked as running when it dies
-	  (e.g. a failed reopen after SIGHUP)
+	- Host names via getnameinfo (honours /etc/hosts), remembered in a
+	  small built-in cache, App::Syslogd::Cache; CHI is no longer needed,
+	  but a CHI object can still be passed as "cache".  --no-resolve
+	  logs addresses instead
+	- IPv6 and --address are supported; datagrams up to 65535 bytes are
+	  accepted without truncation
+	- SIGHUP closes and reopens the log file, for logrotate and
+	  newsyslog; SIGTERM and SIGINT stop cleanly
+	- Settings can also come from configuration files and
+	  App__Syslogd__* environment variables (Object::Configure), and are
+	  validated like arguments
+	- Messages can be translated through Locale::Maketext (English is
+	  shipped)
+	- etc/syslogd exits 0 (stopped cleanly), 1 (could not start, or
+	  failed) or 2 (started wrongly), and prints its status lines at once
+	- Faster: with names looked up, a datagram takes about 27
+	  microseconds instead of 42 (the built-in cache), and about 25%
+	  less again from cheaper constants and no seek before each write
+
+	Security
+	- The log file is opened with O_NOFOLLOW, O_NONBLOCK and mode 0600.
+	  Symbolic links, hard links, FIFOs and files owned by another user
+	  are refused
+	- An existing log file must be empty or start with the column-names
+	  line; any other file is refused and left untouched, so even as
+	  root a wrong --file cannot append to /etc/passwd
+	- NUL bytes are refused in the address, file and language settings
+	- Control characters in reverse-DNS names are escaped, as they are
+	  in messages
+	- etc/syslogd refuses to run from a web server, and works under
+	  perl -T (the module must then be installed, or given with -I)
+
+	Reliability
+	- A failed write never leaves half a line in the log, and is
+	  reported instead of being lost
+	- run() starts all or nothing, refuses to be run again from inside
+	  its own loop, and never leaves the object marked as running
+	- A failing DNS cache falls back to the address instead of stopping
+	  the server
 	- new(), open_socket(), reopen_log(), process() and run() no longer
 	  change the caller's $! or $@
-	- Log lines are written with syswrite: a failed write no longer
-	  leaves data in Perl's buffer (which made the next close() die and
-	  added an "unable to close filehandle" warning), and a line that
-	  only partly fitted is removed, so the CSV never holds a half line
-	- Loading the module at run time (require) no longer warns "Too late
-	  to run CHECK block", and no longer leaves the private helpers
-	  callable from outside
-	- etc/syslogd flushes its status lines, so "listening" appears at
-	  once under systemd or a pipe, not only at exit
-	- Settings from Object::Configure (configuration files and
-	  App__Syslogd__* environment variables) are validated like
-	  arguments; they used to be accepted unchecked
-	- Security: a FIFO at the log path is refused instead of hanging the
-	  server for ever at start-up (O_NONBLOCK)
-	- Security: control characters in reverse-DNS names are escaped in
-	  the Host column, as they are in the message
-	- A failing DNS cache (or one that answers nothing) falls back to the
-	  address instead of killing process() and run()
-	- A row that Text::CSV refuses is reported as a write failure instead
-	  of being silently lost
-	- parse_message() refuses references; a sender that is not a packed
-	  address gives an empty Host instead of a Socket error
-	- App::Syslogd::I18N::text() reports a missing key or values that are
-	  not a hash reference clearly
-	- Data-flow fixes: run() no longer leaves a SIGHUP request set for the
-	  next run(); a failed or refused log open closes its handle at once;
-	  a socket whose close() dies no longer leaves the log open; socket
-	  errors no longer report a stale $IO::Socket::errstr; a write that
-	  makes no progress reports "the system accepted no data" instead of
-	  a stale $!
-	- t/function.t: white-box tests of every function
-	- t/unit.t: black-box tests of every documented message and state
-	- t/edge_cases.t: hostile, boundary and security tests
-	- t/data-flow.t: define-use chains and resource lifecycles
-	- Logic reductions: run() calls open_socket() unconditionally (it is
-	  a no-op when a socket is open); _receive() no longer re-checks the
-	  socket, which run() guarantees, so the unreachable not_listening
-	  message is gone; _csv_line() no longer re-checks string(), which
-	  Text::CSV defines whenever combine() succeeds
-	- App::Syslogd::I18N::text() reports its own errors with maketext()
-	  instead of calling text() again, so a wrong guard can no longer
-	  recurse for ever (found by mutation testing)
-	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
-	  domain says; they were silently treated as "no values"
-	- t/cgi_security.t: -T child processes are given the module path
-	  (perl ignores PERL5LIB under -T, so modules installed in a private
-	  directory, as on CI, were not found)
-	- run() refuses to run again while it is already running (from inside
-	  its own loop): the inner run used to close the socket and the log,
-	  and the outer loop then died
-	- POD: the state diagram gains the transitions the code already had
-	  (a failed write, a broken socket, a failed socket close, a failed
-	  start, an invalid new())
-	- t/transition.t: reads the transition tables from the POD and fails
-	  if a documented transition has no test, or a tested one is not
-	  documented
-	- run() starts all or nothing: if the log cannot be opened, a socket
-	  that run() opened itself is closed again instead of being left
-	  bound (a socket from the caller is left open)
-	- t/transaction.t: each multi-step operation (record, open, rotate,
-	  start/stop, cache fill) run to the end, broken half way and retried
-	- POD: LIMITATIONS now states the real risk of the /tmp default (a
-	  local user can create the file first, so the server will not start)
-	- Regex audit: no regular expression can backtrack badly (each was
-	  timed against hostile 64 KB input); the PRI regex is now written
-	  with /x and commented
-	- Performance: a built-in cache for host names, App::Syslogd::Cache,
-	  replaces the default CHI cache.  A cache hit was a third of the time
-	  per datagram; with names looked up, a datagram now takes about 27
-	  microseconds instead of 42.  CHI is no longer needed (a CHI object
-	  can still be passed as "cache").
-	- Performance: about 25% faster per datagram.  Scalar constants use
-	  Readonly::Scalar (Readonly my $x is a tied scalar, about 45 times
-	  slower to read), and a log line is no longer preceded by a seek:
-	  the start of a partial line is worked out only when a write fails
-	- POD: SAMPLE CONFIGURATION for systemd, FreeBSD rc.d/service,
-	  logrotate, newsyslog and Monit/M/Monit; a pitfall about
-	  copytruncate
-	- Security: an existing log file must be empty or start with the
-	  column-names line; any other file is refused and left untouched
-	  (before, as root, a wrong setting could append to and chmod any
-	  root-owned file, /etc/passwd included).  The log is now opened
-	  read-write so that its first line can be checked.
-	- Security: etc/syslogd refuses to run from a web server (as a CGI
-	  program a query without "=" became its command line, so a visitor
-	  could start a daemon writing where they chose)
-	- etc/syslogd works under perl -T: it no longer builds its library
-	  path from $0 there (the module must be installed or given with -I)
-	- etc/syslogd exits 0, 1 (could not start or failed) or 2 (started
-	  wrongly), instead of whatever $! held when it died; it now has POD
-	- Security: NUL bytes are refused in address, file and language; a
-	  NUL made the server bind to a different address than it reported
-	- POD: a SECURITY section (the attack surface and its protections)
-	  and security invariants in the formal specification
-	- t/cgi_security.t: simulated penetration tests (command injection,
-	  traversal, NUL bytes, markup, line injection, taint mode)
-	- t/path.t: one test for every path through every routine; path
-	  analysis found no dead code and no loops to simplify
-	- t/logic.t: truth tables of every boolean expression (with De Morgan
-	  checks), the Z invariants before, during and after work, and every
-	  transition of the state diagram
-	- t/domain.t: equivalence partitions and boundaries of every input;
-	  the POD now documents each input's domains
-	- t/integration.t: end-to-end workflows, the program, and both
-	  Text::CSV backends
-	- Documentation rewritten in plain English, with ENCODING, COMMON
-	  PITFALLS, FORMAL SPECIFICATION and STATE DIAGRAM sections
+	- Windows: works without O_NOFOLLOW and fchmod (an existing log's
+	  permissions are left alone there)
+
+	Documentation and tests
+	- The POD is rewritten in plain English, with INSTALLATION, SAMPLE
+	  CONFIGURATION (systemd, FreeBSD rc.d, logrotate, newsyslog,
+	  Monit), SECURITY, LIMITATIONS, a formal specification and a state
+	  diagram
+	- An extensive test suite, including security, taint-mode and
+	  state-machine tests

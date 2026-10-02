@@ -44,18 +44,19 @@ WriteMakefile(
 		'Sub::Protected' => 0.02,
 		'Text::CSV'    => 0,
 	}, TEST_REQUIRES => {
+		'Config'       => 0,
+		'Cwd'          => 0,
 		'Errno'        => 0,
+		'File::Spec'   => 0,
 		'IPC::Open3'   => 0,
 		'Symbol'       => 0,
 		'Time::HiRes'  => 0,
 		'File::Temp'   => 0,
 		'POSIX'        => 0,
-		'Readonly'     => 0,
 		'Scalar::Util' => 0,
 		'Test::Memory::Cycle' => 0,
 		'Test::Mockingbird' => 0.14,	# mock_scoped multi-method form
 		'Test::Most'   => 0,
-		'Test::Needs'  => 0,
 		'Test::Returns' => 0.04,
 		'Test::Without::Module' => 0,
 		'Text::CSV_PP' => 0,	# t/integration.t compares both backends
@@ -67,7 +68,7 @@ WriteMakefile(
 		resources => {
 			repository => {
 				type => 'git',
-				url  => 'git://github.com/nigelhorne/syslogd.git',
+				url  => 'https://github.com/nigelhorne/syslogd.git',
 				web  => 'https://github.com/nigelhorne/syslogd',
 			}, bugtracker => {
 				web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=App-Syslogd',
@@ -82,6 +83,9 @@ WriteMakefile(
 				# check in t/integration.t that a CHI cache can still be
 				# passed in.
 				recommends => { 'IP::Country::Fast' => 0, 'CGI::ACL' => 0, 'CHI' => 0 },
+			}, develop => {
+				# The author tests in xt/
+				requires => { 'Test::Perl::Critic' => 0, 'Test::Pod' => 0, 'Test::Pod::Coverage' => 0 },
 			},
 		},
 		# Keep the bundled web viewer out of the PAUSE index
