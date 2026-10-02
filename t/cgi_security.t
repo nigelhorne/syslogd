@@ -30,6 +30,7 @@ use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
 use Errno qw(EINTR ENOSPC);
+use Cwd ();
 use File::Spec;
 use File::Temp qw(tempdir);
 use IPC::Open3 qw(open3);
@@ -136,6 +137,17 @@ sub record {
 	return read_csv($file);
 }
 
+# Under -T, perl ignores PERL5LIB, so a child would not find modules
+# installed in a private directory (as CI does with "cpanm -l local").
+# Give a -T child the parent's module directories as -I options instead,
+# which taint mode honours.  This repository's own lib/ is left out: the
+# tests that need it say so with their own -I, and one test checks that
+# the program does not find it from $0.
+sub taint_inc {
+	my $own = Cwd::abs_path($CONFIG{lib}) // '';
+	return map { "-I$_" } grep { !ref($_) && -d $_ && (Cwd::abs_path($_) // '') ne $own } @INC;
+}
+
 # Run a script in a child perl; returns (exit, stdout, stderr).  The code
 # goes in a file (no -e quoting); @flags may add -T.
 sub run_child {
@@ -147,7 +159,8 @@ sub run_child {
 	my ($out, $err) = map { new_path("child$serial.$_") } qw(out err);
 	open(my $o, '>', $out) or die;
 	open(my $e, '>', $err) or die;
-	my $pid = open3(my $in, '>&' . fileno($o), '>&' . fileno($e), $^X, @flags, "-I$CONFIG{lib}", $script);
+	my @inc = (grep { $_ eq '-T' } @flags) ? taint_inc() : ();
+	my $pid = open3(my $in, '>&' . fileno($o), '>&' . fileno($e), $^X, @flags, @inc, "-I$CONFIG{lib}", $script);
 	close($in);
 	waitpid($pid, 0);
 	my $exit = $? >> 8;
@@ -396,7 +409,8 @@ sub run_program {
 	open(my $input, '<', $in_path) or die;
 	open(my $o, '>', $out) or die;
 	open(my $e, '>', $err) or die;
-	my $pid = open3('<&' . fileno($input), '>&' . fileno($o), '>&' . fileno($e), $^X, @{$perl_flags}, $CONFIG{program}, @{$args});
+	my @inc = (grep { $_ eq '-T' } @{$perl_flags}) ? taint_inc() : ();
+	my $pid = open3('<&' . fileno($input), '>&' . fileno($o), '>&' . fileno($e), $^X, @{$perl_flags}, @inc, $CONFIG{program}, @{$args});
 	waitpid($pid, 0);
 	my $exit = $? >> 8;
 	close($_) foreach($input, $o, $e);

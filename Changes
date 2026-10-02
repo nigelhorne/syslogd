@@ -74,6 +74,9 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- t/cgi_security.t: -T child processes are given the module path
+	  (perl ignores PERL5LIB under -T, so modules installed in a private
+	  directory, as on CI, were not found)
 	- run() refuses to run again while it is already running (from inside
 	  its own loop): the inner run used to close the socket and the log,
 	  and the outer loop then died
