@@ -290,7 +290,7 @@ a.intra-dot:hover { color: #7700bb; }
 <body>
 <button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
 <h1>lib/App/Syslogd/I18N.pm</h1>
-<div class="nav"><a href="../../../../index.html">Index</a>
+<div class="nav"><a href="Cache.pm.html">⬅ Previous</a> <a href="../../../../index.html">Index</a>
 </div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
 TER1 (Statement): 100.00%<br>
@@ -361,7 +361,7 @@ Approximate LCSAJ segments: 13<br>
 </span><span class="">   20: our $VERSION = &#39;0.02&#39;;
 </span><span class="">   21: 
 </span><span class="">   22: # Language used when nothing in the environment matches a lexicon we ship
-</span><span class="">   23: Readonly my $FALLBACK_LANGUAGE =&gt; &#39;en&#39;;
+</span><span class="">   23: Readonly::Scalar my $FALLBACK_LANGUAGE =&gt; &#39;en&#39;;
 </span><span class="">   24: 
 </span><span class="">   25: # The order in which each message&#39;s named arguments become [_1], [_2], ...
 </span><span class="">   26: # Translators of every language see the same positional slots, so this
@@ -573,10 +573,10 @@ Approximate LCSAJ segments: 13<br>
 </span><span class="">  232: 
 </span><span class="">  233: 	# Locale::Maketext returns undef when no lexicon matches, which is
 </span><span class="">  234: 	# never useful to a caller that just wants a message printed
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  235: 	my @tags = defined($language) ? ($language) : ();
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  236: 
-</span><span class="">  237: 	return $class-&gt;get_handle(@tags) || $class-&gt;get_handle($FALLBACK_LANGUAGE);
-</span><span class="">  238: }
+</span><span class="">  235: 	my @tags = defined($language) ? ($language) : ();
+</span><span class="">  236: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  237: 	return $class-&gt;get_handle(@tags) || $class-&gt;get_handle($FALLBACK_LANGUAGE);
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  238: }
 </span><span class="">  239: 
 </span><span class="">  240: =head2 text
 </span><span class="">  241: 
@@ -683,25 +683,25 @@ Approximate LCSAJ segments: 13<br>
 </span><span class="">  342: 	# found exactly that).  Their single value is the [_1] of
 </span><span class="">  343: 	# %ARGUMENT_ORDER.
 </span><span class="">  344: 	croak($self-&gt;maketext(&#39;missing_key&#39;)) if(!defined($key) || ref($key) || !length($key));
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  345: 
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  346: 	# The values are undef (none) or a hash reference; nothing else.  &quot;||=&quot;
+</span><span class="">  345: 
+</span><span class="">  346: 	# The values are undef (none) or a hash reference; nothing else.  &quot;||=&quot;
 </span><span class="">  347: 	# used to turn &quot;&quot; and 0 into &quot;no values&quot; too, which broke that rule.
 </span><span class="">  348: 	$args //= {};
-</span><span class="">  349: 	if(ref($args) ne &#39;HASH&#39;) {
-</span><span class="">  350: 		croak($self-&gt;maketext(&#39;bad_values&#39;, ref($args) || &#39;SCALAR&#39;));
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  351: 	}
-</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  352: 
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  353: 	# Unknown keys still produce something readable; see POD above
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">354 → 355 → 362</span></span>  354: 	my $order = $ARGUMENT_ORDER{$key};
-</span><span class="">  355: 	if(!defined($order)) {
-</span><span class="">  356: 		my $detail = join(&#39;, &#39;, map { &quot;$_=&quot; . ($args-&gt;{$_} // &#39;&#39;) } sort keys %{$args});
-</span><span class="">  357: 		return length($detail) ? &quot;$key ($detail)&quot; : $key;
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  358: 	}
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  359: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  349: 	if(ref($args) ne &#39;HASH&#39;) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  350: 		croak($self-&gt;maketext(&#39;bad_values&#39;, ref($args) || &#39;SCALAR&#39;));
+</span><span class="">  351: 	}
+</span><span class="">  352: 
+</span><span class="">  353: 	# Unknown keys still produce something readable; see POD above
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">354 → 355 → 362</span></span>  354: 	my $order = $ARGUMENT_ORDER{$key};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  355: 	if(!defined($order)) {
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  356: 		my $detail = join(&#39;, &#39;, map { &quot;$_=&quot; . ($args-&gt;{$_} // &#39;&#39;) } sort keys %{$args});
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  357: 		return length($detail) ? &quot;$key ($detail)&quot; : $key;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  358: 	}
+</span><span class="">  359: 
 </span><span class="">  360: 	# Missing arguments become empty strings so a sloppy caller gets a
 </span><span class="">  361: 	# slightly odd message instead of &quot;Use of uninitialized value&quot; noise
-</span><span class="">  362: 	return $self-&gt;maketext($key, map { $args-&gt;{$_} // &#39;&#39; } @{$order});
-</span><span class="">  363: }
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  362: 	return $self-&gt;maketext($key, map { $args-&gt;{$_} // &#39;&#39; } @{$order});
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  363: }
 </span><span class="">  364: 
 </span><span class="">  365: =head2 gender
 </span><span class="">  366: 
@@ -755,12 +755,12 @@ Approximate LCSAJ segments: 13<br>
 </span><span class="">  414: sub gender
 </span><span class="">  415: {
 </span><span class="">  416: 	my ($self, $gender, $male, $female, $neutral) = @_;
-</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  417: 
-</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  418: 	# A single lookup table keeps this to one return statement
+</span><span class="">  417: 
+</span><span class="">  418: 	# A single lookup table keeps this to one return statement
 </span><span class="">  419: 	my %form = (male =&gt; $male, female =&gt; $female);
 </span><span class="">  420: 
-</span><span class="">  421: 	return defined($gender) &amp;&amp; exists($form{lc $gender}) ? $form{lc $gender} : $neutral;
-</span><span class="">  422: }
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  421: 	return defined($gender) &amp;&amp; exists($form{lc $gender}) ? $form{lc $gender} : $neutral;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  422: }
 </span><span class="">  423: 
 </span><span class="">  424: =head1 LIMITATIONS
 </span><span class="">  425: 

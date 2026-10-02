@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>File: lib/App/Syslogd/Cache.pm</title>
+<style>
+
+/* --------------------------------------------------
+   CSS Variables (Light Mode Default)
+-------------------------------------------------- */
+
+:root {
+    --bg: #ffffff;
+    --text: #000000;
+    --table-header: #333;
+    --table-header-text: #ffffff;
+
+    --survived-1: #f8d7da;
+    --survived-2: #f5b7b1;
+    --survived-3: #ec7063;
+
+    --killed: #d4edda;
+    --border: #cccccc;
+}
+
+/* --------------------------------------------------
+   Dark Mode Overrides
+-------------------------------------------------- */
+
+html[data-theme='dark'] {
+    --bg: #1e1e1e;
+    --text: #dddddd;
+    --table-header: #222;
+    --table-header-text: #ffffff;
+
+    --survived-1: #5c2b2e;
+    --survived-2: #7b2c2f;
+    --survived-3: #a93226;
+
+    --killed: #1e4620;
+    --border: #555;
+}
+
+/* --------------------------------------------------
+   Global Styles
+-------------------------------------------------- */
+
+body {
+	font-family: sans-serif;
+	background: var(--bg);
+	color: var(--text);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    background: var(--table-header);
+    color: var(--table-header-text);
+}
+
+.survived-1 { background-color: var(--survived-1); }
+.survived-2 { background-color: var(--survived-2); }
+.survived-3 { background-color: var(--survived-3); }
+
+.killed { background-color: var(--killed); }
+
+.legend {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 0.9em;
+}
+
+.legend pre {
+    background: #f4f4f4;
+    padding: 5px;
+}
+
+.legend-box {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin: 0 6px 0 20px;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+}
+
+/* White box for non-mutated lines */
+.legend-box.none {
+	background-color: var(--bg);
+}
+
+/* --------------------------------------------------
+   Suggested Test Box Styling
+   Theme-aware and readable in light & dark modes
+-------------------------------------------------- */
+
+.suggested-test {
+    margin-top: 6px;
+    margin-bottom: 12px;
+
+    /* Use theme variables instead of hardcoded colors */
+    background: var(--bg);
+    color: var(--text);
+
+    padding: 8px;
+    border-radius: 4px;
+
+    /* Subtle border for visual separation */
+    border: 1px solid var(--border);
+}
+
+/* Label styling */
+.suggest-label {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+/* Ensure the test code block inherits readable colors */
+.suggested-test pre {
+    background: transparent;   /* Prevent nested dark blocks */
+    color: inherit;            /* Match theme text color */
+    margin: 0;
+    font-family: monospace;
+}
+
+pre { line-height: 1.4; }
+
+pre > details {
+    margin: 0.2em 0;
+}
+
+pre > details:first-child {
+    margin-top: 0;
+}
+
+pre > details:last-child {
+    margin-bottom: 0;
+}
+
+pre details,
+pre summary,
+pre ul,
+pre li {
+    white-space: normal;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+}
+
+.nav { margin-bottom: 1em; }
+
+.toggle {
+    float: right;
+    cursor: pointer;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+/* Tooltip container */
+.tooltip {
+	position: relative;
+	cursor: help;
+}
+
+/* Tooltip bubble */
+.tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: var(--table-header);
+    color: var(--table-header-text);
+    padding: 6px 10px;
+    white-space: normal;
+    max-width: 300px;
+    min-width: 30ch;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    margin-left: 10ch;   /* move tooltip ~10 characters to the right */
+}
+
+.mutant-details {
+	margin-left: 2em;
+	font-size: 0.9em;
+}
+
+/* Indent the list of mutations that displays when expanding by 8 characters */
+pre details.mutant-details ul {
+	padding-left: 8ch;
+	margin: 0.2em 0;
+}
+
+.mutant-details summary {
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.lcsaj-dot {
+    color: #5555ff;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-dot-uncovered {
+    color: #cc4444;
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.lcsaj-tip {
+	position: relative;
+	display: inline-block;
+}
+
+.lcsaj-tip .lcsaj-tip-text {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	white-space: nowrap;
+	position: fixed;
+	z-index: 9999;
+	pointer-events: none;
+}
+
+.lcsaj-tip:hover .lcsaj-tip-text {
+	visibility: visible;
+}
+
+.cpd-dot {
+    color: #cc8800;
+    font-size: 10px;
+    margin-right: 3px;
+    cursor: help;
+    text-decoration: none;
+}
+a.cpd-dot { cursor: pointer; }
+a.cpd-dot:hover { color: #ff8800; }
+
+.cpd-tip {
+    position: relative;
+    display: inline-block;
+}
+
+.cpd-tip .cpd-tip-text {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.cpd-tip:hover .cpd-tip-text {
+    visibility: visible;
+}
+
+/* CPD drill-down page styles */
+.dup-line { background-color: #fff3cd; display: block; }
+.dup-line:hover { background-color: #ffe082; }
+.intra-dot { color: #9944cc; margin-right: 4px; cursor: help; text-decoration: none; }
+a.intra-dot { cursor: pointer; }
+a.intra-dot:hover { color: #7700bb; }
+.cpd-legend {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 6px 10px;
+    margin-bottom: 1em;
+    font-size: 0.9em;
+}
+
+</style>
+</head>
+<body>
+<button class="toggle" onclick="toggleTheme()">🌙 Toggle Theme</button>
+<h1>lib/App/Syslogd/Cache.pm</h1>
+<div class="nav"><a href="../../../../index.html">Index</a>
+ <a href="I18N.pm.html">Next ➡</a></div><div class='summary'>
+<strong>Structural Coverage (Approximate)</strong><p>
+TER1 (Statement): 100.00%<br>
+TER2 (Branch): 85.71%<br>
+TER3 (LCSAJ): 100.0% (2/2)<br>
+Approximate LCSAJ segments: 15<br>
+</div>
+
+    <div class="legend">
+        <h3>LCSAJ Legend</h3>
+
+        <p>
+        <span class="lcsaj-dot">●</span>
+        <b>Covered</b> — this LCSAJ path was executed during testing.
+        </p>
+
+        <p>
+        <span class="lcsaj-dot-uncovered">●</span>
+        <b>Not covered</b> — this LCSAJ path was never executed. These are the paths to focus on.
+        </p>
+
+        <p>
+        Multiple dots on a line indicate that multiple control-flow paths begin at that line.
+        Hovering over any dot shows:
+        </p>
+
+        <pre>
+        start → end → jump
+        </pre>
+
+        <ul>
+        <li><b>start</b> – first line of the linear sequence</li>
+        <li><b>end</b> – last line before control flow changes</li>
+        <li><b>jump</b> – line execution jumps to next</li>
+        </ul>
+
+        <p>
+        Uncovered paths show <b>[NOT COVERED]</b> in the tooltip.
+	</p>
+    </div>
+
+		<div class="legend">
+			<h3>Mutant Testing Legend</h3>
+			<span class="legend-box survived-1"></span> Survived (tests missed this)
+			<span class="legend-box killed"></span> Killed (tests detected this)
+			<span class="legend-box none"></span> No mutation
+		</div>
+	<pre>
+<span class="">    1: package App::Syslogd::Cache;
+</span><span class="">    2: 
+</span><span class="">    3: # A small in-memory cache with expiry and a size limit: the default home
+</span><span class="">    4: # for App::Syslogd&#39;s reverse-DNS answers.
+</span><span class="">    5: #
+</span><span class="">    6: # It replaces a CHI Memory cache, which spent about 17 microseconds on
+</span><span class="">    7: # every hit (key transformation, cache objects, a Log::Any call): a third
+</span><span class="">    8: # of the time taken to record a datagram.  Here a hit is one hash lookup
+</span><span class="">    9: # and a time comparison.  It has the same compute() interface, so any CHI
+</span><span class="">   10: # object can still be passed to App::Syslogd instead.
+</span><span class="">   11: 
+</span><span class="">   12: use strict;
+</span><span class="">   13: use warnings;
+</span><span class="">   14: use autodie qw(:all);
+</span><span class="">   15: 
+</span><span class="">   16: use Params::Get;
+</span><span class="">   17: use Params::Validate::Strict;
+</span><span class="">   18: use Readonly;
+</span><span class="">   19: 
+</span><span class="">   20: our $VERSION = &#39;0.02&#39;;
+</span><span class="">   21: 
+</span><span class="">   22: # Bytes charged for each entry on top of its key and value: a rough figure
+</span><span class="">   23: # for Perl&#39;s own bookkeeping (the hash entry, the small array, the queue
+</span><span class="">   24: # slot), so that many tiny entries cannot slip past the limit
+</span><span class="">   25: Readonly::Scalar my $ENTRY_OVERHEAD =&gt; 64;
+</span><span class="">   26: 
+</span><span class="">   27: # The default limit, the same as App::Syslogd&#39;s dns_cache_bytes default
+</span><span class="">   28: Readonly::Scalar my $DEFAULT_MAX_BYTES =&gt; 262_144;
+</span><span class="">   29: 
+</span><span class="">   30: # The age queue is rebuilt once it holds this many times more items than
+</span><span class="">   31: # there are entries (replaced entries leave stale items behind)
+</span><span class="">   32: Readonly::Scalar my $QUEUE_SLACK =&gt; 2;
+</span><span class="">   33: 
+</span><span class="">   34: =encoding utf8
+</span><span class="">   35: 
+</span><span class="">   36: =head1 NAME
+</span><span class="">   37: 
+</span><span class="">   38: App::Syslogd::Cache - A small, fast in-memory cache with expiry and a size limit
+</span><span class="">   39: 
+</span><span class="">   40: =head1 VERSION
+</span><span class="">   41: 
+</span><span class="">   42: Version 0.02
+</span><span class="">   43: 
+</span><span class="">   44: =head1 SYNOPSIS
+</span><span class="">   45: 
+</span><span class="">   46: 	use App::Syslogd::Cache;
+</span><span class="">   47: 
+</span><span class="">   48: 	my $cache = App::Syslogd::Cache-&gt;new(max_bytes =&gt; 65_536);
+</span><span class="">   49: 
+</span><span class="">   50: 	# Look a value up; compute and remember it for 300 seconds if missing
+</span><span class="">   51: 	my $name = $cache-&gt;compute(&#39;192.0.2.1&#39;, 300, sub { slow_lookup(&#39;192.0.2.1&#39;) });
+</span><span class="">   52: 
+</span><span class="">   53: =head1 DESCRIPTION
+</span><span class="">   54: 
+</span><span class="">   55: App::Syslogd uses this to remember reverse-DNS answers.  It holds values in
+</span><span class="">   56: a Perl hash, forgets each one after its time to live, and keeps its total
+</span><span class="">   57: size under a limit by dropping the oldest entries first.
+</span><span class="">   58: 
+</span><span class="">   59: Its only method besides C&lt;new()&gt; is C&lt;compute()&gt;, which has the same calling
+</span><span class="">   60: convention as L&lt;CHI&gt;&#39;s, so either can be given to App::Syslogd as its
+</span><span class="">   61: C&lt;cache&gt;.
+</span><span class="">   62: 
+</span><span class="">   63: =head1 METHODS
+</span><span class="">   64: 
+</span><span class="">   65: =head2 new
+</span><span class="">   66: 
+</span><span class="">   67: Purpose: make an empty cache.
+</span><span class="">   68: 
+</span><span class="">   69: Args: C&lt;max_bytes&gt; (optional): the most memory, roughly in bytes, that the
+</span><span class="">   70: entries may use.  Default 262144.  Each entry counts as the length of its
+</span><span class="">   71: key, plus the length of its value, plus 64.
+</span><span class="">   72: 
+</span><span class="">   73: Returns: the new cache.
+</span><span class="">   74: 
+</span><span class="">   75: Side Effects: none.
+</span><span class="">   76: 
+</span><span class="">   77: Usage:
+</span><span class="">   78: 
+</span><span class="">   79: 	my $cache = App::Syslogd::Cache-&gt;new(max_bytes =&gt; 65_536);
+</span><span class="">   80: 
+</span><span class="">   81: =head3 EXAMPLE
+</span><span class="">   82: 
+</span><span class="">   83: 	my $cache = App::Syslogd::Cache-&gt;new();	# 256 KB
+</span><span class="">   84: 
+</span><span class="">   85: =head3 API SPECIFICATION
+</span><span class="">   86: 
+</span><span class="">   87: =head4 INPUT
+</span><span class="">   88: 
+</span><span class="">   89: 	{
+</span><span class="">   90: 		max_bytes =&gt; { type =&gt; &#39;integer&#39;, min =&gt; 1, optional =&gt; 1 },
+</span><span class="">   91: 	}
+</span><span class="">   92: 
+</span><span class="">   93: =head4 OUTPUT
+</span><span class="">   94: 
+</span><span class="">   95: 	{ type =&gt; &#39;object&#39;, isa =&gt; &#39;App::Syslogd::Cache&#39; }
+</span><span class="">   96: 
+</span><span class="">   97: =head3 MESSAGES
+</span><span class="">   98: 
+</span><span class="">   99: 	+--------------------------------------------+--------------------------+-------------------------+
+</span><span class="">  100: 	| Message (dies)                             | Meaning                  | What to do              |
+</span><span class="">  101: 	+--------------------------------------------+--------------------------+-------------------------+
+</span><span class="">  102: 	| validate_strict: Parameter &#39;max_bytes&#39; ... | Not a whole number of at | Give 1 or more          |
+</span><span class="">  103: 	|                                            | least 1                  |                         |
+</span><span class="">  104: 	| validate_strict: Unknown parameter &#39;x&#39;     | A misspelt option        | Use max_bytes           |
+</span><span class="">  105: 	+--------------------------------------------+--------------------------+-------------------------+
+</span><span class="">  106: 
+</span><span class="">  107: =cut
+</span><span class="">  108: 
+</span><span class="">  109: sub new
+</span><span class="">  110: {
+</span><span class="">  111: 	my $class = shift;
+</span><span class="">  112: 
+</span><span class="">  113: 	my $args = Params::Validate::Strict::validate_strict({
+</span><span class="">  114: 		schema =&gt; { max_bytes =&gt; { type =&gt; &#39;integer&#39;, min =&gt; 1, optional =&gt; 1 } },
+</span><span class="">  115: 		input =&gt; Params::Get::get_params(undef, \@_) || {},
+</span><span class="">  116: 	});
+</span><span class="">  117: 
+</span><span class="">  118: 	# entries: key =&gt; [value, expiry time, size, serial]
+</span><span class="">  119: 	# order:   [key, serial] pairs, oldest first, for eviction
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  120: 	return bless {
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  121: 		max_bytes =&gt; $args-&gt;{max_bytes} // $DEFAULT_MAX_BYTES,
+</span><span class="">  122: 		entries =&gt; {},
+</span><span class="">  123: 		order =&gt; [],
+</span><span class="">  124: 		bytes =&gt; 0,
+</span><span class="">  125: 		serial =&gt; 0,
+</span><span class="">  126: 	}, $class;
+</span><span class="">  127: }
+</span><span class="">  128: 
+</span><span class="">  129: =head2 compute
+</span><span class="">  130: 
+</span><span class="">  131: Purpose: return the remembered value for a key, or compute, remember and
+</span><span class="">  132: return it.
+</span><span class="">  133: 
+</span><span class="">  134: Args:
+</span><span class="">  135: 
+</span><span class="">  136: =over 4
+</span><span class="">  137: 
+</span><span class="">  138: =item 1. The key (a string).
+</span><span class="">  139: 
+</span><span class="">  140: =item 2. How many seconds to remember a new value.  0 (or less) means
+</span><span class="">  141: &quot;do not remember&quot;: the value is computed every time.
+</span><span class="">  142: 
+</span><span class="">  143: =item 3. A code reference that computes the value.
+</span><span class="">  144: 
+</span><span class="">  145: =back
+</span><span class="">  146: 
+</span><span class="">  147: Returns: the value (it may be C&lt;undef&gt;, which is remembered like any other).
+</span><span class="">  148: 
+</span><span class="">  149: Side Effects: may call the code reference; may forget the oldest entries to
+</span><span class="">  150: stay under C&lt;max_bytes&gt;.  A value too big to fit at all is returned but not
+</span><span class="">  151: remembered.  If the code dies, the error is passed on and nothing is
+</span><span class="">  152: remembered.
+</span><span class="">  153: 
+</span><span class="">  154: Usage:
+</span><span class="">  155: 
+</span><span class="">  156: 	my $value = $cache-&gt;compute($key, $seconds, sub { ... });
+</span><span class="">  157: 
+</span><span class="">  158: =head3 EXAMPLE
+</span><span class="">  159: 
+</span><span class="">  160: 	my $calls = 0;
+</span><span class="">  161: 	my $get = sub { $cache-&gt;compute(&#39;k&#39;, 60, sub { ++$calls }) };
+</span><span class="">  162: 	$get-&gt;();	# 1: computed
+</span><span class="">  163: 	$get-&gt;();	# 1: remembered; $calls is still 1
+</span><span class="">  164: 
+</span><span class="">  165: =head3 API SPECIFICATION
+</span><span class="">  166: 
+</span><span class="">  167: =head4 INPUT
+</span><span class="">  168: 
+</span><span class="">  169: 	{
+</span><span class="">  170: 		key =&gt; { type =&gt; &#39;string&#39;, position =&gt; 0 },
+</span><span class="">  171: 		ttl =&gt; { type =&gt; &#39;number&#39;, position =&gt; 1 },
+</span><span class="">  172: 		code =&gt; { type =&gt; &#39;coderef&#39;, position =&gt; 2 },
+</span><span class="">  173: 	}
+</span><span class="">  174: 
+</span><span class="">  175: The arguments are not validated: this is called for every datagram, and its
+</span><span class="">  176: only caller is App::Syslogd.
+</span><span class="">  177: 
+</span><span class="">  178: =head4 OUTPUT
+</span><span class="">  179: 
+</span><span class="">  180: 	{ type =&gt; &#39;any&#39;, optional =&gt; 1 }
+</span><span class="">  181: 
+</span><span class="">  182: =head3 MESSAGES
+</span><span class="">  183: 
+</span><span class="">  184: None of its own; an error from the code reference is passed on.
+</span><span class="">  185: 
+</span><span class="">  186: =head3 PSEUDOCODE
+</span><span class="">  187: 
+</span><span class="">  188: 	if the key has an entry that has not expired: return its value
+</span><span class="">  189: 	value = code()
+</span><span class="">  190: 	if ttl &lt;= 0: return value (not remembered)
+</span><span class="">  191: 	forget any old entry for the key
+</span><span class="">  192: 	size = length(key) + length(value) + 64
+</span><span class="">  193: 	if size &gt; max_bytes: return value (too big to remember)
+</span><span class="">  194: 	while the entries plus size would exceed max_bytes:
+</span><span class="">  195: 		forget the oldest entry
+</span><span class="">  196: 	remember the value until now + ttl
+</span><span class="">  197: 	if the age queue has grown well past the entries: rebuild it
+</span><span class="">  198: 	return value
+</span><span class="">  199: 
+</span><span class="">  200: =cut
+</span><span class="">  201: 
+</span><span class="">  202: sub compute
+</span><span class="">  203: {
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">204 → 222 → 231</span></span>  204: 	my ($self, $key, $ttl, $code) = @_;
+</span><span class="">  205: 
+</span><span class="">  206: 	# The fast path: a value that has not expired
+</span><span class="">  207: 	my $entry = $self-&gt;{entries}{$key};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  208: 	return $entry-&gt;[0] if($entry &amp;&amp; $entry-&gt;[1] &gt; time());
+</span><p> <b> Mutants (Total: 5, Killed: 5, Survived: 0)</b><p><span class="">  209: 
+</span><span class="">  210: 	my $value = $code-&gt;();
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  211: 	return $value unless($ttl &gt; 0);
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 5, Killed: 3, Survived: 2)</summary>
+					<ul>
+				<li><b>BOOL_NEGATE_211_2: Negate boolean return expression</b><br>MEDIUM: Add tests asserting both true and false outcomes
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boolean branch test suggestion
+ok( !func(INPUT), &#39;Verify boolean branch behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>RETURN_UNDEF_211_2: Replace return expression with undef</b><br>LOW: Mutation survived, but impact may be minor
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Return value assertion
+is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
+</pre>
+								</div>
+							</li></ul></details>
+<span class="">  212: 
+</span><span class="">  213: 	# Forget the old (expired) entry before charging for the new one
+</span><span class="">  214: 	$self-&gt;{bytes} -= delete($self-&gt;{entries}{$key})-&gt;[2] if($entry);
+</span><span class="">  215: 
+</span><span class="">  216: 	my $size = length($key) + length($value // &#39;&#39;) + $ENTRY_OVERHEAD;
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  217: 	return $value if($size &gt; $self-&gt;{max_bytes});
+</span><p> <b> Mutants (Total: 5, Killed: 5, Survived: 0)</b><p><span class="">  218: 
+</span><span class="">  219: 	# Make room, oldest first.  Queue items whose serial no longer matches
+</span><span class="">  220: 	# are left over from replaced entries, and are just dropped.
+</span><span class="">  221: 	my $order = $self-&gt;{order};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  222: 	while($self-&gt;{bytes} + $size &gt; $self-&gt;{max_bytes}) {
+</span><p> <b> Mutants (Total: 3, Killed: 3, Survived: 0)</b><p><span class="">  223: 		my $item = shift(@{$order}) or last;	# cannot happen while bytes is right
+</span><span class="">  224: 		my ($old_key, $old_serial) = @{$item};
+</span><span class="">  225: 		my $old = $self-&gt;{entries}{$old_key};
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  226: 		next unless($old &amp;&amp; $old-&gt;[3] == $old_serial);
+</span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  227: 		delete $self-&gt;{entries}{$old_key};
+</span><span class="">  228: 		$self-&gt;{bytes} -= $old-&gt;[2];
+</span><span class="">  229: 	}
+</span><span class="">  230: 
+</span><span class=""><span class="lcsaj-tip"><span class="lcsaj-dot">●</span><span class="lcsaj-tip-text">231 → 238 → 244</span></span>  231: 	my $serial = ++$self-&gt;{serial};
+</span><span class="">  232: 	$self-&gt;{entries}{$key} = [$value, time() + $ttl, $size, $serial];
+</span><span class="">  233: 	$self-&gt;{bytes} += $size;
+</span><span class="">  234: 	push @{$order}, [$key, $serial];
+</span><span class="">  235: 
+</span><span class="">  236: 	# A key that is replaced again and again leaves stale queue items;
+</span><span class="">  237: 	# rebuild the queue from the live entries before they pile up
+</span><span class="survived-3 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch. Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  238: 	if(@{$order} &gt; $QUEUE_SLACK * keys(%{$self-&gt;{entries}}) + 1) {
+</span>
+					<details class="mutant-details">
+					<summary>Mutants (Total: 4, Killed: 0, Survived: 4)</summary>
+					<ul>
+				<li><b>NUM_BOUNDARY_238_15_&lt;: Numeric boundary flip &gt; to &lt;</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_238_15_&gt;=: Numeric boundary flip &gt; to &gt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>NUM_BOUNDARY_238_15_&lt;=: Numeric boundary flip &gt; to &lt;=</b><br>HIGH: Likely missing edge-case test (boundary value)
+
+								<div class="suggested-test">
+								<div class="suggest-label">🧪 Suggested Test</div>
+								<pre># Boundary test suggestion
+is( func(VALUE_AT_BOUNDARY), EXPECTED, &#39;Test boundary behaviour&#39; );
+</pre>
+								</div>
+							</li><li><b>COND_INV_238_2: Invert condition if to unless</b><br>MEDIUM: Add tests asserting both true and false outcomes
+</li></ul></details>
+<span class="">  239: 		my $entries = $self-&gt;{entries};
+</span><span class="">  240: 		@{$order} = map { [$_, $entries-&gt;{$_}[3]] }
+</span><span class="">  241: 			sort { $entries-&gt;{$a}[3] &lt;=&gt; $entries-&gt;{$b}[3] } keys %{$entries};
+</span><span class="">  242: 	}
+</span><span class="">  243: 
+</span><span class="killed tooltip" data-tooltip="Mutations here were killed. Tests are effectively covering this logic.">  244: 	return $value;
+</span><p> <b> Mutants (Total: 2, Killed: 2, Survived: 0)</b><p><span class="">  245: }
+</span><span class="">  246: 
+</span><span class="">  247: =head1 LIMITATIONS
+</span><span class="">  248: 
+</span><span class="">  249: The size limit is an estimate: Perl&#39;s real memory use per entry depends on
+</span><span class="">  250: its build and the strings stored.  Expired entries are only removed when
+</span><span class="">  251: their key is looked up again or when space is needed, not on a timer.
+</span><span class="">  252: Times are whole seconds.
+</span><span class="">  253: 
+</span><span class="">  254: =head1 AUTHOR
+</span><span class="">  255: 
+</span><span class="">  256: Nigel Horne, C&lt;&lt; &lt;njh at nigelhorne.com&gt; &gt;&gt;
+</span><span class="">  257: 
+</span><span class="">  258: =head1 LICENSE AND COPYRIGHT
+</span><span class="">  259: 
+</span><span class="">  260: Copyright 2026 Nigel Horne.
+</span><span class="">  261: 
+</span><span class="">  262: This program is released under the GNU General Public License, version 2
+</span><span class="">  263: (see the F&lt;LICENSE&gt; file).  If you use it, please let me know.
+</span><span class="">  264: 
+</span><span class="">  265: =head1 FORMAL SPECIFICATION
+</span><span class="">  266: 
+</span><span class="">  267: =head2 new
+</span><span class="">  268: 
+</span><span class="">  269: 	Cache
+</span><span class="">  270: 	  entries : KEY &acirc;&#135;&cedil; (VALUE &Atilde;&#151; TIME &Atilde;&#151; &acirc;&#132;&#149; &Atilde;&#151; &acirc;&#132;&#149;)
+</span><span class="">  271: 	  max_bytes, bytes : &acirc;&#132;&#149;
+</span><span class="">  272: 	  &acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+</span><span class="">  273: 	  bytes = &Icirc;&pound; { k : dom entries &acirc;&#128;&cent; size(entries(k)) } &acirc;&#136;&sect; bytes &acirc;&#137;&curren; max_bytes
+</span><span class="">  274: 
+</span><span class="">  275: 	New
+</span><span class="">  276: 	  Cache&#39;
+</span><span class="">  277: 	  max? : &acirc;&#132;&#149;&acirc;&#130;&#129;
+</span><span class="">  278: 	  &acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+</span><span class="">  279: 	  entries&#39; = &acirc;&#136;&#133; &acirc;&#136;&sect; bytes&#39; = 0 &acirc;&#136;&sect; max_bytes&#39; = max?
+</span><span class="">  280: 
+</span><span class="">  281: =head2 compute
+</span><span class="">  282: 
+</span><span class="">  283: 	Compute
+</span><span class="">  284: 	  &Icirc;&#148;Cache
+</span><span class="">  285: 	  k? : KEY ; ttl? : &acirc;&#132;&curren; ; code? : &acirc;&#134;&#146; VALUE ; v! : VALUE
+</span><span class="">  286: 	  &acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;&acirc;&#148;&#128;
+</span><span class="">  287: 	  k? &acirc;&#136;&#136; dom entries &acirc;&#136;&sect; expiry(entries(k?)) &gt; now &acirc;&#135;&#146;
+</span><span class="">  288: 	    v! = value(entries(k?)) &acirc;&#136;&sect; &Icirc;&cedil;Cache&#39; = &Icirc;&cedil;Cache
+</span><span class="">  289: 	  otherwise &acirc;&#135;&#146;
+</span><span class="">  290: 	    v! = code?() &acirc;&#136;&sect;
+</span><span class="">  291: 	    (ttl? &acirc;&#137;&curren; 0 &acirc;&#136;&uml; size(k?, v!) &gt; max_bytes &acirc;&#135;&#146; k? &acirc;&#136;&#137; dom entries&#39;) &acirc;&#136;&sect;
+</span><span class="">  292: 	    (ttl? &gt; 0 &acirc;&#136;&sect; size(k?, v!) &acirc;&#137;&curren; max_bytes &acirc;&#135;&#146;
+</span><span class="">  293: 	      entries&#39;(k?) = (v!, now + ttl?, size(k?, v!), serial&#39;) &acirc;&#136;&sect;
+</span><span class="">  294: 	      &acirc;&#136;&#128; k : dom entries&#39; \ {k?} &acirc;&#128;&cent; k &acirc;&#136;&#136; dom entries &acirc;&#136;&sect;
+</span><span class="">  295: 	        (&acirc;&#136;&#128; j : dom entries \ dom entries&#39; &acirc;&#128;&cent; serial(entries(j)) &lt;
+</span><span class="">  296: 	                                            min(serial &acirc;&#136;&#152; entries&#39; (dom entries&#39;)))) &acirc;&#136;&sect;
+</span><span class="">  297: 	    bytes&#39; &acirc;&#137;&curren; max_bytes
+</span><span class="">  298: 
+</span><span class="">  299: =head1 STATE DIAGRAM
+</span><span class="">  300: 
+</span><span class="">  301: 	                     new()
+</span><span class="">  302: 	                       |
+</span><span class="">  303: 	                       v
+</span><span class="">  304: 	   compute(k) hit  +-------+   compute(k) miss, ttl &gt; 0, fits
+</span><span class="">  305: 	  +---------------&gt;| CACHE |------------------------------------+
+</span><span class="">  306: 	  |  [return the   +-------+   [compute; drop oldest entries    |
+</span><span class="">  307: 	  |   value]           ^        until it fits; remember until   |
+</span><span class="">  308: 	  +--------------------+        now + ttl]                      |
+</span><span class="">  309: 	                       +----------------------------------------+
+</span><span class="">  310: 	   compute(k) miss with ttl &lt;= 0, or too big: [compute; return; nothing kept]
+</span><span class="">  311: 	   code dies: [error passed on; nothing kept]
+</span><span class="">  312: 
+</span><span class="">  313: =cut
+</span><span class="">  314: 
+</span><span class="">  315: 1;
+</span></pre>
+
+<script>
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+}
+
+(function() {
+    const saved = localStorage.getItem('theme');
+    if(saved) {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
+document.addEventListener("mousemove", function(e) {
+	document.querySelectorAll(".lcsaj-tip-text, .cpd-tip-text").forEach(function(tip) {
+		tip.style.left = (e.clientX + 12) + "px";
+		tip.style.top  = (e.clientY + 12) + "px";
+	});
+});
+</script>
+</body>
+</html>
+	
