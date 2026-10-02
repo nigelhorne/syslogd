@@ -1169,7 +1169,10 @@ Side Effects:
 
 - Calls `open_socket()` and `reopen_log()` first if they have not been
 called.  The socket comes first, so if it cannot be opened, `run()` dies
-before the log file is touched.
+before the log file is touched.  Starting is all or nothing: if the log
+cannot be opened, a socket that `run()` opened itself is closed again
+before `run()` dies (a socket you opened, or gave to `new()`, is left
+open).
 
     Why the loop never checks for a socket: `open_socket()` either gives a
     socket or dies (premise 1); the loop only starts after it (premise 2); so
@@ -1819,6 +1822,10 @@ Failures (the method dies and the object changes as shown):
     | BOUND    |                               |          |   reopen_log() succeeded"          |
     | RUNNING  | SIGHUP, and the reopen fails  | BOUND    | log closed, handlers restored,     |
     |          |                               |          |   run() dies with the error        |
+    | IDLE     | run(), and the log cannot be  | IDLE     | the socket run() opened is closed  |
+    |          |   opened                      |          |   again; run() dies with the error |
+    | BOUND    | run(), and the log cannot be  | BOUND    | the caller's socket is left open;  |
+    |          |   opened                      |          |   run() dies with the error        |
     +----------+-------------------------------+----------+------------------------------------+
 ```
 

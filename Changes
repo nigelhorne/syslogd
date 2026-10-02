@@ -74,6 +74,11 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- run() starts all or nothing: if the log cannot be opened, a socket
+	  that run() opened itself is closed again instead of being left
+	  bound (a socket from the caller is left open)
+	- t/transaction.t: each multi-step operation (record, open, rotate,
+	  start/stop, cache fill) run to the end, broken half way and retried
 	- POD: LIMITATIONS now states the real risk of the /tmp default (a
 	  local user can create the file first, so the server will not start)
 	- Regex audit: no regular expression can backtrack badly (each was

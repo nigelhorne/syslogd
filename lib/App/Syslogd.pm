@@ -2556,6 +2556,10 @@ Failures (the method dies and the object changes as shown):
 	| BOUND    |                               |          |   reopen_log() succeeded"          |
 	| RUNNING  | SIGHUP, and the reopen fails  | BOUND    | log closed, handlers restored,     |
 	|          |                               |          |   run() dies with the error        |
+	| IDLE     | run(), and the log cannot be  | IDLE     | the socket run() opened is closed  |
+	|          |   opened                      |          |   again; run() dies with the error |
+	| BOUND    | run(), and the log cannot be  | BOUND    | the caller's socket is left open;  |
+	|          |   opened                      |          |   run() dies with the error        |
 	+----------+-------------------------------+----------+------------------------------------+
 
 C<port()>, C<address()>, C<count()>, C<parse_message()> and C<i18n()> never

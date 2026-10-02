@@ -23,4 +23,5 @@ t/locales.t
 t/logic.t
 t/path.t
 t/server.t
+t/transaction.t
 t/unit.t
