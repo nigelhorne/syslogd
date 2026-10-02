@@ -31,6 +31,7 @@ on 'test' => sub {
 	requires 'POSIX';
 	requires 'Scalar::Util';
 	requires 'Symbol';
+	requires 'Test::DescribeMe';
 	requires 'Test::Memory::Cycle';
 	requires 'Test::Mockingbird', '0.14';   # mock_scoped multi-method form
 	requires 'Test::Most';
