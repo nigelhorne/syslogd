@@ -23,7 +23,7 @@ use warnings;
 use FindBin qw($Bin);
 use lib "$Bin/../lib";
 
-use CHI;
+use App::Syslogd::Cache;
 use Errno qw(EINTR ENOENT);
 use File::Spec;
 use File::Temp qw(tempdir);
@@ -321,11 +321,23 @@ subtest 'host names: resolver calls and the cache' => sub {
 
 	# Two servers sharing one cache object (documented: objects are shared)
 	$spy = spy('App::Syslogd::getnameinfo');
-	my $shared_cache = CHI->new(driver => 'Memory', datastore => {});
+	my $shared_cache = App::Syslogd::Cache->new();
 	my @sharing = map { App::Syslogd->new(file => new_path(), cache => $shared_cache)->reopen_log() } (1, 2);
 	$_->process('<13>x', $peer) foreach(@sharing);
 	is($count_lookups->()->{name}, 1, 'shared cache: one name lookup for both servers');
 	restore_all();
+
+	# A CHI cache passed in still works (CHI is optional, so skip without it)
+	SKIP: {
+		skip('CHI is not installed', 2) unless(eval { require CHI; 1 });
+		$spy = spy('App::Syslogd::getnameinfo');
+		my $chi = CHI->new(driver => 'Memory', datastore => {});
+		my @chi_servers = map { App::Syslogd->new(file => new_path(), cache => $chi)->reopen_log() } (1, 2);
+		$_->process('<13>x', $peer) foreach(@chi_servers);
+		is($count_lookups->()->{name}, 1, 'a shared CHI cache: one name lookup for both servers');
+		ok(defined($chi->get($CONFIG{loopback})), 'the name is stored in the CHI cache');
+		restore_all();
+	}
 
 	# Resolution off: the resolver is only asked for the address
 	$spy = spy('App::Syslogd::getnameinfo');

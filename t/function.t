@@ -223,9 +223,9 @@ subtest 'App::Syslogd::new' => sub {
 	# Purpose: new() validates, applies defaults, and wires up the
 	# language handle, the DNS cache and the CSV writer.  Strategy: mock
 	# all three collaborators so we see exactly how they are built.
-	my (@chi_args, @csv_args, @handle_args);
+	my (@cache_args, @csv_args, @handle_args);
 	my $g = mock_scoped(
-		'CHI::new' => sub { shift; push @chi_args, {@_}; return FakeCache->new() },
+		'App::Syslogd::Cache::new' => sub { shift; push @cache_args, {@_}; return FakeCache->new() },
 		'Text::CSV::new' => sub { shift; push @csv_args, @_; return bless {}, 'FakeCSV' },
 		'App::Syslogd::I18N::handle' => sub { shift; push @handle_args, [@_]; return 'LANGUAGE HANDLE' },
 	);
@@ -244,22 +244,22 @@ subtest 'App::Syslogd::new' => sub {
 
 	is($server->{lh}, 'LANGUAGE HANDLE', 'language handle stored');
 	is_deeply(\@handle_args, [[undef]], 'language taken from the environment when none given');
-	is_deeply(\@chi_args, [{ driver => 'Memory', datastore => {}, max_size => $CONFIG{default_dns_cache_bytes} }],
-		'in-memory DNS cache sized by dns_cache_bytes');
+	is_deeply(\@cache_args, [{ max_bytes => $CONFIG{default_dns_cache_bytes} }],
+		'built-in DNS cache sized by dns_cache_bytes');
 	is_deeply(\@csv_args, [$CONFIG{csv_options}], 'CSV writer: binary, newline, always quoted');
 
 	# Both calling conventions, and options overriding defaults
-	@chi_args = @handle_args = ();
+	@cache_args = @handle_args = ();
 	my $custom = App::Syslogd->new({ port => 5514, language => 'de', dns_cache_bytes => 1024 });
 	is($custom->{port}, 5514, 'hashref form accepted');
 	is_deeply(\@handle_args, [['de']], 'requested language passed to the handle');
-	is($chi_args[0]{max_size}, 1024, 'dns_cache_bytes honoured');
+	is($cache_args[0]{max_bytes}, 1024, 'dns_cache_bytes honoured');
 
-	# A supplied cache means no CHI object is built
-	@chi_args = ();
+	# A supplied cache means no built-in cache is made
+	@cache_args = ();
 	my $cache = FakeCache->new();
 	is(App::Syslogd->new(cache => $cache)->{cache}, $cache, 'supplied cache used');
-	is(scalar(@chi_args), 0, 'no CHI cache built when one is supplied');
+	is(scalar(@cache_args), 0, 'no built-in cache made when one is supplied');
 
 	# undef means "use the default", never "set to undef"
 	my $undef = App::Syslogd->new(port => undef, file => undef, address => undef, resolve => undef, language => undef);

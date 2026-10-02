@@ -27,7 +27,6 @@ BEGIN {
 
 use Carp qw(carp croak);
 use Config;
-use CHI;
 use Fcntl qw(O_RDWR O_APPEND O_CREAT SEEK_SET SEEK_END);
 use IO::Handle;
 use IO::Socket::IP;
@@ -39,6 +38,7 @@ use Readonly;
 use Socket qw(getnameinfo NI_NAMEREQD NI_NUMERICHOST NIx_NOSERV);
 use Text::CSV;
 
+use App::Syslogd::Cache;
 use App::Syslogd::I18N;
 
 our $VERSION = '0.02';
@@ -54,42 +54,46 @@ Readonly our %DEFAULTS => (
 	dns_cache_bytes => 262_144,	# Upper bound on the reverse-lookup cache
 );
 
+# Scalar constants use Readonly::Scalar: "Readonly my $x" makes a tied
+# scalar, and every read then costs a tied FETCH (about 45 times slower).
+# Several of these are read for every datagram.
+
 # Largest possible UDP payload, so datagrams are never silently truncated
 # (RFC 5426 section 3.2 asks receivers to accept at least 2048 octets)
-Readonly my $RECV_BUFFER => 65_535;
+Readonly::Scalar my $RECV_BUFFER => 65_535;
 
 # One-character datagrams are keep-alives or noise, never a log line
-Readonly my $MIN_MESSAGE_LENGTH => 2;
+Readonly::Scalar my $MIN_MESSAGE_LENGTH => 2;
 
 # PRI = facility * 8 + severity; RFC 5424 section 6.2.1 caps it at 191
-Readonly my $SEVERITIES_PER_FACILITY => 8;
-Readonly my $MAX_PRI => 191;
+Readonly::Scalar my $SEVERITIES_PER_FACILITY => 8;
+Readonly::Scalar my $MAX_PRI => 191;
 
 # RFC 3164 section 4.3.3: a message without a valid PRI is user.notice
-Readonly my $DEFAULT_PRI => 13;
+Readonly::Scalar my $DEFAULT_PRI => 13;
 
 # The log holds other hosts' messages, so only its owner may read it
-Readonly my $LOG_MODE => 0600;
+Readonly::Scalar my $LOG_MODE => 0600;
 
 # O_NOFOLLOW is not defined everywhere: on Windows, Fcntl exports the name
 # but calling it dies ("Your vendor has not defined Fcntl macro").  Where it
 # is missing, 0 leaves the open flags unchanged.  Windows symbolic links
 # need administrator rights to create, so the attack it prevents is rare
 # there; see LIMITATIONS.
-Readonly my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
+Readonly::Scalar my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
 
 # O_NONBLOCK makes opening a FIFO fail at once (ENXIO) instead of waiting
 # for a reader.  Without it anyone could create a FIFO at the default
 # /tmp/syslog.log and the server would hang for ever at start-up.  It has
 # no effect on the regular files we accept.  Not defined on Windows.
-Readonly my $O_NONBLOCK => eval { Fcntl::O_NONBLOCK() } // 0;
+Readonly::Scalar my $O_NONBLOCK => eval { Fcntl::O_NONBLOCK() } // 0;
 
 # chmod() on a filehandle needs fchmod(), which Windows Perl does not have
 # ("The fchmod function is unimplemented").  Windows does not use Unix
 # permission bits anyway, so there is nothing to tighten; see LIMITATIONS.
 # chmod() by name is not a substitute: the name may no longer be the file
 # we checked.
-Readonly my $HAVE_FCHMOD => $Config{d_fchmod} ? 1 : 0;
+Readonly::Scalar my $HAVE_FCHMOD => $Config{d_fchmod} ? 1 : 0;
 
 # Column headings written to a brand-new log file.  VWF::Data::syslog_log
 # reads these as its column names, so do not change them lightly.
@@ -101,7 +105,7 @@ Readonly my @CONFIGURE_EXTRAS => qw(logger config_path);
 # Strings that reach the C library (bind, open, the locale) must not hold
 # a NUL: C stops reading there, so "127.0.0.1\0.evil" would bind to
 # 127.0.0.1 while the object (and every message) named something else.
-Readonly my $NO_NUL => qr/\A[^\x00]+\z/;
+Readonly::Scalar my $NO_NUL => qr/\A[^\x00]+\z/;
 
 # Parameter schema shared by new() and the API SPECIFICATION in the POD
 Readonly my %NEW_SCHEMA => (
@@ -307,15 +311,9 @@ stop.
 
 =head2 Log rotation
 
-An example logrotate configuration:
-
-	/var/log/remote-syslog.csv {
-		weekly
-		rotate 8
-		postrotate
-			pkill -HUP -f /usr/local/etc/syslogd
-		endscript
-	}
+Rotate the log by renaming it and then sending SIGHUP, so that the server
+starts a new file.  See L</SAMPLE CONFIGURATION> for logrotate and
+newsyslog settings.
 
 =head1 INSTALLATION
 
@@ -344,10 +342,194 @@ The program looks for modules in F<../lib> relative to itself (that is
 F</usr/local/lib> after installation, or F<lib/> in a git checkout), and also
 in Perl's normal module directories.
 
+=head1 SAMPLE CONFIGURATION
+
+These samples run the server as its own user, C<syslogd>, writing to
+F</var/log/syslogd/remote.csv>.  Adjust the names and paths to suit.
+
+Three things shape them:
+
+=over 4
+
+=item * The server only writes to a log file that it owns (see
+L</DESCRIPTION>), so the file must live in a directory the C<syslogd> user
+can write to.
+
+=item * The server does not put itself in the background and writes no
+process-id file: run it under a service manager that keeps it in the
+foreground (systemd), or through F<daemon(8)> (FreeBSD).
+
+=item * The service is called C<app-syslogd> (C<app_syslogd> on FreeBSD)
+so that it does not clash with the operating system's own syslog daemon.
+
+=back
+
+Create the user first, for example:
+
+	# Linux
+	useradd --system --no-create-home --shell /usr/sbin/nologin syslogd
+
+	# FreeBSD
+	pw useradd syslogd -d /nonexistent -s /usr/sbin/nologin -c "App::Syslogd"
+	mkdir -p /var/log/syslogd && chown syslogd /var/log/syslogd && chmod 700 /var/log/syslogd
+
+=head2 systemd (Linux)
+
+Save as F</etc/systemd/system/app-syslogd.service>, then run
+C<systemctl daemon-reload> and C<systemctl enable --now app-syslogd>.
+
+	[Unit]
+	Description=App::Syslogd UDP syslog receiver
+	Documentation=https://metacpan.org/pod/App::Syslogd
+	After=network-online.target
+	Wants=network-online.target
+
+	[Service]
+	Type=simple
+	User=syslogd
+	Group=syslogd
+	# Port 514 is below 1024: grant just that right, not root
+	AmbientCapabilities=CAP_NET_BIND_SERVICE
+	CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+	# Creates /var/log/syslogd, owned by the user above
+	LogsDirectory=syslogd
+	LogsDirectoryMode=0700
+	ExecStart=/usr/local/etc/syslogd --port 514 --file /var/log/syslogd/remote.csv
+	# SIGHUP reopens the log after rotation
+	ExecReload=/bin/kill -HUP $MAINPID
+	Restart=on-failure
+	RestartSec=5
+	# Hardening: the server needs nothing more
+	NoNewPrivileges=yes
+	ProtectSystem=strict
+	ProtectHome=yes
+	PrivateTmp=yes
+	PrivateDevices=yes
+	RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+	[Install]
+	WantedBy=multi-user.target
+
+SIGTERM (C<systemctl stop>) stops the server cleanly with exit status 0.
+The server's start-up and shutdown lines go to the journal
+(C<journalctl -u app-syslogd>).
+
+=head2 rc.d and service (FreeBSD)
+
+Save as F</usr/local/etc/rc.d/app_syslogd> (mode 0555), then add
+C<app_syslogd_enable="YES"> to F</etc/rc.conf> and run
+C<service app_syslogd start>.
+
+	#!/bin/sh
+
+	# PROVIDE: app_syslogd
+	# REQUIRE: NETWORKING
+	# KEYWORD: shutdown
+
+	. /etc/rc.subr
+
+	name="app_syslogd"
+	rcvar="app_syslogd_enable"
+
+	load_rc_config $name
+
+	: ${app_syslogd_enable:="NO"}
+	: ${app_syslogd_user:="root"}
+	: ${app_syslogd_options:="--port 514 --file /var/log/syslogd/remote.csv"}
+
+	pidfile="/var/run/${name}.pid"
+
+	# daemon(8) puts the server in the background and writes the pid
+	# file (-p: the server's own pid, so SIGHUP reaches it)
+	command="/usr/sbin/daemon"
+	command_args="-f -p ${pidfile} -u ${app_syslogd_user} /usr/local/etc/syslogd ${app_syslogd_options}"
+
+	# The running process is "perl /usr/local/etc/syslogd ..."
+	procname="/usr/local/etc/syslogd"
+	command_interpreter="/usr/local/bin/perl"
+
+	# service app_syslogd reload: reopen the log
+	extra_commands="reload"
+	sig_reload="HUP"
+
+	run_rc_command "$1"
+
+The options go in C<app_syslogd_options>, not C<app_syslogd_flags>:
+F<rc.subr> would put C<_flags> before C<command_args>, that is, give them to
+F<daemon(8)>.  Binding port 514 needs root on FreeBSD, so the sample runs as
+root; to run as C<syslogd>, use a port above 1023 (or
+L<mac_portacl(4)>) and set C<app_syslogd_user="syslogd">.  The log file
+must belong to whichever user runs the server.
+
+=head2 logrotate (Linux)
+
+Save as F</etc/logrotate.d/app-syslogd>.
+
+	/var/log/syslogd/remote.csv {
+		weekly
+		rotate 8
+		compress
+		delaycompress
+		missingok
+		# The directory belongs to syslogd, so rotate as that user
+		su syslogd syslogd
+		# Never copytruncate: see below
+		create 0600 syslogd syslogd
+		postrotate
+			systemctl reload app-syslogd.service
+		endscript
+	}
+
+Do not use C<copytruncate>.  It empties the log in place without telling
+the server, which then carries on writing rows to a file with no column
+names; at the next reopen the server would refuse that file, because it no
+longer starts with the header line.  C<create> (or no C<create>: the server
+makes the file itself on SIGHUP) is what the server expects.
+
+=head2 newsyslog (FreeBSD)
+
+Add to F</etc/newsyslog.conf> (or a file in F</usr/local/etc/newsyslog.conf.d/>):
+
+	# logfilename                    owner:group  mode count size when  flags pid_file                  sig
+	/var/log/syslogd/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
+
+C<C> creates the new, empty file; signal 1 (SIGHUP) makes the server
+reopen it.  Use the owner that runs the server.
+
+=head2 Monit and M/Monit
+
+Add to F</etc/monit/monitrc> (Linux) or F</usr/local/etc/monitrc>
+(FreeBSD).  M/Monit collects the results when F<monitrc> names it with
+C<set mmonit>.
+
+	# Report to M/Monit (optional)
+	set mmonit https://monit:monit@mmonit.example.com:8443/collector
+
+	# Linux, with the systemd unit above
+	check process app-syslogd matching "/usr/local/etc/syslogd"
+		start program = "/bin/systemctl start app-syslogd"
+		stop program  = "/bin/systemctl stop app-syslogd"
+		if 5 restarts within 5 cycles then alert
+
+	# FreeBSD, with the rc.d script above, use instead:
+	#	check process app_syslogd with pidfile /var/run/app_syslogd.pid
+	#		start program = "/usr/sbin/service app_syslogd start"
+	#		stop program  = "/usr/sbin/service app_syslogd stop"
+
+	# The log must stay private and be written to
+	check file app-syslogd-log with path /var/log/syslogd/remote.csv
+		if failed permission 600 then alert
+		if failed uid "syslogd" then alert
+		if timestamp > 1 hour then alert
+
+Monit's UDP port test is not used: syslog never answers, so a port test
+cannot show that messages are being recorded.  The timestamp check does:
+change C<1 hour> to suit how often your hosts send messages.
+
 =head1 DEPENDENCIES
 
 Perl 5.14 or later, and these modules: L<autodie> (which needs
-L<IPC::System::Simple>), L<CHI>, L<IO::Socket::IP>, L<Locale::Maketext>,
+L<IPC::System::Simple>), L<IO::Socket::IP>, L<Locale::Maketext>,
 L<Object::Configure>, L<Params::Get>, L<Params::Validate::Strict>,
 L<Readonly>, L<Socket>,
 L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  F<Makefile.PL> lists
@@ -364,6 +546,8 @@ F</usr/local/etc/syslogd>.
 
 =item F<lib/App/Syslogd/I18N.pm> and F<lib/App/Syslogd/I18N/en.pm> - the
 messages that people see, and their English text.
+
+=item F<lib/App/Syslogd/Cache.pm> - the built-in cache for host names.
 
 =item F<t/> - the tests.  Run them with C<prove -l t/>.
 
@@ -455,6 +639,11 @@ with the error.  The socket stays open and the log stays closed.
 file's permissions to 0600 without asking (except on Windows; see
 L</LIMITATIONS>).
 
+=item * B<Do not rotate with copytruncate.>  Emptying the log in place
+leaves the server writing rows with no column names, and the next reopen
+then refuses the file.  Rename and send SIGHUP instead (see
+L</SAMPLE CONFIGURATION>).
+
 =item * B<Only an empty file or one of its own logs is accepted.>  A file
 with content must start with the line C<"Host","facility","severity","msg">
 (with a Unix or Windows line end), or C<reopen_log()> refuses it and leaves
@@ -525,13 +714,15 @@ IP addresses.
 =item * C<dns_ttl> - how many seconds to remember a host name.  Default 300.
 
 =item * C<dns_cache_bytes> - the most memory, in bytes, used to remember host
-names.  Default 262144.
+names.  Default 262144.  An estimate: see L<App::Syslogd::Cache/new>.  It
+does not apply to a C<cache> you supply.
 
 =item * C<language> - the language of messages, such as C<en>.  Default: from
 the environment.
 
 =item * C<cache> - your own cache for host names, instead of the built-in
-one.  Any object with a L<CHI>-style C<compute()> method.
+L<App::Syslogd::Cache>.  Any object with a L<CHI>-style C<compute()> method,
+for example a L<CHI> cache shared between several servers.
 
 =item * C<socket> - a socket that is already open, instead of opening one.
 Any object with a C<recv()> method.
@@ -658,7 +849,7 @@ sub new
 	my $class = shift;
 
 	# Keep the caller's $! and $@: system calls and modules used below
-	# (CHI, Params::Validate::Strict, sockets, files) change them.  A
+	# (Params::Validate::Strict, sockets, files) change them.  A
 	# croak still reaches the caller: since Perl 5.14 die sets $@ after
 	# locals are restored.
 	local ($!, $@);
@@ -699,12 +890,11 @@ sub new
 	$self->{lh} = App::Syslogd::I18N->handle($self->{language});
 
 	# Reverse DNS is synchronous; without a cache one slow resolver would
-	# stall the receive loop for every packet from that host
-	$self->{cache} ||= CHI->new(
-		driver => 'Memory',
-		datastore => {},
-		max_size => $self->{dns_cache_bytes},
-	);
+	# stall the receive loop for every packet from that host.  The built-in
+	# cache answers a hit with one hash lookup (a CHI Memory cache took
+	# about 17 microseconds, a third of the time per datagram); a CHI
+	# object can still be passed in as "cache".
+	$self->{cache} ||= App::Syslogd::Cache->new(max_bytes => $self->{dns_cache_bytes});
 
 	# binary => 1 permits non-ASCII bytes; always_quote matches the
 	# header row style the original script wrote
@@ -1716,9 +1906,6 @@ sub _append_line
 
 	no autodie qw(sysseek syswrite truncate);
 
-	# Where the line starts, so a partial line can be removed
-	my $start = sysseek($fh, 0, SEEK_END);
-
 	# syswrite may write less than asked; keep going until done or error
 	my $done = 0;
 	while($done < length($line)) {
@@ -1731,7 +1918,14 @@ sub _append_line
 	# Remember the error before truncate can change $!.  A write that
 	# returned 0 made no progress but set no error, so $! would be stale.
 	my $error = $! ? "$!" : $self->i18n('no_progress');
-	truncate($fh, $start) if($done && defined($start));
+
+	# Remove a partial line.  The line started $done bytes before the
+	# current end (O_APPEND wrote it there).  Finding that out only now,
+	# not before every write, saves a seek on every successful line.
+	if($done) {
+		my $end = sysseek($fh, 0, SEEK_END);
+		truncate($fh, $end - $done) if(defined($end));
+	}
 
 	return $error;
 }

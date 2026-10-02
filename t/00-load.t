@@ -11,6 +11,7 @@ use lib "$Bin/../lib", "$Bin/../www/lib";
 use Test::Most;
 
 BEGIN {
+	use_ok('App::Syslogd::Cache');
 	use_ok('App::Syslogd::I18N');
 	use_ok('App::Syslogd');
 }

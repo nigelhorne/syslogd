@@ -2,6 +2,7 @@ Changes
 cpanfile
 etc/syslogd
 lib/App/Syslogd.pm
+lib/App/Syslogd/Cache.pm
 lib/App/Syslogd/I18N.pm
 lib/App/Syslogd/I18N/en.pm
 LICENSE
@@ -10,6 +11,7 @@ MANIFEST			This list of files
 MANIFEST.SKIP
 README.md
 t/00-load.t
+t/cache.t
 t/cgi_security.t
 t/data-flow.t
 t/domain.t

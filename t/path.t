@@ -157,7 +157,7 @@ sub stop_step { my $server_ref = shift; return sub { ${$server_ref}->stop(); $! 
 subtest 'new: every path' => sub {
 	my $p1 = App::Syslogd->new();
 	returns_ok($p1, { type => 'object', isa => 'App::Syslogd' }, 'P1: no arguments');
-	isa_ok($p1->{cache}, 'CHI::Driver', 'P1: a cache is built');
+	isa_ok($p1->{cache}, 'App::Syslogd::Cache', 'P1: the built-in cache is made');
 
 	my $cache = PathCache->new(sub { });
 	is(App::Syslogd->new(cache => $cache)->{cache}, $cache, 'P2: the given cache is kept');

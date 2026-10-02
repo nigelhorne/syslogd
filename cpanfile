@@ -2,7 +2,6 @@
 
 requires 'perl', '5.014';
 
-requires 'CHI';
 requires 'Carp';
 requires 'Fcntl';
 requires 'FindBin';
@@ -23,7 +22,6 @@ requires 'autodie';
 requires 'parent';
 
 on 'test' => sub {
-	requires 'CHI';
 	requires 'Errno';
 	requires 'File::Temp';
 	requires 'IPC::Open3';
@@ -41,6 +39,7 @@ on 'test' => sub {
 	requires 'Text::CSV_PP';   # t/integration.t compares both backends
 	requires 'Time::HiRes';
 	recommends 'CGI::ACL';
+	recommends 'CHI';
 	recommends 'IP::Country::Fast';
 };
 

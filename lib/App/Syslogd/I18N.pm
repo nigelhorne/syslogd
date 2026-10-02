@@ -20,7 +20,7 @@ use Readonly;
 our $VERSION = '0.02';
 
 # Language used when nothing in the environment matches a lexicon we ship
-Readonly my $FALLBACK_LANGUAGE => 'en';
+Readonly::Scalar my $FALLBACK_LANGUAGE => 'en';
 
 # The order in which each message's named arguments become [_1], [_2], ...
 # Translators of every language see the same positional slots, so this

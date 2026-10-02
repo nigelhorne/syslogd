@@ -74,6 +74,18 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- Performance: a built-in cache for host names, App::Syslogd::Cache,
+	  replaces the default CHI cache.  A cache hit was a third of the time
+	  per datagram; with names looked up, a datagram now takes about 27
+	  microseconds instead of 42.  CHI is no longer needed (a CHI object
+	  can still be passed as "cache").
+	- Performance: about 25% faster per datagram.  Scalar constants use
+	  Readonly::Scalar (Readonly my $x is a tied scalar, about 45 times
+	  slower to read), and a log line is no longer preceded by a seek:
+	  the start of a partial line is worked out only when a write fails
+	- POD: SAMPLE CONFIGURATION for systemd, FreeBSD rc.d/service,
+	  logrotate, newsyslog and Monit/M/Monit; a pitfall about
+	  copytruncate
 	- Security: an existing log file must be empty or start with the
 	  column-names line; any other file is refused and left untouched
 	  (before, as root, a wrong setting could append to and chmod any

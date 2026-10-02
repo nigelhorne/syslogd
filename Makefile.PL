@@ -27,7 +27,6 @@ WriteMakefile(
 	PREREQ_PM => {
 		'autodie'      => 0,
 		'Carp'         => 0,
-		'CHI'          => 0,
 		'Fcntl'        => 0,
 		'FindBin'      => 0,
 		'Getopt::Long' => 0,
@@ -45,7 +44,6 @@ WriteMakefile(
 		'Sub::Protected' => 0.02,
 		'Text::CSV'    => 0,
 	}, TEST_REQUIRES => {
-		'CHI'          => 0,
 		'Errno'        => 0,
 		'IPC::Open3'   => 0,
 		'Symbol'       => 0,
@@ -78,9 +76,12 @@ WriteMakefile(
 			},
 		}, prereqs => {
 			test => {
-				# Only for the GeoIP subtests of t/locales.t, which
-				# also need the www/ tree and so are skipped from CPAN
-				recommends => { 'IP::Country::Fast' => 0, 'CGI::ACL' => 0 },
+				# IP::Country::Fast and CGI::ACL: only for the GeoIP
+				# subtests of t/locales.t, which also need the www/
+				# tree and so are skipped from CPAN.  CHI: only for the
+				# check in t/integration.t that a CHI cache can still be
+				# passed in.
+				recommends => { 'IP::Country::Fast' => 0, 'CGI::ACL' => 0, 'CHI' => 0 },
 			},
 		},
 		# Keep the bundled web viewer out of the PAUSE index
