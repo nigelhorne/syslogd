@@ -1385,6 +1385,7 @@ The keys, the values each one uses, and the English text:
     |               |                        |   will not run from a web server                 |
     | not_a_log     | file                   | Refusing to log to FILE: it is not empty and     |
     |               |                        |   does not start with the syslog header line     |
+    | already_running | (none)               | run() is already running                         |
     +---------------+------------------------+--------------------------------------------------+
 ```
 
@@ -1799,6 +1800,8 @@ The text in square brackets is what happens during the move.
     | RUNNING  | datagram arrives              | RUNNING  | process(): row written, count + 1  |
     | RUNNING  | SIGHUP                        | RUNNING  | log closed and opened again        |
     | RUNNING  | read error (not a signal)     | RUNNING  | warning "Error receiving ..."      |
+    | RUNNING  | a write fails (e.g. disk      | RUNNING  | warning "Could not write ...";     |
+    |          |   full)                       |          |   that datagram is lost            |
     | RUNNING  | SIGTERM, SIGINT or stop()     | STOPPING | "running" flag cleared             |
     | STOPPING | the wait or datagram ends     | IDLE     | socket and log closed, handlers    |
     |          |                               |          |   restored, run() returns          |
@@ -1826,6 +1829,17 @@ Failures (the method dies and the object changes as shown):
     |          |   opened                      |          |   again; run() dies with the error |
     | BOUND    | run(), and the log cannot be  | BOUND    | the caller's socket is left open;  |
     |          |   opened                      |          |   run() dies with the error        |
+    | IDLE,    | run(), and the socket cannot  | (same)   | dies "Could not create a UDP       |
+    | LOGGING  |   be opened                   |          |   socket ..."                      |
+    | RUNNING  | recv() dies (a broken socket) | READY    | handlers restored; run() dies with |
+    |          |                               |          |   the error; socket and log stay   |
+    |          |                               |          |   open                             |
+    | RUNNING  | run() again (from inside the  | RUNNING  | dies "run() is already running";   |
+    |          |   loop)                       |          |   the running loop carries on      |
+    | STOPPING | closing the socket dies       | IDLE     | the log is closed anyway; run()    |
+    |          |                               |          |   dies with the error              |
+    | (none)   | new() with an invalid option  | (none)   | dies "validate_strict: ..."; no    |
+    |          |                               |          |   object is made                   |
     +----------+-------------------------------+----------+------------------------------------+
 ```
 

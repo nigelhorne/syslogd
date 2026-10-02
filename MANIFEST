@@ -24,4 +24,5 @@ t/logic.t
 t/path.t
 t/server.t
 t/transaction.t
+t/transition.t
 t/unit.t

@@ -82,6 +82,7 @@ Readonly my %ARGUMENT_ORDER => (
 	no_progress => [],
 	not_cgi => [],
 	not_a_log => [qw(file)],
+	already_running => [],
 );
 
 # Output schemas copied from the POD's API SPECIFICATION sections

@@ -74,6 +74,15 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- run() refuses to run again while it is already running (from inside
+	  its own loop): the inner run used to close the socket and the log,
+	  and the outer loop then died
+	- POD: the state diagram gains the transitions the code already had
+	  (a failed write, a broken socket, a failed socket close, a failed
+	  start, an invalid new())
+	- t/transition.t: reads the transition tables from the POD and fails
+	  if a documented transition has no test, or a tested one is not
+	  documented
 	- run() starts all or nothing: if the log cannot be opened, a socket
 	  that run() opened itself is closed again instead of being left
 	  bound (a socket from the caller is left open)

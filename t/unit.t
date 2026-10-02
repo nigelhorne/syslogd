@@ -151,7 +151,7 @@ my %ledger = map { $_ => 1 } (
 	'i18n: class call',
 	'i18n: unknown key',
 	map({ "i18n: key $_" } qw(usage listening shutdown socket_failed open_failed unsafe_file
-		write_failed recv_failed no_log_open not_a_datagram missing_key bad_values no_progress not_cgi not_a_log)),
+		write_failed recv_failed no_log_open not_a_datagram missing_key bad_values no_progress not_cgi not_a_log already_running)),
 	'parse_message: message A datagram must be a string',
 	'process: anything but an address gives an empty host',
 	# App::Syslogd::I18N
@@ -766,6 +766,7 @@ subtest 'i18n' => sub {
 		no_progress => [{}, 'the system accepted no data'],
 		not_cgi => [{}, 'This program is a server, not a CGI program: it will not run from a web server'],
 		not_a_log => [{ file => 'F' }, 'Refusing to log to F: it is not empty and does not start with the syslog header line'],
+		already_running => [{}, 'run() is already running'],
 	);
 	foreach my $key (sort keys %expect) {
 		my ($values, $text) = @{$expect{$key}};

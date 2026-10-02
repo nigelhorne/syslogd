@@ -41,6 +41,7 @@ Readonly my %ARGUMENT_ORDER => (
 	no_progress => [],
 	not_cgi => [],
 	not_a_log => [qw(file)],
+	already_running => [],
 );
 
 =encoding utf8
@@ -273,6 +274,7 @@ The keys, and the values each one uses (in slot order C<[_1]>, C<[_2]>,
 	| no_progress   | (none)               |
 	| not_cgi       | (none)               |
 	| not_a_log     | file                 |
+	| already_running | (none)             |
 	+---------------+----------------------+
 
 Returns: the message, as a string.  An unknown key does not die: it returns
