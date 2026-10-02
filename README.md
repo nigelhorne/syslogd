@@ -1424,8 +1424,12 @@ log in a web page (for example the viewer in `www/`) must HTML-encode it.
 
 - **The default log file is in /tmp.**  This keeps compatibility with
 older versions.  The checks described in ["DESCRIPTION"](#description) stop the usual
-attacks on files in `/tmp`, but another user can still delete the file.
-Use `file` (or `--file`) to choose a private place such as `/var/log`.
+attacks on files in `/tmp` (symbolic and hard links, someone else's file,
+a FIFO), and `/tmp`'s sticky bit stops other users deleting or renaming
+the log.  But any local user can create `/tmp/syslog.log` first: the
+server then refuses that file and does not start.  Use `file` (or
+`--file`) to choose a private place such as `/var/log/syslogd/`, as in
+["SAMPLE CONFIGURATION"](#sample-configuration).
 - **The web viewer cannot read the log.**  The file is readable only by
 its owner (usually root), but the web pages in `www/` run as the web
 server's user.  You must choose between privacy and the viewer, for example

@@ -74,6 +74,8 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- POD: LIMITATIONS now states the real risk of the /tmp default (a
+	  local user can create the file first, so the server will not start)
 	- Regex audit: no regular expression can backtrack badly (each was
 	  timed against hostile 64 KB input); the PRI regex is now written
 	  with /x and commented

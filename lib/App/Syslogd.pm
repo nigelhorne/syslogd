@@ -1490,7 +1490,10 @@ Side Effects:
 
 =item * Calls C<open_socket()> and C<reopen_log()> first if they have not been
 called.  The socket comes first, so if it cannot be opened, C<run()> dies
-before the log file is touched.
+before the log file is touched.  Starting is all or nothing: if the log
+cannot be opened, a socket that C<run()> opened itself is closed again
+before C<run()> dies (a socket you opened, or gave to C<new()>, is left
+open).
 
 Why the loop never checks for a socket: C<open_socket()> either gives a
 socket or dies (premise 1); the loop only starts after it (premise 2); so
@@ -1569,8 +1572,21 @@ sub run
 	# Premise: open_socket() does nothing when a socket is already open.
 	# Conclusion: it can be called unconditionally.  reopen_log() is not
 	# like that (it always reopens), so its guard stays.
+	#
+	# Starting is all or nothing: if the log cannot be opened, a socket
+	# that run() itself opened is closed again, so a failed start does not
+	# leave the port taken.  A socket the caller opened stays theirs.
+	my $socket_was_open = $self->{socket} ? 1 : 0;
 	$self->open_socket();
-	$self->reopen_log() unless($self->{fh});
+	if(!$self->{fh}) {
+		eval { $self->reopen_log(); 1 } or do {
+			my $error = $@;
+			if(!$socket_was_open && (my $socket = delete $self->{socket})) {
+				eval { $socket->close() };	# the open error matters more
+			}
+			die $error;
+		};
+	}
 
 	# Handlers only set flags: Perl's deferred signals make that safe, and
 	# the real work then happens at a known point in the loop below
@@ -2154,8 +2170,12 @@ log in a web page (for example the viewer in F<www/>) must HTML-encode it.
 
 =item * B<The default log file is in /tmp.>  This keeps compatibility with
 older versions.  The checks described in L</DESCRIPTION> stop the usual
-attacks on files in F</tmp>, but another user can still delete the file.
-Use C<file> (or C<--file>) to choose a private place such as F</var/log>.
+attacks on files in F</tmp> (symbolic and hard links, someone else's file,
+a FIFO), and F</tmp>'s sticky bit stops other users deleting or renaming
+the log.  But any local user can create F</tmp/syslog.log> first: the
+server then refuses that file and does not start.  Use C<file> (or
+C<--file>) to choose a private place such as F</var/log/syslogd/>, as in
+L</SAMPLE CONFIGURATION>.
 
 =item * B<The web viewer cannot read the log.>  The file is readable only by
 its owner (usually root), but the web pages in F<www/> run as the web
