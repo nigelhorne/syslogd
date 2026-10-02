@@ -1,12 +1,12 @@
-#!/usr/bin/env perl
-
-# Author test: Perl::Critic at its default severity (5, "gentle")
+#!perl -w
 
 use strict;
 use warnings;
 
+use Test::DescribeMe qw(author);
+use File::Spec;
 use Test::Most;
 use Test::Needs 'Test::Perl::Critic';
+use English qw(-no_match_vars);
 
-Test::Perl::Critic->import();
-all_critic_ok(qw(lib etc/syslogd));
+Test::Perl::Critic::all_critic_ok();

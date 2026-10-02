@@ -384,7 +384,7 @@ Add to `/etc/newsyslog.conf` (or a file in `/usr/local/etc/newsyslog.conf.d/`):
     /var/log/syslog/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
 ```
 
-`C` creates the new, empty file; signal 1 (SIGHUP) makes the server
+Creates the new, empty file; signal 1 (SIGHUP) makes the server
 reopen it.  Use the owner that runs the server.
 
 ### Monit and M/Monit

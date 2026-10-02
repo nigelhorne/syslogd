@@ -507,7 +507,7 @@ Add to F</etc/newsyslog.conf> (or a file in F</usr/local/etc/newsyslog.conf.d/>)
 	# logfilename                    owner:group  mode count size when  flags pid_file                  sig
 	/var/log/syslog/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
 
-C<C> creates the new, empty file; signal 1 (SIGHUP) makes the server
+Creates the new, empty file; signal 1 (SIGHUP) makes the server
 reopen it.  Use the owner that runs the server.
 
 =head2 Monit and M/Monit
