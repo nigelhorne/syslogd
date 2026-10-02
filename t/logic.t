@@ -407,15 +407,16 @@ subtest '_open_log: empty || starts with the header' => sub {
 	App::Syslogd->new(file => $empty)->reopen_log();
 	is(slurp($empty), "$CONFIG{header}\n", 'empty: header written');
 
+	# :raw so that Windows writes "\n", not "\r\n": slurp() reads bytes
 	my $ours = new_path();
-	open(my $fh, '>', $ours) or die;
+	open(my $fh, '>:raw', $ours) or die;
 	print {$fh} "$CONFIG{header}\nold row\n";
 	close($fh);
 	App::Syslogd->new(file => $ours)->reopen_log();
 	is(slurp($ours), "$CONFIG{header}\nold row\n", 'starts with the header: accepted, no second header');
 
 	my $foreign = new_path();
-	open($fh, '>', $foreign) or die;
+	open($fh, '>:raw', $foreign) or die;
 	print {$fh} "existing\n";
 	close($fh);
 	throws_ok { App::Syslogd->new(file => $foreign)->reopen_log() }
