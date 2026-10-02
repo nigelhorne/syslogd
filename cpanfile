@@ -34,6 +34,7 @@ on 'test' => sub {
 	requires 'Test::Memory::Cycle';
 	requires 'Test::Mockingbird', '0.14';   # mock_scoped multi-method form
 	requires 'Test::Most';
+	requires 'Test::Needs';
 	requires 'Test::Returns', '0.04';
 	requires 'Test::Warn';
 	requires 'Test::Without::Module';

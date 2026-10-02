@@ -4,7 +4,7 @@ App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
 ## Version
 
-Version 0.02
+Version 0.002.0
 
 ## Synopsis
 
@@ -1449,7 +1449,7 @@ server cannot start with the default there ("Not a directory").  Give
 - **The default directory must already exist.**  The server does not
 create directories: create `/var/log/syslog` (see ["INSTALLATION"](#installation)), or the
 server stops with "Could not open log file ...: No such file or directory".
-Versions before 0.02 logged to `/tmp/syslog.log` by default.
+Versions before 0.002.0 logged to `/tmp/syslog.log` by default.
 - **The web viewer cannot read the log.**  The file is readable only by
 its owner (usually root), but the web pages in `www/` run as the web
 server's user.  You must choose between privacy and the viewer, for example

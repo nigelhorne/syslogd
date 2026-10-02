@@ -1,11 +1,11 @@
 Revision history for App-Syslogd
 
-0.002.0	2026-10-02
+0.002.0
 	First CPAN release.  The logic of the syslogd program
 	(https://github.com/nigelhorne/syslogd) moves into the module
 	App::Syslogd; etc/syslogd is now a thin wrapper around it.
 
-	Behaviour
+	[ Behaviour ]
 	- The default log file is now /var/log/syslog/syslog.csv (was
 	  /tmp/syslog.log), and its directory must already exist.  On
 	  Debian and Ubuntu /var/log/syslog is a file, so give --file there
@@ -32,7 +32,7 @@ Revision history for App-Syslogd
 	  microseconds instead of 42 (the built-in cache), and about 25%
 	  less again from cheaper constants and no seek before each write
 
-	Security
+	[ Security ]
 	- The log file is opened with O_NOFOLLOW, O_NONBLOCK and mode 0600.
 	  Symbolic links, hard links, FIFOs and files owned by another user
 	  are refused
@@ -45,7 +45,7 @@ Revision history for App-Syslogd
 	- etc/syslogd refuses to run from a web server, and works under
 	  perl -T (the module must then be installed, or given with -I)
 
-	Reliability
+	[ Reliability ]
 	- A failed write never leaves half a line in the log, and is
 	  reported instead of being lost
 	- run() starts all or nothing, refuses to be run again from inside
@@ -57,7 +57,7 @@ Revision history for App-Syslogd
 	- Windows: works without O_NOFOLLOW and fchmod (an existing log's
 	  permissions are left alone there)
 
-	Documentation and tests
+	[ Documentation and tests ]
 	- The POD is rewritten in plain English, with INSTALLATION, SAMPLE
 	  CONFIGURATION (systemd, FreeBSD rc.d, logrotate, newsyslog,
 	  Monit), SECURITY, LIMITATIONS, a formal specification and a state

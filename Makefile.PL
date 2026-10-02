@@ -57,6 +57,7 @@ WriteMakefile(
 		'Test::Memory::Cycle' => 0,
 		'Test::Mockingbird' => 0.14,	# mock_scoped multi-method form
 		'Test::Most'   => 0,
+		'Test::Needs' => 0,
 		'Test::Returns' => 0.04,
 		'Test::Without::Module' => 0,
 		'Text::CSV_PP' => 0,	# t/integration.t compares both backends
