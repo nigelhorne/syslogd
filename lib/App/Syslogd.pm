@@ -1342,8 +1342,20 @@ sub parse_message
 
 	return undef if(length($text) < $MIN_MESSAGE_LENGTH);
 
-	# 1-3 digits, no leading zeros except "<0>" itself (RFC 5424 6.2.1)
-	my @match = $text =~ /\A<(0|[1-9][0-9]{0,2})>(.*)\z/s;
+	# The PRI and the body, as RFC 5424 6.2.1 writes them.  Linear on
+	# any input: anchored at the start, the digits capped at three, and
+	# the body taken in one greedy step to the end.
+	my @match = $text =~ m{
+		\A
+		<				# a PRI starts with "<"
+		(				# capture 1: the PRI number
+			0			#   "0" on its own (no other leading zero)
+			| [1-9] [0-9]{0,2}	#   or 1 to 3 digits; <= 191 is checked below
+		)
+		>				# and ends with ">"
+		(.*)				# capture 2: the body, newlines included (/s)
+		\z
+	}xs;
 	my $valid = (@match && ($match[0] <= $MAX_PRI)) ? 1 : 0;
 
 	# RFC 3164 4.3.3: keep the whole datagram rather than discarding it.

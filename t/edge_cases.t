@@ -286,6 +286,11 @@ subtest 'parse_message: hostile and boundary datagrams' => sub {
 	my $max = App::Syslogd->parse_message('<13>' . ('m' x ($CONFIG{max_datagram} - 4)));
 	is(length($max->{message}), $CONFIG{max_datagram} - 4, 'a maximum-size datagram is kept whole');
 	App::Syslogd->parse_message('<' x $CONFIG{max_datagram});
+	# Long runs of line ends or NULs not at the end: the worst case for the
+	# trailing-terminator strip, which must stay linear
+	App::Syslogd->parse_message(("\n" x ($CONFIG{max_datagram} - 1)) . 'x');
+	App::Syslogd->parse_message(("\0" x ($CONFIG{max_datagram} - 1)) . 'x');
+	App::Syslogd->parse_message(("\r\n" x ($CONFIG{max_datagram} / 2)) . "\x01");
 	cmp_ok(time() - $start, '<', $CONFIG{time_limit}, 'pathological datagrams parse quickly (no ReDoS)');
 
 	# Characters above 255 are not escaped: the POD asks callers to encode

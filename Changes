@@ -74,6 +74,9 @@ Revision history for App-Syslogd
 	  recurse for ever (found by mutation testing)
 	- App::Syslogd::I18N::text() refuses "" and 0 as values, as its
 	  domain says; they were silently treated as "no values"
+	- Regex audit: no regular expression can backtrack badly (each was
+	  timed against hostile 64 KB input); the PRI regex is now written
+	  with /x and commented
 	- Performance: a built-in cache for host names, App::Syslogd::Cache,
 	  replaces the default CHI cache.  A cache hit was a third of the time
 	  per datagram; with names looked up, a datagram now takes about 27
