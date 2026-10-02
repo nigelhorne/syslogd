@@ -48,7 +48,7 @@ our $VERSION = '0.02';
 Readonly our %DEFAULTS => (
 	port => 514,			# RFC 5426 well-known port
 	address => '0.0.0.0',		# IPv4 wildcard, as the original script used
-	file => '/tmp/syslog.log',	# Kept for compatibility; see LIMITATIONS
+	file => '/var/log/syslog/syslog.csv',	# The directory must exist; see INSTALLATION
 	resolve => 1,			# Log host names rather than addresses
 	dns_ttl => 300,			# Seconds to remember a reverse lookup
 	dns_cache_bytes => 262_144,	# Upper bound on the reverse-lookup cache
@@ -83,8 +83,9 @@ Readonly::Scalar my $LOG_MODE => 0600;
 Readonly::Scalar my $O_NOFOLLOW => eval { Fcntl::O_NOFOLLOW() } // 0;
 
 # O_NONBLOCK makes opening a FIFO fail at once (ENXIO) instead of waiting
-# for a reader.  Without it anyone could create a FIFO at the default
-# /tmp/syslog.log and the server would hang for ever at start-up.  It has
+# for a reader.  Without it anyone able to create a FIFO where the log
+# goes (a shared directory such as /tmp) could make the server hang for
+# ever at start-up.  It has
 # no effect on the regular files we accept.  Not defined on Windows.
 Readonly::Scalar my $O_NONBLOCK => eval { Fcntl::O_NONBLOCK() } // 0;
 
@@ -283,7 +284,7 @@ completely.  Datagrams shorter than 2 characters are ignored.
 
 The program F<etc/syslogd> is a small wrapper around this module:
 
-	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /var/log/syslog/syslog.csv]
 		[--no-resolve] [--language en]
 
 =over 4
@@ -294,9 +295,11 @@ standard syslog port.  Ports below 1024 need root.
 =item C<--address> - the local address to listen on.  The default
 C<0.0.0.0> means "every IPv4 address of this machine".  Use C<::> for IPv6.
 
-=item C<--file> - the CSV log file.  The default F</tmp/syslog.log> exists
-only for compatibility with older versions.  For real use, choose a private
-place, such as F</var/log/remote-syslog.csv> (see L</LIMITATIONS>).
+=item C<--file> - the CSV log file.  The default is
+F</var/log/syslog/syslog.csv>.  The directory must exist and be writable by
+the user that runs the server (see L</INSTALLATION>).  On Debian, Ubuntu and
+their derivatives F</var/log/syslog> is the system log file, so give
+C<--file> there (see L</LIMITATIONS>).
 
 =item C<--no-resolve> - write IP addresses instead of host names.  This is
 faster on a busy server.
@@ -325,9 +328,15 @@ or from a git checkout:
 
 	perl Makefile.PL && make && make test && sudo make install
 
-Then copy the program by hand:
+Then copy the program by hand, and create the directory for the default
+log file (the server does not create directories):
 
 	sudo cp etc/syslogd /usr/local/etc/
+	sudo mkdir -m 700 /var/log/syslog
+
+Make that directory belong to the user that runs the server, if it is not
+root.  On Debian and Ubuntu F</var/log/syslog> is already a file; use
+another directory and C<--file> there.
 
 C<make install> does not install the program on purpose.  It would put it in
 a F<bin> directory, and a program called F<syslogd> there could hide the
@@ -345,7 +354,7 @@ in Perl's normal module directories.
 =head1 SAMPLE CONFIGURATION
 
 These samples run the server as its own user, C<syslogd>, writing to
-F</var/log/syslogd/remote.csv>.  Adjust the names and paths to suit.
+F</var/log/syslog/remote.csv>.  Adjust the names and paths to suit.
 
 Three things shape them:
 
@@ -371,7 +380,7 @@ Create the user first, for example:
 
 	# FreeBSD
 	pw useradd syslogd -d /nonexistent -s /usr/sbin/nologin -c "App::Syslogd"
-	mkdir -p /var/log/syslogd && chown syslogd /var/log/syslogd && chmod 700 /var/log/syslogd
+	mkdir -p /var/log/syslog && chown syslogd /var/log/syslog && chmod 700 /var/log/syslog
 
 =head2 systemd (Linux)
 
@@ -391,10 +400,10 @@ C<systemctl daemon-reload> and C<systemctl enable --now app-syslogd>.
 	# Port 514 is below 1024: grant just that right, not root
 	AmbientCapabilities=CAP_NET_BIND_SERVICE
 	CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-	# Creates /var/log/syslogd, owned by the user above
-	LogsDirectory=syslogd
+	# Creates /var/log/syslog, owned by the user above
+	LogsDirectory=syslog
 	LogsDirectoryMode=0700
-	ExecStart=/usr/local/etc/syslogd --port 514 --file /var/log/syslogd/remote.csv
+	ExecStart=/usr/local/etc/syslogd --port 514 --file /var/log/syslog/remote.csv
 	# SIGHUP reopens the log after rotation
 	ExecReload=/bin/kill -HUP $MAINPID
 	Restart=on-failure
@@ -435,7 +444,7 @@ C<service app_syslogd start>.
 
 	: ${app_syslogd_enable:="NO"}
 	: ${app_syslogd_user:="root"}
-	: ${app_syslogd_options:="--port 514 --file /var/log/syslogd/remote.csv"}
+	: ${app_syslogd_options:="--port 514 --file /var/log/syslog/remote.csv"}
 
 	pidfile="/var/run/${name}.pid"
 
@@ -465,7 +474,7 @@ must belong to whichever user runs the server.
 
 Save as F</etc/logrotate.d/app-syslogd>.
 
-	/var/log/syslogd/remote.csv {
+	/var/log/syslog/remote.csv {
 		weekly
 		rotate 8
 		compress
@@ -491,7 +500,7 @@ makes the file itself on SIGHUP) is what the server expects.
 Add to F</etc/newsyslog.conf> (or a file in F</usr/local/etc/newsyslog.conf.d/>):
 
 	# logfilename                    owner:group  mode count size when  flags pid_file                  sig
-	/var/log/syslogd/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
+	/var/log/syslog/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
 
 C<C> creates the new, empty file; signal 1 (SIGHUP) makes the server
 reopen it.  Use the owner that runs the server.
@@ -517,7 +526,7 @@ C<set mmonit>.
 	#		stop program  = "/usr/sbin/service app_syslogd stop"
 
 	# The log must stay private and be written to
-	check file app-syslogd-log with path /var/log/syslogd/remote.csv
+	check file app-syslogd-log with path /var/log/syslog/remote.csv
 		if failed permission 600 then alert
 		if failed uid "syslogd" then alert
 		if timestamp > 1 hour then alert
@@ -706,7 +715,8 @@ to find out which one.
 =item * C<address> - the local address to listen on.  Default C<0.0.0.0> (all
 IPv4 addresses).  Use C<::> for IPv6.
 
-=item * C<file> - the CSV log file.  Default F</tmp/syslog.log>.
+=item * C<file> - the CSV log file.  Default F</var/log/syslog/syslog.csv>;
+its directory must already exist.
 
 =item * C<resolve> - true (the default) to write host names, false to write
 IP addresses.
@@ -1815,7 +1825,7 @@ sub _open_log
 	# The eval below must not touch the caller's $@
 	local $@;
 
-	# O_NOFOLLOW: the default lives in /tmp, where anyone could plant a
+	# O_NOFOLLOW: if the log is in a shared directory (/tmp), anyone could plant a
 	# symlink to /etc/shadow before root starts us.  O_APPEND: rows from
 	# one write() are never interleaved with another writer's, and always
 	# go to the end.  O_RDWR (not O_WRONLY) so the first line can be read
@@ -2174,14 +2184,17 @@ log in a web page (for example the viewer in F<www/>) must HTML-encode it.
 
 =over 4
 
-=item * B<The default log file is in /tmp.>  This keeps compatibility with
-older versions.  The checks described in L</DESCRIPTION> stop the usual
-attacks on files in F</tmp> (symbolic and hard links, someone else's file,
-a FIFO), and F</tmp>'s sticky bit stops other users deleting or renaming
-the log.  But any local user can create F</tmp/syslog.log> first: the
-server then refuses that file and does not start.  Use C<file> (or
-C<--file>) to choose a private place such as F</var/log/syslogd/>, as in
+=item * B<The default directory is a file on Debian and Ubuntu.>  The
+default log is F</var/log/syslog/syslog.csv>, but on Debian, Ubuntu and
+their derivatives F</var/log/syslog> is rsyslog's own log file, so the
+server cannot start with the default there ("Not a directory").  Give
+C<file> (or C<--file>), for example F</var/log/syslog/syslog.csv> as in
 L</SAMPLE CONFIGURATION>.
+
+=item * B<The default directory must already exist.>  The server does not
+create directories: create F</var/log/syslog> (see L</INSTALLATION>), or the
+server stops with "Could not open log file ...: No such file or directory".
+Versions before 0.02 logged to F</tmp/syslog.log> by default.
 
 =item * B<The web viewer cannot read the log.>  The file is readable only by
 its owner (usually root), but the web pages in F<www/> run as the web

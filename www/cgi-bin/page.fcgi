@@ -116,8 +116,8 @@ Database::Abstraction::init({
 # with the vwf_log class (wrong file, and wrong column names), so the index
 # page never saw the syslog data.  SYSLOGD_DIR must match the directory of
 # the daemon's --file; its default matches the daemon's default.
-Readonly my $SYSLOG_DIR => $ENV{'SYSLOGD_DIR'} || '/tmp';
-my $syslog_log = VWF::Data::syslog_log->new({ directory => $SYSLOG_DIR, filename => 'syslog.log', no_entry => 1 });
+Readonly my $SYSLOG_DIR => $ENV{'SYSLOGD_DIR'} || '/var/log/syslog';
+my $syslog_log = VWF::Data::syslog_log->new({ directory => $SYSLOG_DIR, filename => 'syslog.csv', no_entry => 1 });
 
 # Opened in doit() once the configuration has been read, so that the
 # configuration file's vwflog setting is honoured

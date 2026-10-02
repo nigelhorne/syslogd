@@ -3,6 +3,9 @@ Revision history for App-Syslogd
 0.02	Thu Oct  1 2026
 	First CPAN release, as App::Syslogd (the backend of
 	https://github.com/nigelhorne/syslogd).
+	- The default log file is now /var/log/syslog/syslog.csv (was
+	  /tmp/syslog.log); the directory must exist.  On Debian and Ubuntu
+	  /var/log/syslog is a file, so give --file there
 	- Logic moved out of etc/syslogd into App::Syslogd, which
 	  etc/syslogd now wraps
 	- SIGHUP closes and reopens the log file, for logrotate;

@@ -102,7 +102,7 @@ subtest 'new() validates its arguments' => sub {
 	my $u = App::Syslogd->new(port => undef, file => undef, address => undef, resolve => undef);
 	is($u->port(), 514, 'port => undef gives the default port');
 	is($u->address(), '0.0.0.0', 'address => undef gives the default address');
-	is($u->{file}, '/tmp/syslog.log', 'file => undef gives the default file');
+	is($u->{file}, '/var/log/syslog/syslog.csv', 'file => undef gives the default file');
 	is($u->{resolve}, 1, 'resolve => undef gives the default');
 };
 

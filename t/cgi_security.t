@@ -253,8 +253,10 @@ subtest 'path traversal through the file setting' => sub {
 	# "ours", and the header check refuses it.  Either way: refused, and
 	# neither the content nor the permissions change.
 	local %ENV = (%ENV, %HOSTILE_CGI);
-	foreach my $target ('/etc/passwd', '../../../../../../../../etc/passwd', '/etc/shadow') {
-		next unless(-e $target);
+	# Not every system has these files (Windows has none of them)
+	my @targets = grep { -e $_ } ('/etc/passwd', '../../../../../../../../etc/passwd', '/etc/shadow');
+	plan(skip_all => 'no system files to aim at on this platform') unless(@targets);
+	foreach my $target (@targets) {
 		my $before = -r $target ? slurp($target) : undef;
 		my $mode = (stat $target)[2];
 		throws_ok { App::Syslogd->new(file => $target)->reopen_log() } qr/\A(?:Could not open log file|Refusing to log to) /, "file => '$target': refused";
@@ -357,8 +359,12 @@ subtest 'taint mode: tainted settings are refused, not untainted' => sub {
 	# no untainting, so every tainted file name must be refused.
 	my $load = "use App::Syslogd;\n";
 
+	# The log path is written into the script as a literal: a file name
+	# from @ARGV would itself be tainted, and none given means the default
+	# directory, which need not exist on a test machine
+	(my $log = new_path()) =~ s/([\\'])/\\$1/g;
 	my ($exit, $stdout, $stderr) = run_child($load
-		. 'my $s = App::Syslogd->new(file => $ARGV[0], resolve => 0)->reopen_log();' . "\n"
+		. "my \$s = App::Syslogd->new(file => '$log', resolve => 0)->reopen_log();\n"
 		. 'my $tainted = substr($ENV{PATH}, 0, 0) . "<13>tainted data";' . "\n"
 		. '$s->process($tainted, undef);' . "\n"
 		. 'print "recorded ", $s->count(), "\n";', '-T');
@@ -468,8 +474,10 @@ subtest 'program: path traversal through --file' => sub {
 	# App::Syslogd refuses it when given one directly.)
 	local %ENV = (%ENV);
 	delete @ENV{qw(GATEWAY_INTERFACE REQUEST_METHOD)};
-	foreach my $target ('/etc/passwd', '../../../../../../../../etc/passwd') {
-		next unless(-e $target);
+	# Not every system has these files (Windows has none of them)
+	my @targets = grep { -e $_ } ('/etc/passwd', '../../../../../../../../etc/passwd');
+	plan(skip_all => 'no system files to aim at on this platform') unless(@targets);
+	foreach my $target (@targets) {
 		my $before = -r $target ? slurp($target) : undef;
 		my $mode = (stat $target)[2];
 		my ($exit, $stdout, $stderr) = run_program([], ['--port', $CONFIG{any_port}, '--address', $CONFIG{loopback}, '--file', $target]);

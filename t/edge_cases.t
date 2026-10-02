@@ -503,7 +503,7 @@ subtest 'filesystem: devices, directories and links are refused' => sub {
 
 subtest 'filesystem (regression): a FIFO does not hang the server' => sub {
 	# Purpose: opening a FIFO for writing waits for a reader for ever.
-	# Anyone could create one at the default /tmp/syslog.log and stop the
+	# Anyone could create one where a log in a shared directory (/tmp) goes and stop the
 	# server starting.  It must be refused at once.  Strategy: a child
 	# process with an alarm, so a regression fails instead of hanging.
 	plan(skip_all => 'no FIFOs on Windows') if($WINDOWS);

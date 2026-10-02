@@ -156,7 +156,7 @@ completely.  Datagrams shorter than 2 characters are ignored.
 The program `etc/syslogd` is a small wrapper around this module:
 
 ```
-    /usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+    /usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /var/log/syslog/syslog.csv]
             [--no-resolve] [--language en]
 ```
 
@@ -164,9 +164,11 @@ The program `etc/syslogd` is a small wrapper around this module:
 standard syslog port.  Ports below 1024 need root.
 - `--address` - the local address to listen on.  The default
 `0.0.0.0` means "every IPv4 address of this machine".  Use `::` for IPv6.
-- `--file` - the CSV log file.  The default `/tmp/syslog.log` exists
-only for compatibility with older versions.  For real use, choose a private
-place, such as `/var/log/remote-syslog.csv` (see ["LIMITATIONS"](#limitations)).
+- `--file` - the CSV log file.  The default is
+`/var/log/syslog/syslog.csv`.  The directory must exist and be writable by
+the user that runs the server (see ["INSTALLATION"](#installation)).  On Debian, Ubuntu and
+their derivatives `/var/log/syslog` is the system log file, so give
+`--file` there (see ["LIMITATIONS"](#limitations)).
 - `--no-resolve` - write IP addresses instead of host names.  This is
 faster on a busy server.
 - `--language` - the language of the program's own messages, for example
@@ -195,11 +197,17 @@ or from a git checkout:
     perl Makefile.PL && make && make test && sudo make install
 ```
 
-Then copy the program by hand:
+Then copy the program by hand, and create the directory for the default
+log file (the server does not create directories):
 
 ```
     sudo cp etc/syslogd /usr/local/etc/
+    sudo mkdir -m 700 /var/log/syslog
 ```
+
+Make that directory belong to the user that runs the server, if it is not
+root.  On Debian and Ubuntu `/var/log/syslog` is already a file; use
+another directory and `--file` there.
 
 `make install` does not install the program on purpose.  It would put it in
 a `bin` directory, and a program called `syslogd` there could hide the
@@ -219,7 +227,7 @@ in Perl's normal module directories.
 ## Sample Configuration
 
 These samples run the server as its own user, `syslogd`, writing to
-`/var/log/syslogd/remote.csv`.  Adjust the names and paths to suit.
+`/var/log/syslog/remote.csv`.  Adjust the names and paths to suit.
 
 Three things shape them:
 
@@ -240,7 +248,7 @@ Create the user first, for example:
 
     # FreeBSD
     pw useradd syslogd -d /nonexistent -s /usr/sbin/nologin -c "App::Syslogd"
-    mkdir -p /var/log/syslogd && chown syslogd /var/log/syslogd && chmod 700 /var/log/syslogd
+    mkdir -p /var/log/syslog && chown syslogd /var/log/syslog && chmod 700 /var/log/syslog
 ```
 
 ### Systemd (Linux)
@@ -262,10 +270,10 @@ Save as `/etc/systemd/system/app-syslogd.service`, then run
     # Port 514 is below 1024: grant just that right, not root
     AmbientCapabilities=CAP_NET_BIND_SERVICE
     CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-    # Creates /var/log/syslogd, owned by the user above
-    LogsDirectory=syslogd
+    # Creates /var/log/syslog, owned by the user above
+    LogsDirectory=syslog
     LogsDirectoryMode=0700
-    ExecStart=/usr/local/etc/syslogd --port 514 --file /var/log/syslogd/remote.csv
+    ExecStart=/usr/local/etc/syslogd --port 514 --file /var/log/syslog/remote.csv
     # SIGHUP reopens the log after rotation
     ExecReload=/bin/kill -HUP $MAINPID
     Restart=on-failure
@@ -308,7 +316,7 @@ Save as `/usr/local/etc/rc.d/app_syslogd` (mode 0555), then add
 
     : ${app_syslogd_enable:="NO"}
     : ${app_syslogd_user:="root"}
-    : ${app_syslogd_options:="--port 514 --file /var/log/syslogd/remote.csv"}
+    : ${app_syslogd_options:="--port 514 --file /var/log/syslog/remote.csv"}
 
     pidfile="/var/run/${name}.pid"
 
@@ -340,7 +348,7 @@ must belong to whichever user runs the server.
 Save as `/etc/logrotate.d/app-syslogd`.
 
 ```
-    /var/log/syslogd/remote.csv {
+    /var/log/syslog/remote.csv {
             weekly
             rotate 8
             compress
@@ -368,7 +376,7 @@ Add to `/etc/newsyslog.conf` (or a file in `/usr/local/etc/newsyslog.conf.d/`):
 
 ```
     # logfilename                    owner:group  mode count size when  flags pid_file                  sig
-    /var/log/syslogd/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
+    /var/log/syslog/remote.csv      root:wheel   600  8     *    @T00  JC    /var/run/app_syslogd.pid  1
 ```
 
 `C` creates the new, empty file; signal 1 (SIGHUP) makes the server
@@ -396,7 +404,7 @@ Add to `/etc/monit/monitrc` (Linux) or `/usr/local/etc/monitrc`
     #               stop program  = "/usr/sbin/service app_syslogd stop"
 
     # The log must stay private and be written to
-    check file app-syslogd-log with path /var/log/syslogd/remote.csv
+    check file app-syslogd-log with path /var/log/syslog/remote.csv
             if failed permission 600 then alert
             if failed uid "syslogd" then alert
             if timestamp > 1 hour then alert
@@ -547,7 +555,8 @@ to new()**.  They are checked in exactly the same way as arguments.
 to find out which one.
 - `address` - the local address to listen on.  Default `0.0.0.0` (all
 IPv4 addresses).  Use `::` for IPv6.
-- `file` - the CSV log file.  Default `/tmp/syslog.log`.
+- `file` - the CSV log file.  Default `/var/log/syslog/syslog.csv`;
+its directory must already exist.
 - `resolve` - true (the default) to write host names, false to write
 IP addresses.
 - `dns_ttl` - how many seconds to remember a host name.  Default 300.
@@ -1426,14 +1435,16 @@ log in a web page (for example the viewer in `www/`) must HTML-encode it.
 
 ## Limitations
 
-- **The default log file is in /tmp.**  This keeps compatibility with
-older versions.  The checks described in ["DESCRIPTION"](#description) stop the usual
-attacks on files in `/tmp` (symbolic and hard links, someone else's file,
-a FIFO), and `/tmp`'s sticky bit stops other users deleting or renaming
-the log.  But any local user can create `/tmp/syslog.log` first: the
-server then refuses that file and does not start.  Use `file` (or
-`--file`) to choose a private place such as `/var/log/syslogd/`, as in
+- **The default directory is a file on Debian and Ubuntu.**  The
+default log is `/var/log/syslog/syslog.csv`, but on Debian, Ubuntu and
+their derivatives `/var/log/syslog` is rsyslog's own log file, so the
+server cannot start with the default there ("Not a directory").  Give
+`file` (or `--file`), for example `/var/log/syslog/syslog.csv` as in
 ["SAMPLE CONFIGURATION"](#sample-configuration).
+- **The default directory must already exist.**  The server does not
+create directories: create `/var/log/syslog` (see ["INSTALLATION"](#installation)), or the
+server stops with "Could not open log file ...: No such file or directory".
+Versions before 0.02 logged to `/tmp/syslog.log` by default.
 - **The web viewer cannot read the log.**  The file is readable only by
 its owner (usually root), but the web pages in `www/` run as the web
 server's user.  You must choose between privacy and the viewer, for example

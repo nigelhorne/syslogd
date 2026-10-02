@@ -4,7 +4,7 @@
 # All of the work is in App::Syslogd; this file only turns the command
 # line into constructor arguments, so that the logic can be unit tested.
 #
-#	syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+#	syslogd [--port 514] [--address 0.0.0.0] [--file /var/log/syslog/syslog.csv]
 #		[--no-resolve] [--language en]
 #
 # Send SIGHUP to reopen the log file after rotation, SIGTERM or SIGINT to
@@ -86,7 +86,7 @@ syslogd - receive syslog messages over UDP and write them to a CSV file
 
 =head1 SYNOPSIS
 
-	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /tmp/syslog.log]
+	/usr/local/etc/syslogd [--port 514] [--address 0.0.0.0] [--file /var/log/syslog/syslog.csv]
 		[--no-resolve] [--language en]
 
 	# Without root, on a port above 1023, logging addresses only
@@ -116,7 +116,9 @@ on, so the defaults of L<App::Syslogd> apply.
 
 =item C<--address A> - local address to listen on (default C<0.0.0.0>).
 
-=item C<--file F> - the CSV log file (default F</tmp/syslog.log>).
+=item C<--file F> - the CSV log file (default F</var/log/syslog/syslog.csv>;
+the directory must exist, and on Debian and Ubuntu F</var/log/syslog> is a
+file, so give C<--file> there).
 
 =item C<--resolve> / C<--no-resolve> - write host names (the default) or
 addresses.
