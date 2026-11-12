@@ -20,6 +20,9 @@ BEGIN {
 	# reads it when it wraps the subs, at CHECK time.  Needs a per-package mode in
 	# Sub::Private (e.g. "use Sub::Private { mode => 'enforce' }").
 	$Sub::Private::config{mode} = 'enforce';
+	# The text matched here is Perl's own.  If a later Perl words it differently
+	# the warning shows again, which is harmless; t/extended_tests.t checks that
+	# every other warning still gets through.
 	local $SIG{__WARN__} = sub { warn(@_) unless($_[0] =~ /\AToo late to run CHECK block /) };
 	require Sub::Private;
 	require Sub::Protected;
@@ -41,7 +44,7 @@ use Text::CSV;
 use App::Syslogd::Cache;
 use App::Syslogd::I18N;
 
-our $VERSION = '0.002.0';
+our $VERSION = '0.002.1';
 
 # Every tunable lives here, so it can be overridden from new() and so
 # nothing in the code below is a magic number
@@ -127,7 +130,7 @@ App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
 =head1 VERSION
 
-Version 0.002.0
+Version 0.002.1
 
 =head1 SYNOPSIS
 
@@ -543,11 +546,12 @@ change C<1 hour> to suit how often your hosts send messages.
 =head1 DEPENDENCIES
 
 Perl 5.14 or later, and these modules: L<autodie> (which needs
-L<IPC::System::Simple>), L<IO::Socket::IP>, L<Locale::Maketext>,
-L<Object::Configure>, L<Params::Get>, L<Params::Validate::Strict>,
-L<Readonly>, L<Socket>,
-L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  F<Makefile.PL> lists
-the minimum versions.
+L<IPC::System::Simple>), L<Carp>, L<Config>, L<Fcntl>, L<IO::Handle>,
+L<IO::Socket::IP>, L<Locale::Maketext>, L<Object::Configure>, L<overload>,
+L<parent>, L<Params::Get>, L<Params::Validate::Strict>, L<Readonly>,
+L<Socket>, L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  The
+program F<etc/syslogd> also uses L<FindBin> and L<Getopt::Long>.  Most of
+these come with Perl.  F<Makefile.PL> lists the minimum versions.
 
 =head1 FILES
 
@@ -1191,7 +1195,16 @@ Usage:
 	|   ERROR                       |   file.  ERROR is the system's |   its permissions.  Remove a  |
 	|                               |   reason.  A symbolic link, a  |   symbolic link or FIFO; give |
 	|                               |   directory or a FIFO (named   |   a file name, not a          |
-	|                               |   pipe) also gives this        |   directory                   |
+	|                               |   pipe) also gives this        |   directory.  Give a regular  |
+	|                               |   message.  So does a device   |   file for a device           |
+	|                               |   file such as /dev/urandom    |                               |
+	|                               |   when the system will not     |                               |
+	|                               |   open it for writing (an      |                               |
+	|                               |   ordinary user may not; on    |                               |
+	|                               |   FreeBSD it is a symbolic     |                               |
+	|                               |   link).  Otherwise a device   |                               |
+	|                               |   gets the "Refusing" message  |                               |
+	|                               |   below                        |                               |
 	| Refusing to log to F: it must | F is a hard link or another    | Remove F and let the server   |
 	|   be a regular file, owned by |   user's file                  |   create it again             |
 	|   this user, with exactly one |                                |                               |
@@ -1604,6 +1617,8 @@ sub run
 			if(!$socket_was_open && (my $socket = delete $self->{socket})) {
 				eval { $socket->close() };	# the open error matters more
 			}
+			# A rethrow of the error already caught, so die, not croak: croak
+			# would add this line's location and hide where it really failed
 			die $error;
 		};
 	}
@@ -1873,6 +1888,7 @@ sub _open_log
 		eval { $self->_write_header($fh); 1 } or do {
 			my $error = $@;
 			_discard($fh);
+			# A rethrow of the error already caught, so die, not croak
 			die $error;
 		};
 	}
@@ -2013,6 +2029,7 @@ sub _shutdown
 	my $ok = eval { $socket->close() if($socket); 1 };
 	my $error = $@;
 	$self->_close_log();
+	# A rethrow of the error already caught, so die, not croak
 	die $error unless($ok);
 
 	return $self;

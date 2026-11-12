@@ -4,7 +4,7 @@ App::Syslogd - A small UDP syslog receiver that writes a CSV file
 
 ## Version
 
-Version 0.002.0
+Version 0.002.1
 
 ## Synopsis
 
@@ -422,11 +422,12 @@ change `1 hour` to suit how often your hosts send messages.
 ## Dependencies
 
 Perl 5.14 or later, and these modules: [autodie](https://metacpan.org/pod/autodie) (which needs
-[IPC::System::Simple](https://metacpan.org/pod/IPC%3A%3ASystem%3A%3ASimple)), [IO::Socket::IP](https://metacpan.org/pod/IO%3A%3ASocket%3A%3AIP), [Locale::Maketext](https://metacpan.org/pod/Locale%3A%3AMaketext),
-[Object::Configure](https://metacpan.org/pod/Object%3A%3AConfigure), [Params::Get](https://metacpan.org/pod/Params%3A%3AGet), [Params::Validate::Strict](https://metacpan.org/pod/Params%3A%3AValidate%3A%3AStrict),
-[Readonly](https://metacpan.org/pod/Readonly), [Socket](https://metacpan.org/pod/Socket),
-[Sub::Private](https://metacpan.org/pod/Sub%3A%3APrivate), [Sub::Protected](https://metacpan.org/pod/Sub%3A%3AProtected) and [Text::CSV](https://metacpan.org/pod/Text%3A%3ACSV).  `Makefile.PL` lists
-the minimum versions.
+[IPC::System::Simple](https://metacpan.org/pod/IPC%3A%3ASystem%3A%3ASimple)), [Carp](https://metacpan.org/pod/Carp), [Config](https://metacpan.org/pod/Config), [Fcntl](https://metacpan.org/pod/Fcntl), [IO::Handle](https://metacpan.org/pod/IO%3A%3AHandle),
+[IO::Socket::IP](https://metacpan.org/pod/IO%3A%3ASocket%3A%3AIP), [Locale::Maketext](https://metacpan.org/pod/Locale%3A%3AMaketext), [Object::Configure](https://metacpan.org/pod/Object%3A%3AConfigure), [overload](https://metacpan.org/pod/overload),
+[parent](https://metacpan.org/pod/parent), [Params::Get](https://metacpan.org/pod/Params%3A%3AGet), [Params::Validate::Strict](https://metacpan.org/pod/Params%3A%3AValidate%3A%3AStrict), [Readonly](https://metacpan.org/pod/Readonly),
+[Socket](https://metacpan.org/pod/Socket), [Sub::Private](https://metacpan.org/pod/Sub%3A%3APrivate), [Sub::Protected](https://metacpan.org/pod/Sub%3A%3AProtected) and [Text::CSV](https://metacpan.org/pod/Text%3A%3ACSV).  The
+program `etc/syslogd` also uses [FindBin](https://metacpan.org/pod/FindBin) and [Getopt::Long](https://metacpan.org/pod/Getopt%3A%3ALong).  Most of
+these come with Perl.  `Makefile.PL` lists the minimum versions.
 
 ## Files
 
@@ -951,7 +952,16 @@ Usage:
     |   ERROR                       |   file.  ERROR is the system's |   its permissions.  Remove a  |
     |                               |   reason.  A symbolic link, a  |   symbolic link or FIFO; give |
     |                               |   directory or a FIFO (named   |   a file name, not a          |
-    |                               |   pipe) also gives this        |   directory                   |
+    |                               |   pipe) also gives this        |   directory.  Give a regular  |
+    |                               |   message.  So does a device   |   file for a device           |
+    |                               |   file such as /dev/urandom    |                               |
+    |                               |   when the system will not     |                               |
+    |                               |   open it for writing (an      |                               |
+    |                               |   ordinary user may not; on    |                               |
+    |                               |   FreeBSD it is a symbolic     |                               |
+    |                               |   link).  Otherwise a device   |                               |
+    |                               |   gets the "Refusing" message  |                               |
+    |                               |   below                        |                               |
     | Refusing to log to F: it must | F is a hard link or another    | Remove F and let the server   |
     |   be a regular file, owned by |   user's file                  |   create it again             |
     |   this user, with exactly one |                                |                               |
