@@ -467,9 +467,12 @@ subtest 'filesystem: devices, directories and links are refused' => sub {
 	foreach my $device ('/dev/null', '/dev/urandom', '/dev/zero') {
 		SKIP: {
 			skip("$device does not exist here", 1) unless(-e $device);
-			throws_ok { App::Syslogd->new(file => $device)->reopen_log() }
-				exact("Refusing to log to $device: it must be a regular file, owned by this user, with exactly one link"),
-				"character device $device";
+			# On FreeBSD /dev/urandom is a symbolic link, which O_NOFOLLOW
+			# refuses at open time, so the message is the open failure
+			my $refusal = (-l $device && defined(eval { Fcntl::O_NOFOLLOW() }))
+				? qr/\A\QCould not open log file $device: \E/
+				: exact("Refusing to log to $device: it must be a regular file, owned by this user, with exactly one link");
+			throws_ok { App::Syslogd->new(file => $device)->reopen_log() } $refusal, "character device $device";
 		}
 	}
 

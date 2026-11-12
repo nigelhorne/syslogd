@@ -1,5 +1,9 @@
 Revision history for App-Syslogd
 
+0.002.1
+	[ Bug Fixes ]
+	- Fix https://github.com/nigelhorne/syslogd/issues/1
+
 0.002.0	Fri Oct  2 08:49:35 AM EDT 2026
 	First CPAN release.  The logic of the syslogd program
 	(https://github.com/nigelhorne/syslogd) moves into the module
