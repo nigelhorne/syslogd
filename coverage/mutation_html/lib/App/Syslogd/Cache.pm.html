@@ -294,7 +294,7 @@ a.intra-dot:hover { color: #7700bb; }
  <a href="I18N.pm.html">Next ➡</a></div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
 TER1 (Statement): 100.00%<br>
-TER2 (Branch): 85.71%<br>
+TER2 (Branch): 100.00%<br>
 TER3 (LCSAJ): 100.0% (2/2)<br>
 Approximate LCSAJ segments: 15<br>
 </div>
@@ -597,7 +597,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  235: 
 </span><span class="">  236: 	# A key that is replaced again and again leaves stale queue items;
 </span><span class="">  237: 	# rebuild the queue from the live entries before they pile up
-</span><span class="survived-3 tooltip" data-tooltip="Mutation survived. Add targeted tests to validate this branch. Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one).">  238: 	if(@{$order} &gt; $QUEUE_SLACK * keys(%{$self-&gt;{entries}}) + 1) {
+</span><span class="survived-3 tooltip" data-tooltip="Boundary mutation survived. Add tests around edge values (e.g. min, max, off-by-one). Mutation survived. Add targeted tests to validate this branch.">  238: 	if(@{$order} &gt; $QUEUE_SLACK * keys(%{$self-&gt;{entries}}) + 1) {
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 4, Killed: 0, Survived: 4)</summary>
