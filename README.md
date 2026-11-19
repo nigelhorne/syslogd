@@ -1615,6 +1615,18 @@ newline look the same (see ["COMMON PITFALLS"](#common-pitfalls)).
     signal is not available.  Stop and restart the server instead.
     - A signal such as Ctrl-C may not interrupt the wait for a datagram, so
     the server may stop only after the next datagram arrives.
+- **The count includes lines that failed to write.**  `count()` grows
+for every datagram that was accepted, even if the disk was full and the line
+was lost (a warning is given).  So it is "datagrams received", not "lines in
+the file".  Counting only successful writes would be more honest, but it
+changes a documented result, so it has not been done.
+- **Two servers started together on one new file may both write the
+header.**  The check "is the file empty?" and the write of the first line are
+two steps, with no lock between them.  Start one server per file, and start
+them one after the other.
+- **The private helpers need Sub::Private 0.09 or later.**  The module
+chooses enforce mode for itself only (an earlier release set it for every
+package in the program).  An older Sub::Private does not know the option.
 - **Do not send the logger's output to this server.**  [Object::Configure](https://metacpan.org/pod/Object%3A%3AConfigure)
 gives each object a logger, and a shared configuration file may point it
 at syslog.  This module does not log through it today, but if it ever

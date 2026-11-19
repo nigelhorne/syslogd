@@ -14,18 +14,17 @@ use autodie qw(:all);
 # about their internals, so it is filtered here and nothing else is.
 # The helpers are protected at the bottom of this file; see there for why.
 BEGIN {
-	# TODO: Data Flow Anomaly - this global is defined here and never restored, so every
-	# package loaded later in the same process that uses Sub::Private also gets enforce
-	# mode instead of the default namespace mode.  It cannot be localised: Sub::Private
-	# reads it when it wraps the subs, at CHECK time.  Needs a per-package mode in
-	# Sub::Private (e.g. "use Sub::Private { mode => 'enforce' }").
-	$Sub::Private::config{mode} = 'enforce';
+	# The mode is chosen for this package only, with Sub::Private's per-package
+	# option (from version 0.09), so that other packages loaded later in the same
+	# process keep the default mode.  (Before, a global was set and never restored.)
+	#
 	# The text matched here is Perl's own.  If a later Perl words it differently
 	# the warning shows again, which is harmless; t/extended_tests.t checks that
 	# every other warning still gets through.
 	local $SIG{__WARN__} = sub { warn(@_) unless($_[0] =~ /\AToo late to run CHECK block /) };
 	require Sub::Private;
 	require Sub::Protected;
+	Sub::Private->import({ mode => 'enforce' });
 }
 
 use Carp qw(carp croak);
@@ -2373,6 +2372,21 @@ signal is not available.  Stop and restart the server instead.
 the server may stop only after the next datagram arrives.
 
 =back
+
+=item * B<The count includes lines that failed to write.>  C<count()> grows
+for every datagram that was accepted, even if the disk was full and the line
+was lost (a warning is given).  So it is "datagrams received", not "lines in
+the file".  Counting only successful writes would be more honest, but it
+changes a documented result, so it has not been done.
+
+=item * B<Two servers started together on one new file may both write the
+header.>  The check "is the file empty?" and the write of the first line are
+two steps, with no lock between them.  Start one server per file, and start
+them one after the other.
+
+=item * B<The private helpers need Sub::Private 0.09 or later.>  The module
+chooses enforce mode for itself only (an earlier release set it for every
+package in the program).  An older Sub::Private does not know the option.
 
 =item * B<Do not send the logger's output to this server.>  L<Object::Configure>
 gives each object a logger, and a shared configuration file may point it

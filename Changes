@@ -1,5 +1,20 @@
 Revision history for App-Syslogd
 
+0.002.2
+	[ Bug Fixes ]
+	- Loading App::Syslogd no longer switches every other package that
+	  uses Sub::Private to enforce mode: the mode is now chosen for this
+	  package only (this needs Sub::Private 0.09)
+
+	[ Documentation ]
+	- LIMITATIONS: says that count() includes lines that failed to
+	  write, that two servers started together on one new file may both
+	  write the header, and that Sub::Private 0.09 is needed
+
+	[ Tests ]
+	- t/extended_tests.t checks that the mode is not global, for both
+	  use and require
+
 0.002.1	Thu Nov 12 11:35:14 AM EST 2026
 	There are no changes to the program or the module's behaviour; this
 	release fixes the test suite on FreeBSD and Alpine Linux, and

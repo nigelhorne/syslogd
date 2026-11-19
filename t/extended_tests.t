@@ -306,6 +306,34 @@ STAND_IN
 	unlike($stderr, qr/\Q$CONFIG{late_check}\E/, 'the CHECK-block warning is hidden');
 };
 
+subtest 'load: enforce mode is chosen for this package only' => sub {
+	# Purpose: loading App::Syslogd used to set the global
+	# $Sub::Private::config{mode} to 'enforce', which then applied to every
+	# package loaded later in the process.  The mode is now this package's own.
+	# Checked in a child, both for a "use" load and for a run-time require.
+	my $lib = File::Spec->catdir($Bin, File::Spec->updir(), 'lib');
+
+	# Sub::Private lets calls through while a test harness runs; the child
+	# must look as if it is not under one, or "enforced" can never show
+	local $ENV{HARNESS_ACTIVE} = 0;
+	foreach my $how ('use', 'require') {
+		my $script = File::Spec->catfile($dir, "mode_$how.pl");
+		open(my $fh, '>', $script) or die "$script: $!";
+		print {$fh} ($how eq 'use')
+			? "use App::Syslogd;\n"
+			: "require App::Syslogd;\n";
+		print {$fh} "print \"global=\$Sub::Private::config{mode}\\n\";\n";
+		print {$fh} "my \$s = App::Syslogd->new(file => 'x');\n";
+		print {$fh} "print eval { \$s->_csv_line([1]); 1 } ? \"callable\\n\" : \"enforced\\n\";\n";
+		close($fh);
+
+		my ($exit, $stdout) = run_perl("-I$lib", $script);
+		is($exit, 0, "$how: the program runs");
+		like($stdout, qr/^global=namespace$/m, "$how: other packages keep the default mode");
+		like($stdout, qr/^enforced$/m, "$how: the helpers are still private");
+	}
+};
+
 # ===========================================================================
 # Dead code report
 # ===========================================================================
