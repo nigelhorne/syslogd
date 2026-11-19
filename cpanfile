@@ -11,7 +11,7 @@ requires 'IO::Handle';
 requires 'IO::Socket::IP';
 requires 'IPC::System::Simple';   # needed by autodie qw(:all)
 requires 'Locale::Maketext';
-requires 'Object::Configure', '0.24';
+requires 'Object::Configure', '0.26';
 requires 'Params::Get', '0.17';
 requires 'Params::Validate::Strict', '0.40';
 requires 'Readonly';

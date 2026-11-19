@@ -32,7 +32,7 @@ use Config;
 use Fcntl qw(O_RDWR O_APPEND O_CREAT SEEK_SET SEEK_END);
 use IO::Handle;
 use IO::Socket::IP ();	# (): IO::Socket would export all of Socket's constants as methods
-use Object::Configure;
+use Object::Configure 0.26;
 use overload ();
 use Params::Get;
 use Params::Validate::Strict;

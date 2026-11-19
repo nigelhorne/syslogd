@@ -5,6 +5,8 @@ Revision history for App-Syslogd
 	- Loading App::Syslogd no longer switches every other package that
 	  uses Sub::Private to enforce mode: the mode is now chosen for this
 	  package only (this needs Sub::Private 0.07)
+	- Bump minimum Object::Configure to 0.26, to fix Sub::Private for
+	  Log::Abstractin
 
 	[ Documentation ]
 	- LIMITATIONS: says that count() includes lines that failed to
