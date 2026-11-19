@@ -16,7 +16,7 @@ requires 'Params::Get', '0.17';
 requires 'Params::Validate::Strict', '0.40';
 requires 'Readonly';
 requires 'Socket', '2.000';   # getnameinfo and NIx_NOSERV
-requires 'Sub::Private', '0.09';   # first version with a per-package mode
+requires 'Sub::Private', '0.07';   # first version with a per-package mode
 requires 'Sub::Protected', '0.02';
 requires 'Text::CSV';
 requires 'autodie';

@@ -15,7 +15,7 @@ use autodie qw(:all);
 # The helpers are protected at the bottom of this file; see there for why.
 BEGIN {
 	# The mode is chosen for this package only, with Sub::Private's per-package
-	# option (from version 0.09), so that other packages loaded later in the same
+	# option (from version 0.07), so that other packages loaded later in the same
 	# process keep the default mode.  (Before, a global was set and never restored.)
 	#
 	# The text matched here is Perl's own.  If a later Perl words it differently
@@ -651,7 +651,8 @@ L<IO::Socket::IP>, L<Locale::Maketext>, L<Object::Configure>, L<overload>,
 L<parent>, L<Params::Get>, L<Params::Validate::Strict>, L<Readonly>,
 L<Socket>, L<Sub::Private>, L<Sub::Protected> and L<Text::CSV>.  The
 program F<etc/syslogd> also uses L<FindBin> and L<Getopt::Long>.  Most of
-these come with Perl.  F<Makefile.PL> lists the minimum versions.
+these come with Perl.  F<Makefile.PL> lists the minimum versions.  Note
+that L<Sub::Private> must be version 0.07 or later (see L</LIMITATIONS>).
 
 =head1 FILES
 
@@ -781,6 +782,11 @@ gave, so C<< port => 0 >> becomes a real port number.
 
 =item * B<Backslashes are not escaped.>  A message that really contains the
 four characters C<\x0A> looks the same in the file as an escaped newline.
+
+=item * B<count() is not the number of lines in the file.>  It counts every
+datagram that was accepted, including one whose line could not be written
+(for example, the disk was full; you get a warning).  It also starts at 0
+for each new object, not for each file.
 
 =back
 
@@ -2384,7 +2390,7 @@ header.>  The check "is the file empty?" and the write of the first line are
 two steps, with no lock between them.  Start one server per file, and start
 them one after the other.
 
-=item * B<The private helpers need Sub::Private 0.09 or later.>  The module
+=item * B<The private helpers need Sub::Private 0.07 or later.>  The module
 chooses enforce mode for itself only (an earlier release set it for every
 package in the program).  An older Sub::Private does not know the option.
 

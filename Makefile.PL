@@ -42,7 +42,7 @@ WriteMakefile(
 		'parent'       => 0,
 		'Readonly'     => 0,
 		'Socket'       => 2.000,	# getnameinfo and NIx_NOSERV
-		'Sub::Private' => 0.09,	# first version with a per-package mode
+		'Sub::Private' => 0.07,	# first version with a per-package mode
 		'Sub::Protected' => 0.02,
 		'Text::CSV'    => 0,
 	}, TEST_REQUIRES => {
